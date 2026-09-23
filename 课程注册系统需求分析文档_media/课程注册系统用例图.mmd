@@ -1,0 +1,63 @@
+flowchart LR
+    User["系统用户"]
+    Student["学生"]
+    Teacher["教师"]
+    Admin["教务员"]
+    DataSource["外部数据源"]
+
+    Student -.->|继承| User
+    Teacher -.->|继承| User
+    Admin -.->|继承| User
+
+    subgraph System["课程注册系统"]
+        Login(["登录"])
+        ViewCourse(["查询课程及教学班"])
+        FilterCourse(["按名称或教师筛选"])
+        ViewCapacity(["查看剩余名额"])
+        SubmitSelection(["提交首选与备选课程"])
+        ValidateSelection(["校验选课条件"])
+        CheckPeriod(["检查选课时间"])
+        CheckPrerequisite(["检查先修课"])
+        CheckStudentConflict(["检查课程时间冲突"])
+        CheckCapacity(["检查教学班名额"])
+        AddCourse(["加课"])
+        DropCourse(["退课"])
+        ViewSchedule(["查看个人课表"])
+        ClaimOffering(["认领教学班"])
+        CheckTeacherConflict(["检查授课时间冲突"])
+        ManageGrades(["录入或修改成绩"])
+        CloseSelection(["关闭选课"])
+        CancelOffering(["取消不合格教学班"])
+        AllocateAlternative(["按顺序安排备选课程"])
+        SaveFinalSchedule(["保存最终课表"])
+        ViewFinalSchedule(["查看最终课表"])
+        ViewGrades(["查看个人成绩"])
+        ImportData(["导入用户、课程及教学班数据"])
+    end
+
+    User --> Login
+    Student --> ViewCourse
+    Student --> SubmitSelection
+    Student --> AddCourse
+    Student --> DropCourse
+    Student --> ViewSchedule
+    Student --> ViewGrades
+    Teacher --> ViewCourse
+    Teacher --> ClaimOffering
+    Teacher --> ManageGrades
+    Admin --> CloseSelection
+    Admin --> ViewFinalSchedule
+    DataSource --> ImportData
+
+    FilterCourse -.->|«extend»| ViewCourse
+    ViewCourse -.->|«include»| ViewCapacity
+    SubmitSelection -.->|«include»| ValidateSelection
+    AddCourse -.->|«include»| ValidateSelection
+    ValidateSelection -.->|«include»| CheckPeriod
+    ValidateSelection -.->|«include»| CheckPrerequisite
+    ValidateSelection -.->|«include»| CheckStudentConflict
+    ValidateSelection -.->|«include»| CheckCapacity
+    ClaimOffering -.->|«include»| CheckTeacherConflict
+    CloseSelection -.->|«include»| CancelOffering
+    CloseSelection -.->|«include»| AllocateAlternative
+    CloseSelection -.->|«include»| SaveFinalSchedule

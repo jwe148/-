@@ -1,0 +1,178 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="1050" viewBox="0 0 1600 1050" role="img" aria-labelledby="title desc">
+  <title id="title">课程注册系统用例图</title>
+  <desc id="desc">展示学生、教师、教务员和外部数据源与课程注册系统各用例之间的关联，以及包含、扩展和角色继承关系。</desc>
+  <defs>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#53657a"/>
+    </marker>
+    <marker id="triangle" markerWidth="13" markerHeight="13" refX="12" refY="6" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L12,6 L0,12 z" fill="#ffffff" stroke="#334155"/>
+    </marker>
+    <style>
+      .bg { fill: #ffffff; }
+      .boundary { fill: #f8fbff; stroke: #315f91; stroke-width: 2; }
+      .module { fill: none; stroke: #c3cfdd; stroke-width: 1; stroke-dasharray: 5 5; }
+      .module-title { font: 600 17px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #315f91; }
+      .title { font: 700 28px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #183b61; }
+      .usecase { fill: #ffffff; stroke: #4778aa; stroke-width: 1.7; }
+      .usecase-text { font: 15px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #172b3f; text-anchor: middle; dominant-baseline: middle; }
+      .actor-line { fill: none; stroke: #263849; stroke-width: 2.2; }
+      .actor-text { font: 16px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #172b3f; text-anchor: middle; }
+      .assoc { fill: none; stroke: #64748b; stroke-width: 1.4; }
+      .relation { fill: none; stroke: #53657a; stroke-width: 1.35; stroke-dasharray: 7 5; marker-end: url(#arrow); }
+      .inherit { fill: none; stroke: #334155; stroke-width: 1.5; marker-end: url(#triangle); }
+      .label { font: 13px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #42566c; text-anchor: middle; paint-order: stroke; stroke: #f8fbff; stroke-width: 5px; stroke-linejoin: round; }
+      .legend { font: 14px "Microsoft YaHei", "Noto Sans CJK SC", sans-serif; fill: #42566c; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1600" height="1050"/>
+  <rect class="boundary" x="190" y="28" width="1190" height="990" rx="8"/>
+  <text class="title" x="785" y="68" text-anchor="middle">课程注册系统</text>
+
+  <!-- 模块边界 -->
+  <rect class="module" x="235" y="120" width="540" height="205" rx="10"/>
+  <text class="module-title" x="255" y="148">公共与课程查询</text>
+  <rect class="module" x="235" y="350" width="540" height="610" rx="10"/>
+  <text class="module-title" x="255" y="378">学生选课</text>
+  <rect class="module" x="815" y="120" width="520" height="390" rx="10"/>
+  <text class="module-title" x="835" y="148">教师教学与数据导入</text>
+  <rect class="module" x="815" y="535" width="520" height="425" rx="10"/>
+  <text class="module-title" x="835" y="563">教务管理</text>
+
+  <!-- 用例：公共与查询 -->
+  <ellipse class="usecase" cx="390" cy="190" rx="105" ry="35"/>
+  <text class="usecase-text" x="390" y="190">登录</text>
+  <ellipse class="usecase" cx="390" cy="270" rx="120" ry="35"/>
+  <text class="usecase-text" x="390" y="270">查询课程及教学班</text>
+  <ellipse class="usecase" cx="650" cy="190" rx="105" ry="35"/>
+  <text class="usecase-text" x="650" y="190">查看剩余名额</text>
+  <ellipse class="usecase" cx="650" cy="270" rx="105" ry="35"/>
+  <text class="usecase-text" x="650" y="270">按名称或教师筛选</text>
+
+  <!-- 用例：学生 -->
+  <ellipse class="usecase" cx="390" cy="430" rx="120" ry="35"/>
+  <text class="usecase-text" x="390" y="430">提交首选与备选课程</text>
+  <ellipse class="usecase" cx="390" cy="515" rx="82" ry="33"/>
+  <text class="usecase-text" x="390" y="515">加课</text>
+  <ellipse class="usecase" cx="390" cy="595" rx="82" ry="33"/>
+  <text class="usecase-text" x="390" y="595">退课</text>
+  <ellipse class="usecase" cx="390" cy="690" rx="105" ry="35"/>
+  <text class="usecase-text" x="390" y="690">查看个人课表</text>
+  <ellipse class="usecase" cx="390" cy="785" rx="105" ry="35"/>
+  <text class="usecase-text" x="390" y="785">查看个人成绩</text>
+  <ellipse class="usecase" cx="650" cy="430" rx="105" ry="35"/>
+  <text class="usecase-text" x="650" y="430">校验选课条件</text>
+  <ellipse class="usecase" cx="650" cy="515" rx="105" ry="32"/>
+  <text class="usecase-text" x="650" y="515">检查选课时间</text>
+  <ellipse class="usecase" cx="650" cy="595" rx="105" ry="32"/>
+  <text class="usecase-text" x="650" y="595">检查先修课</text>
+  <ellipse class="usecase" cx="650" cy="675" rx="105" ry="32"/>
+  <text class="usecase-text" x="650" y="675">检查课程时间冲突</text>
+  <ellipse class="usecase" cx="650" cy="755" rx="105" ry="32"/>
+  <text class="usecase-text" x="650" y="755">检查教学班名额</text>
+
+  <!-- 用例：教师与导入 -->
+  <ellipse class="usecase" cx="960" cy="205" rx="105" ry="35"/>
+  <text class="usecase-text" x="960" y="205">认领教学班</text>
+  <ellipse class="usecase" cx="1200" cy="205" rx="105" ry="35"/>
+  <text class="usecase-text" x="1200" y="205">检查授课时间冲突</text>
+  <ellipse class="usecase" cx="960" cy="315" rx="105" ry="35"/>
+  <text class="usecase-text" x="960" y="315">录入或修改成绩</text>
+  <ellipse class="usecase" cx="1130" cy="420" rx="155" ry="35"/>
+  <text class="usecase-text" x="1130" y="420">导入用户、课程及教学班数据</text>
+
+  <!-- 用例：教务管理 -->
+  <ellipse class="usecase" cx="960" cy="625" rx="105" ry="35"/>
+  <text class="usecase-text" x="960" y="625">关闭选课</text>
+  <ellipse class="usecase" cx="1200" cy="625" rx="110" ry="35"/>
+  <text class="usecase-text" x="1200" y="625">取消不合格教学班</text>
+  <ellipse class="usecase" cx="1200" cy="725" rx="120" ry="35"/>
+  <text class="usecase-text" x="1200" y="725">按顺序安排备选课程</text>
+  <ellipse class="usecase" cx="1200" cy="825" rx="105" ry="35"/>
+  <text class="usecase-text" x="1200" y="825">保存最终课表</text>
+  <ellipse class="usecase" cx="960" cy="860" rx="105" ry="35"/>
+  <text class="usecase-text" x="960" y="860">查看最终课表</text>
+
+  <!-- 参与者 -->
+  <g transform="translate(92 88)">
+    <circle class="actor-line" cx="0" cy="0" r="13"/>
+    <path class="actor-line" d="M0 13 V53 M-24 28 H24 M0 53 L-22 82 M0 53 L22 82"/>
+    <text class="actor-text" x="0" y="108">系统用户</text>
+  </g>
+  <g transform="translate(92 380)">
+    <circle class="actor-line" cx="0" cy="0" r="13"/>
+    <path class="actor-line" d="M0 13 V53 M-24 28 H24 M0 53 L-22 82 M0 53 L22 82"/>
+    <text class="actor-text" x="0" y="108">学生</text>
+  </g>
+  <g transform="translate(92 650)">
+    <circle class="actor-line" cx="0" cy="0" r="13"/>
+    <path class="actor-line" d="M0 13 V53 M-24 28 H24 M0 53 L-22 82 M0 53 L22 82"/>
+    <text class="actor-text" x="0" y="108">教师</text>
+  </g>
+  <g transform="translate(92 865)">
+    <circle class="actor-line" cx="0" cy="0" r="13"/>
+    <path class="actor-line" d="M0 13 V53 M-24 28 H24 M0 53 L-22 82 M0 53 L22 82"/>
+    <text class="actor-text" x="0" y="108">教务员</text>
+  </g>
+  <g transform="translate(1490 380)">
+    <circle class="actor-line" cx="0" cy="0" r="13"/>
+    <path class="actor-line" d="M0 13 V53 M-24 28 H24 M0 53 L-22 82 M0 53 L22 82"/>
+    <text class="actor-text" x="0" y="108">外部数据源</text>
+  </g>
+
+  <!-- 角色继承 -->
+  <path class="inherit" d="M92 380 C28 320 28 235 80 175"/>
+  <path class="inherit" d="M92 650 C18 545 18 300 80 175"/>
+  <path class="inherit" d="M92 865 C5 700 5 350 80 175"/>
+  <text class="label" x="38" y="275">角色泛化</text>
+
+  <!-- 参与者关联 -->
+  <path class="assoc" d="M116 116 L285 190"/>
+  <path class="assoc" d="M116 408 L270 270"/>
+  <path class="assoc" d="M116 420 L270 430"/>
+  <path class="assoc" d="M116 432 L308 515"/>
+  <path class="assoc" d="M116 445 L308 595"/>
+  <path class="assoc" d="M116 458 L285 690"/>
+  <path class="assoc" d="M116 470 L285 785"/>
+  <path class="assoc" d="M116 675 L280 280"/>
+  <path class="assoc" d="M116 690 L855 205"/>
+  <path class="assoc" d="M116 705 L855 315"/>
+  <path class="assoc" d="M116 890 L855 625"/>
+  <path class="assoc" d="M116 905 L855 860"/>
+  <path class="assoc" d="M1466 420 L1285 420"/>
+
+  <!-- include / extend 关系 -->
+  <path class="relation" d="M510 250 L545 190"/>
+  <text class="label" x="535" y="225">«include»</text>
+  <path class="relation" d="M545 270 L510 270"/>
+  <text class="label" x="528" y="260">«extend»</text>
+  <path class="relation" d="M510 430 L545 430"/>
+  <text class="label" x="528" y="420">«include»</text>
+  <path class="relation" d="M472 515 L565 455"/>
+  <text class="label" x="520" y="475">«include»</text>
+  <path class="relation" d="M650 465 L650 483"/>
+  <text class="label" x="705" y="478">«include»</text>
+  <path class="relation" d="M690 462 L650 563"/>
+  <text class="label" x="715" y="525">«include»</text>
+  <path class="relation" d="M715 455 L675 643"/>
+  <text class="label" x="735" y="570">«include»</text>
+  <path class="relation" d="M740 445 L680 723"/>
+  <text class="label" x="750" y="650">«include»</text>
+  <path class="relation" d="M1065 205 L1095 205"/>
+  <text class="label" x="1080" y="193">«include»</text>
+  <path class="relation" d="M1065 615 L1090 625"/>
+  <text class="label" x="1080" y="600">«include»</text>
+  <path class="relation" d="M1048 645 L1090 705"/>
+  <text class="label" x="1080" y="680">«include»</text>
+  <path class="relation" d="M1035 655 L1120 800"/>
+  <text class="label" x="1095" y="760">«include»</text>
+
+  <!-- 图例 -->
+  <line class="assoc" x1="255" y1="990" x2="310" y2="990"/>
+  <text class="legend" x="320" y="995">参与者关联</text>
+  <line class="relation" x1="460" y1="990" x2="515" y2="990"/>
+  <text class="legend" x="525" y="995">包含或扩展</text>
+  <line class="inherit" x1="680" y1="990" x2="735" y2="990"/>
+  <text class="legend" x="745" y="995">角色继承</text>
+</svg>

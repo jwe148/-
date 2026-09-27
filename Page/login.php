@@ -43,10 +43,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 <body class="login-page">
     <main class="login-layout">
         <section class="login-panel">
-            <div class="login-brand"><span class="brand-mark">JLU</span><strong>课程注册系统</strong></div>
-            <span class="section-kicker">WELCOME BACK</span>
-            <h1>登录系统</h1>
-            <p>请选择身份并登录，进入课程注册系统。</p>
+            <div class="login-brand"><small>吉林大学</small><strong>课程注册系统</strong></div>
+            <h1>账号登录</h1>
+            <p>选择身份后输入账号和密码。</p>
             <div class="role-tabs">
                 <?php foreach ($accounts as $roleKey => $account): ?>
                     <a class="<?= $role === $roleKey ? 'active' : '' ?>" href="login.php?role=<?= $roleKey ?>" <?= $role === $roleKey ? 'aria-current="page"' : '' ?>><?= $account['label'] ?></a>

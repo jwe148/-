@@ -40,3 +40,13 @@ function requireLogin(): array
     header('Cache-Control: no-store, private');
     return $user;
 }
+
+function requireRole(string $role): array
+{
+    $user = requireLogin();
+    if ($user['role'] !== $role) {
+        http_response_code(403);
+        exit('无权访问此页面。');
+    }
+    return $user;
+}

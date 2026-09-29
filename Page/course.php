@@ -5,6 +5,10 @@ require __DIR__ . '/auth.php';
 $user = requireLogin();
 require __DIR__ . '/data/catalog.php';
 require __DIR__ . '/student_data.php';
+require __DIR__ . '/teacher_data.php';
+if ($user['role'] === 'teacher') {
+    showTeacherClaims($offerings, teacherClaims(), $user['name']);
+}
 
 $id = isset($_GET['id']) && is_string($_GET['id']) ? $_GET['id'] : '';
 $course = $offerings[$id] ?? null;

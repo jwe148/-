@@ -5,6 +5,10 @@ require __DIR__ . '/auth.php';
 $user = requireLogin();
 require __DIR__ . '/data/catalog.php';
 require __DIR__ . '/student_data.php';
+require __DIR__ . '/teacher_data.php';
+if ($user['role'] === 'teacher') {
+    showTeacherClaims($offerings, teacherClaims(), $user['name']);
+}
 
 $query = isset($_GET['q']) && is_string($_GET['q']) ? trim($_GET['q']) : '';
 $day = isset($_GET['day']) && is_string($_GET['day']) ? $_GET['day'] : '';

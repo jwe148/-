@@ -16,10 +16,24 @@ $null = Invoke-WebRequest "$BaseUrl/login.php?role=teacher" -Method Post -Body @
 $teacherStatus = 0
 try { $null = Invoke-WebRequest "$BaseUrl/selection.php" -WebSession $teacher -UseBasicParsing } catch { $teacherStatus = [int]$_.Exception.Response.StatusCode }
 Check ($teacherStatus -eq 403) 'teacher forbidden from student page'
+$teachingPage = Invoke-WebRequest "$BaseUrl/teaching.php" -WebSession $teacher -UseBasicParsing
+$teacherToken = [regex]::Match($teachingPage.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
+Check ($teacherToken.Length -eq 32) 'teacher form token'
+$claimed = Invoke-WebRequest "$BaseUrl/teaching.php" -Method Post -Body @{token=$teacherToken;action='claim';id='HCI326-01'} -WebSession $teacher -UseBasicParsing
+Check ($claimed.Content.Contains('已认领教学班')) 'teacher claims offering'
+$teacherCatalog = Invoke-WebRequest "$BaseUrl/courses.php?q=HCI326" -WebSession $teacher -UseBasicParsing
+Check ($teacherCatalog.Content.Contains('演示教师')) 'teacher catalog shows claim'
+$conflicted = Invoke-WebRequest "$BaseUrl/teaching.php" -Method Post -Body @{token=$teacherToken;action='claim';id='UX328-01'} -WebSession $teacher -UseBasicParsing
+Check ($conflicted.Content.Contains('时间冲突')) 'teacher time conflict'
+$released = Invoke-WebRequest "$BaseUrl/teaching.php" -Method Post -Body @{token=$teacherToken;action='release';id='HCI326-01'} -WebSession $teacher -UseBasicParsing
+Check ($released.Content.Contains('已取消认领')) 'teacher releases offering'
 
 $student = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $studentLogin = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student01';password='Demo@2026'} -WebSession $student -UseBasicParsing
 Check ($studentLogin.BaseResponse.ResponseUri.AbsolutePath -eq '/index.php') 'student login'
+$studentTeacherStatus = 0
+try { $null = Invoke-WebRequest "$BaseUrl/teaching.php" -WebSession $student -UseBasicParsing } catch { $studentTeacherStatus = [int]$_.Exception.Response.StatusCode }
+Check ($studentTeacherStatus -eq 403) 'student forbidden from teacher page'
 
 $selectionPage = Invoke-WebRequest "$BaseUrl/selection.php" -WebSession $student -UseBasicParsing
 $token = [regex]::Match($selectionPage.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value

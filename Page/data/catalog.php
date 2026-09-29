@@ -47,6 +47,13 @@ $offerings = [
         'capacity' => 10, 'selected' => 0,
         'description' => '学习用户研究、交互设计和可用性评估。',
     ],
+    'UX328-01' => [
+        'code' => 'UX328', 'name' => '界面设计实践', 'class' => '01 班',
+        'teacher' => '待认领', 'day' => '周四', 'time' => '14:00—15:40',
+        'location' => '计算机楼 A103', 'prerequisite' => '无',
+        'capacity' => 10, 'selected' => 0,
+        'description' => '通过实际项目练习界面设计与可用性测试。',
+    ],
     'SEC335-01' => [
         'code' => 'SEC335', 'name' => '信息安全基础', 'class' => '01 班',
         'teacher' => '赵老师', 'day' => '周一', 'time' => '08:00—09:40',

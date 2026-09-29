@@ -9,6 +9,8 @@ if (!isset($user, $pageTitle, $active) || !function_exists('e')) {
 $links = ['index.php' => '首页', 'courses.php' => '课程查询'];
 if ($user['role'] === 'student') {
     $links += ['selection.php' => '我的选课', 'schedule.php' => '我的课表', 'grades.php' => '我的成绩'];
+} elseif ($user['role'] === 'teacher') {
+    $links['teaching.php'] = '我的授课';
 }
 ?>
 <!doctype html>

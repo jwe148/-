@@ -64,7 +64,7 @@ require __DIR__ . '/partials/header.php';
                 </div>
             </section>
             <section class="form-section">
-                <h2>备选教学班 <small>按顺序记录，当前不占名额</small></h2>
+                <h2>备选教学班 <small>按顺序记录，当前不占名额；补位时再检查是否有空位</small></h2>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 2; $i++): ?>
                         <?php $chosen = isset($backup[$i]) && is_string($backup[$i]) ? $backup[$i] : ''; ?>
@@ -73,7 +73,7 @@ require __DIR__ . '/partials/header.php';
                                 <option value="">请选择教学班</option>
                                 <?php foreach ($offerings as $id => $course): ?>
                                     <?php $remaining = seatsRemaining($id, $offerings); ?>
-                                    <option value="<?= e($id) ?>" <?= $chosen === $id ? 'selected' : '' ?> <?= $remaining === 0 && $chosen !== $id ? 'disabled' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . $course['day'] . ' ' . $course['time']) ?><?= $remaining === 0 ? '（已满）' : '' ?></option>
+                                    <option value="<?= e($id) ?>" <?= $chosen === $id ? 'selected' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . $course['day'] . ' ' . $course['time']) ?><?= $remaining === 0 ? '（当前已满）' : '' ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
@@ -82,7 +82,7 @@ require __DIR__ . '/partials/header.php';
             </section>
             <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课方案</button><a href="schedule.php">查看我的课表</a></div>
         </form>
-        <p class="page-note">提交时检查名额、先修课和首选课程时间冲突。演示数据仅保存在当前登录会话中。</p>
+        <p class="page-note">提交时检查首选名额、先修课和首选课程时间冲突。备选即使当前满额也可登记，补位时须重新检查。演示数据仅保存在当前登录会话中。</p>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

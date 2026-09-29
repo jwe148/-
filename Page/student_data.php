@@ -76,7 +76,8 @@ function validateStudentSelection(array $primary, array $backup, array $offering
         if ($course['prerequisite'] !== '无' && !in_array($course['prerequisite'], $completed, true)) {
             $errors[] = $course['name'] . '要求先修' . $course['prerequisite'] . '。';
         }
-        if ($course['selected'] >= $course['capacity']) {
+        // 备选只记录顺序，不占名额；补位时才需要重新检查容量。
+        if (in_array($id, $primary, true) && $course['selected'] >= $course['capacity']) {
             $errors[] = $course['name'] . '已满额。';
         }
     }

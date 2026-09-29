@@ -12,6 +12,7 @@ $checks = [
     'count' => validateStudentSelection(array_slice($primary, 0, 3), $backup, $offerings) !== [],
     'duplicate' => validateStudentSelection($primary, ['SE301-01', 'DSP342-01'], $offerings) !== [],
     'full' => containsError(validateStudentSelection(['OS312-01', 'DB305-01', 'CN309-01', 'AI320-01'], $backup, $offerings), '已满额'),
+    'full_backup_allowed' => validateStudentSelection($primary, ['OS312-01', 'DSP342-01'], $offerings) === [],
     'prerequisite' => containsError(validateStudentSelection($primary, ['ML340-01', 'DSP342-01'], $offerings), '要求先修'),
     'conflict' => containsError(validateStudentSelection(['SE301-01', 'DB305-01', 'CN309-01', 'SEC335-01'], $backup, $offerings), '时间冲突'),
 ];

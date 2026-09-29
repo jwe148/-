@@ -39,9 +39,9 @@ $selectionPage = Invoke-WebRequest "$BaseUrl/selection.php" -WebSession $student
 $token = [regex]::Match($selectionPage.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
 Check ($token.Length -eq 32) 'selection form token'
 
-$body = "token=$token&primary%5B%5D=SE301-01&primary%5B%5D=DB305-01&primary%5B%5D=CN309-01&primary%5B%5D=AI320-01&backup%5B%5D=WEB337-01&backup%5B%5D=DSP342-01"
+$body = "token=$token&primary%5B%5D=SE301-01&primary%5B%5D=DB305-01&primary%5B%5D=CN309-01&primary%5B%5D=AI320-01&backup%5B%5D=OS312-01&backup%5B%5D=DSP342-01"
 $saved = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing
-Check ($saved.Content.Contains('选课方案已保存')) 'save four primary and two backup'
+Check ($saved.Content.Contains('选课方案已保存')) 'save four primary and full backup'
 
 $schedule = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
 Check ($schedule.Content.Contains('当前首选教学班，共 4 门') -and $schedule.Content.Contains('软件工程')) 'schedule after selection'

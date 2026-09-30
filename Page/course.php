@@ -34,12 +34,12 @@ require __DIR__ . '/partials/header.php';
             <section class="catalog-section">
                 <div class="container detail-layout">
                     <article class="detail-card">
-                        <div class="detail-title"><h2>基本信息</h2><span class="demo-badge">演示数据</span></div>
+                        <div class="detail-title"><h2>基本信息</h2><?php if (!databaseModeEnabled()): ?><span class="demo-badge">演示数据</span><?php endif; ?></div>
                         <dl class="detail-list">
                             <div><dt>教学班</dt><dd><?= e($course['code'] . ' · ' . $course['class']) ?></dd></div>
                             <div><dt>授课教师</dt><dd><?= e($course['teacher']) ?></dd></div>
                             <div><dt>状态</dt><dd><?= e(($course['status'] ?? 'open') === 'cancelled' ? '已停开' : ((($course['status'] ?? 'open') === 'confirmed') ? '已开设' : '选课中')) ?></dd></div>
-                            <div><dt>上课时间</dt><dd><?= e($course['day'] . ' ' . $course['time']) ?></dd></div>
+                            <div><dt>上课时间</dt><dd><?= e(offeringTimeLabel($course)) ?></dd></div>
                             <div><dt>上课地点</dt><dd><?= e($course['location']) ?></dd></div>
                             <div><dt>先修课程</dt><dd><?= e($course['prerequisite']) ?></dd></div>
                             <div><dt>人数上限</dt><dd><?= $course['capacity'] ?> 人</dd></div>
@@ -51,9 +51,9 @@ require __DIR__ . '/partials/header.php';
                         <h2>教学班名额</h2>
                         <p class="remaining-number"><?= $remaining ?><span> / <?= $course['capacity'] ?> 席剩余</span></p>
                         <progress value="<?= $selected ?>" max="<?= $course['capacity'] ?>"></progress>
-                        <p class="side-note">已选 <?= $selected ?> 人。当前人数仅用于本地演示。</p>
+                        <p class="side-note">已选 <?= $selected ?> 人。<?= databaseModeEnabled() ? '人数来自数据库，提交选课时会重新校验。' : '当前人数仅用于本地演示。' ?></p>
                         <?php if ($user['role'] === 'student'): ?>
-                            <a class="primary-button" href="selection.php">去选课 <span>→</span></a>
+                            <a class="primary-button" href="selection.php?offering=<?= rawurlencode($id) ?>">去选课 <span>→</span></a>
                         <?php else: ?>
                             <a class="primary-button" href="courses.php">返回课程列表 <span>→</span></a>
                         <?php endif; ?>

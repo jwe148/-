@@ -71,7 +71,7 @@ require __DIR__ . '/partials/header.php';
                 <div class="table-scroll"><table class="data-table"><thead><tr><th>教学班</th><th>上课时间</th><th>操作</th></tr></thead><tbody>
                     <?php foreach ($mine as $id => $course): ?><tr>
                         <td><?= e($course['name'] . ' · ' . $course['class']) ?></td>
-                        <td><?= e($course['day'] . ' ' . $course['time']) ?></td>
+                        <td><?= e(offeringTimeLabel($course)) ?></td>
                         <td><?php if ($open && ($course['self_claimed'] ?? true)): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="release"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="text-button" type="submit">取消认领</button></form><?php else: ?><?= $open ? '已安排' : '已结束' ?><?php endif; ?></td>
                     </tr><?php endforeach; ?>
                 </tbody></table></div>
@@ -84,7 +84,7 @@ require __DIR__ . '/partials/header.php';
                 <div class="table-scroll"><table class="data-table"><thead><tr><th>教学班</th><th>上课时间</th><th>操作</th></tr></thead><tbody>
                     <?php foreach ($available as $id => $course): ?><tr>
                         <td><a href="course.php?id=<?= rawurlencode($id) ?>"><?= e($course['name'] . ' · ' . $course['class']) ?></a></td>
-                        <td><?= e($course['day'] . ' ' . $course['time']) ?></td>
+                        <td><?= e(offeringTimeLabel($course)) ?></td>
                         <td><?php if ($open): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="claim"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="primary-button" type="submit">认领</button></form><?php else: ?>已结束<?php endif; ?></td>
                     </tr><?php endforeach; ?>
                 </tbody></table></div>

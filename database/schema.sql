@@ -148,7 +148,7 @@ CREATE TABLE IF NOT EXISTS enrollments (
   CONSTRAINT fk_enrollment_offering FOREIGN KEY (offering_id) REFERENCES offerings (id)
 ) ENGINE=InnoDB;
 
--- 成绩等级尚待小组统一，暂不限制枚举值；未录入时 grade_value 为 NULL。
+-- 成绩使用字符串保存；未录入时 grade_value 为 NULL。
 CREATE TABLE IF NOT EXISTS grades (
   enrollment_id BIGINT UNSIGNED NOT NULL,
   grade_value VARCHAR(8) NULL,

@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/teacher_claim_db.php';
+require_once __DIR__ . '/data/offering_view.php';
 
 // 无数据库配置时仍使用本地会话演示。
 function teacherClaims(): array
@@ -33,12 +34,7 @@ function validTeacherToken($token): bool
 
 function teacherTimeConflict(array $first, array $second): bool
 {
-    if ($first['day'] !== $second['day']) {
-        return false;
-    }
-    [$firstStart, $firstEnd] = explode('—', $first['time']);
-    [$secondStart, $secondEnd] = explode('—', $second['time']);
-    return $firstStart < $secondEnd && $secondStart < $firstEnd;
+    return offeringTimeConflict($first, $second);
 }
 
 function validateTeacherClaim(string $id, array $claims, array $offerings, bool $open): array

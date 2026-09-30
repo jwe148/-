@@ -13,6 +13,14 @@ $checks = [
     'closed' => containsTeacherError(validateTeacherClaim('HCI326-01', [], $offerings, false), '已结束'),
     'missing' => containsTeacherError(validateTeacherClaim('MISSING', [], $offerings, true), '不存在'),
 ];
+$multipleTimes = $offerings;
+$multipleTimes['UX328-01']['times'] = [
+    ['day' => '周六', 'time' => '10:00—11:40'],
+    ['day' => '周四', 'time' => '14:00—15:40'],
+];
+$checks['second_meeting_conflict'] = containsTeacherError(
+    validateTeacherClaim('UX328-01', ['HCI326-01'], $multipleTimes, true), '时间冲突'
+);
 
 foreach ($checks as $name => $passed) {
     echo ($passed ? 'PASS ' : 'FAIL ') . $name . PHP_EOL;

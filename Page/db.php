@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-// 设置 CR_DB_USER 后用于数据库登录、学生选课与教师认领。
+// 设置 CR_DB_USER 后启用 MySQL 模式。
 function databaseModeEnabled(): bool
 {
     $user = getenv('CR_DB_USER');

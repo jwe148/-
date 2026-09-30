@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/student_registration_db.php';
+require_once __DIR__ . '/data/offering_view.php';
 
 // 未配置数据库时使用本地会话；配置后按登录学生与当前学期读取 MySQL。
 function studentSelection(): array
@@ -96,8 +97,10 @@ function validateStudentSelection(array $primary, array $backup, array $offering
             $errors[] = $course['name'] . '不能重复选择不同教学班。';
         }
         $codes[] = $course['code'];
-        if ($course['prerequisite'] !== '无' && !in_array($course['prerequisite'], $completed, true)) {
-            $errors[] = $course['name'] . '要求先修' . $course['prerequisite'] . '。';
+        foreach (offeringPrerequisites($course) as $prerequisite) {
+            if (!in_array($prerequisite, $completed, true)) {
+                $errors[] = $course['name'] . '要求先修' . $prerequisite . '。';
+            }
         }
         // 备选只记录顺序，不占名额；补位时才需要重新检查容量。
         if (in_array($id, $primary, true) && $course['selected'] >= $course['capacity']) {
@@ -114,9 +117,7 @@ function validateStudentSelection(array $primary, array $backup, array $offering
             }
             $first = $offerings[$primary[$i]];
             $second = $offerings[$primary[$j]];
-            [$startA, $endA] = explode('—', $first['time']);
-            [$startB, $endB] = explode('—', $second['time']);
-            if ($first['day'] === $second['day'] && $startA < $endB && $startB < $endA) {
+            if (offeringTimeConflict($first, $second)) {
                 $errors[] = $first['name'] . '与' . $second['name'] . '上课时间冲突。';
             }
         }

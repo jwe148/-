@@ -28,7 +28,6 @@ require __DIR__ . '/partials/header.php';
                 <?php if (databaseModeEnabled()): ?><a class="dashboard-link" href="admin_closure.php"><strong>关闭选课</strong><span>确定开设教学班并处理备选补位</span><b aria-hidden="true">→</b></a><?php else: ?><div class="dashboard-link muted-link"><strong>教务服务</strong><span>配置数据库后可处理关闭选课</span></div><?php endif; ?>
             <?php endif; ?>
         </div>
-        <p class="page-note"><?= databaseModeEnabled() ? '当前账号、学生选课、名额、成绩及教师认领从 MySQL 读取。' : '当前账号和课程为本地演示数据，选课和教师认领结果只保存在本次登录会话中。' ?></p>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

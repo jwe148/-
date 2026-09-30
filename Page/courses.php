@@ -12,7 +12,7 @@ if ($user['role'] === 'teacher') {
 
 $query = isset($_GET['q']) && is_string($_GET['q']) ? trim($_GET['q']) : '';
 $day = isset($_GET['day']) && is_string($_GET['day']) ? $_GET['day'] : '';
-$days = ['周一', '周二', '周三', '周四', '周五'];
+$days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 if (!in_array($day, $days, true)) {
     $day = '';
 }
@@ -21,7 +21,7 @@ $filtered = array_filter($offerings, static function (array $course) use ($query
         || stripos($course['name'], $query) !== false
         || stripos($course['teacher'], $query) !== false
         || stripos($course['code'], $query) !== false;
-    return $matchesQuery && ($day === '' || $course['day'] === $day);
+    return $matchesQuery && ($day === '' || offeringHasDay($course, $day));
 });
 $pageTitle = '课程查询';
 $active = 'courses.php';
@@ -54,7 +54,7 @@ require __DIR__ . '/partials/header.php';
 
                 <div class="catalog-meta">
                     <h2>教学班列表 <small>共 <?= count($filtered) ?> 个</small></h2>
-                    <span class="demo-badge">演示数据</span>
+                    <?php if (!databaseModeEnabled()): ?><span class="demo-badge">演示数据</span><?php endif; ?>
                 </div>
 
                 <?php if ($filtered === []): ?>
@@ -71,7 +71,7 @@ require __DIR__ . '/partials/header.php';
                                 <div class="course-body">
                                     <h3><?= e($course['name']) ?></h3>
                                     <p>教师：<?= e($course['teacher']) ?></p>
-                                    <p>时间：<?= e($course['day'] . ' ' . $course['time']) ?></p>
+                                    <p>时间：<?= e(offeringTimeLabel($course)) ?></p>
                                     <p>地点：<?= e($course['location']) ?></p>
                                     <div class="capacity" aria-label="已选 <?= $selected ?> 人，容量 <?= $course['capacity'] ?> 人">
                                         <div><span>已选人数</span><b><?= $selected ?>/<?= $course['capacity'] ?></b></div>

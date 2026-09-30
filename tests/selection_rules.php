@@ -21,6 +21,21 @@ $checks['seat_taken'] = seatsRemaining('SE301-01', $offerings) === 2;
 $_SESSION['student_selection']['primary'] = array_slice($primary, 1);
 $checks['seat_restored'] = seatsRemaining('SE301-01', $offerings) === 3;
 
+$multipleTimes = $offerings;
+$multipleTimes['DB305-01']['times'] = [
+    ['day' => '周三', 'time' => '10:00—11:40'],
+    ['day' => '周一', 'time' => '09:00—10:00'],
+];
+$checks['second_meeting_conflict'] = containsError(
+    validateStudentSelection($primary, $backup, $multipleTimes), '时间冲突'
+);
+$checks['second_meeting_filter'] = offeringHasDay($multipleTimes['DB305-01'], '周一');
+$multiplePrerequisites = $offerings;
+$multiplePrerequisites['AI320-01']['prerequisites'] = ['程序设计基础', '线性代数'];
+$checks['multiple_prerequisites'] = containsError(
+    validateStudentSelection($primary, $backup, $multiplePrerequisites), '线性代数'
+);
+
 foreach ($checks as $name => $passed) {
     echo ($passed ? 'PASS ' : 'FAIL ') . $name . PHP_EOL;
 }

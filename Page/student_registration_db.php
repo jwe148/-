@@ -49,7 +49,7 @@ function dbStudentGrades(PDO $pdo, int $studentId): array
 
 function dbCompletedCourseNames(PDO $pdo, int $studentId): array
 {
-    // 本轮样例以“及格及以上”和 A-D 为通过；最终等级范围待小组统一。
+    // 历史中文成绩及 A-D 视为通过，用于先修课程判断。
     $passing = ['优秀', '良好', '中等', '及格', 'A', 'B', 'C', 'D'];
     $marks = implode(',', array_fill(0, count($passing), '?'));
     $query = $pdo->prepare("SELECT DISTINCT c.name FROM grades g

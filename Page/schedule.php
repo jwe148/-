@@ -43,15 +43,17 @@ $closureChanges = databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open'
 $backupAttempts = databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed'
     ? dbStudentBackupAttempts(databaseConnection(), $user['id'], $selectionPeriod['semester_id'])
     : [];
-$days = ['周一', '周二', '周三', '周四', '周五'];
+$days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 $byDay = array_fill_keys($days, []);
 foreach ($selection['primary'] as $id) {
     if (isset($offerings[$id])) {
-        $byDay[$offerings[$id]['day']][] = ['id' => $id, 'course' => $offerings[$id]];
+        foreach (offeringTimes($offerings[$id]) as $time) {
+            $byDay[$time['day']][] = ['id' => $id, 'course' => $offerings[$id], 'time' => $time['time']];
+        }
     }
 }
 foreach ($byDay as &$dayCourses) {
-    usort($dayCourses, static fn(array $a, array $b): int => strcmp($a['course']['time'], $b['course']['time']));
+    usort($dayCourses, static fn(array $a, array $b): int => strcmp($a['time'], $b['time']));
 }
 unset($dayCourses);
 
@@ -73,7 +75,7 @@ require __DIR__ . '/partials/header.php';
                         <?php if ($dayCourses === []): ?><p class="no-class">无课程</p><?php endif; ?>
                         <?php foreach ($dayCourses as $item): ?>
                             <article class="class-item">
-                                <time><?= e($item['course']['time']) ?></time>
+                                <time><?= e($item['time']) ?></time>
                                 <h3><?= e($item['course']['name']) ?></h3>
                                 <p><?= e($item['course']['teacher'] . ' · ' . $item['course']['location']) ?></p>
                                 <?php if ($open): ?><form method="post" action="schedule.php"><input type="hidden" name="token" value="<?= e(selectionToken()) ?>"><input type="hidden" name="id" value="<?= e($item['id']) ?>"><button class="text-button" type="submit">退课</button></form><?php endif; ?>
@@ -86,7 +88,7 @@ require __DIR__ . '/partials/header.php';
         <div class="simple-panel">
             <h2><?= ($selectionPeriod['status'] ?? 'open') === 'closed' ? '未补入的备选' : '备选顺序' ?></h2>
             <?php if ($selection['backup'] === []): ?><p>尚未提交备选教学班。</p><?php else: ?>
-                <ol><?php foreach ($selection['backup'] as $id): ?><?php if (isset($offerings[$id])): ?><li><?= e($offerings[$id]['name'] . ' · ' . $offerings[$id]['day'] . ' ' . $offerings[$id]['time']) ?></li><?php endif; ?><?php endforeach; ?></ol>
+                <ol><?php foreach ($selection['backup'] as $id): ?><?php if (isset($offerings[$id])): ?><li><?= e($offerings[$id]['name'] . ' · ' . offeringTimeLabel($offerings[$id])) ?></li><?php endif; ?><?php endforeach; ?></ol>
             <?php endif; ?>
             <?php if ($open): ?><a href="selection.php">调整选课方案 →</a><?php endif; ?>
         </div>

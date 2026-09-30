@@ -35,6 +35,13 @@ $studentTeacherStatus = 0
 try { $null = Invoke-WebRequest "$BaseUrl/teaching.php" -WebSession $student -UseBasicParsing } catch { $studentTeacherStatus = [int]$_.Exception.Response.StatusCode }
 Check ($studentTeacherStatus -eq 403) 'student forbidden from teacher page'
 
+$detail = Invoke-WebRequest "$BaseUrl/course.php?id=SE301-01" -WebSession $student -UseBasicParsing
+Check ($detail.Content.Contains('selection.php?offering=SE301-01')) 'course detail links to selection'
+$prefilled = Invoke-WebRequest "$BaseUrl/selection.php?offering=SE301-01" -WebSession $student -UseBasicParsing
+Check ($prefilled.Content -match '<option[^>]*value="SE301-01"[^>]*selected' -and $prefilled.Content.Contains('保存后才会生效')) 'course prefilled without saving'
+$beforeSave = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
+Check ($beforeSave.Content.Contains('课表暂无课程')) 'prefill does not change schedule'
+
 $selectionPage = Invoke-WebRequest "$BaseUrl/selection.php" -WebSession $student -UseBasicParsing
 $token = [regex]::Match($selectionPage.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
 Check ($token.Length -eq 32) 'selection form token'

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 
-// 仅供界面联调。接入 MySQL 后应从导入的用户表读取账号和密码哈希。
+// 未配置 MySQL 时使用内置演示账号；数据库模式从 users 表验证身份。
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_name('course_registration_demo');
     session_set_cookie_params([

@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
 $user = requireLogin();
-require __DIR__ . '/data/catalog.php';
+require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 require __DIR__ . '/teacher_data.php';
 if ($user['role'] === 'teacher') {
@@ -66,7 +66,7 @@ require __DIR__ . '/partials/header.php';
                             <article class="course-card">
                                 <div class="course-top">
                                     <span><?= e($course['code']) ?> · <?= e($course['class']) ?></span>
-                                    <span><?= $remaining > 0 ? '剩余 ' . $remaining . ' 席' : '已满' ?></span>
+                                    <span><?= ($course['status'] ?? 'open') === 'cancelled' ? '已停开' : (($course['status'] ?? 'open') === 'confirmed' ? '已开设 · ' : '') . ($remaining > 0 ? '剩余 ' . $remaining . ' 席' : '已满') ?></span>
                                 </div>
                                 <div class="course-body">
                                     <h3><?= e($course['name']) ?></h3>

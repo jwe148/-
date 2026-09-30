@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
 $user = requireRole('teacher');
-require __DIR__ . '/data/catalog.php';
+require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 require __DIR__ . '/teacher_data.php';
 
@@ -15,6 +15,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = isset($_POST['action']) && is_string($_POST['action']) ? $_POST['action'] : '';
     if (!validTeacherToken($_POST['token'] ?? null)) {
         $errors[] = '页面已过期，请刷新后重试。';
+    } elseif (databaseModeEnabled()) {
+        try {
+            $errors = dbChangeTeacherClaim(databaseConnection(), $user['id'], $selectionPeriod['semester_id'], $id, $action);
+        } catch (Throwable $error) {
+            error_log('Course registration teacher claim failed: ' . $error->getMessage());
+            $errors[] = '操作暂未完成，请稍后重试。';
+        }
     } elseif ($action === 'claim') {
         $errors = validateTeacherClaim($id, $claims, $offerings, $open);
         if ($errors === []) {
@@ -32,13 +39,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = '无效的操作。';
     }
     if ($errors === []) {
-        $_SESSION['teacher_claims'] = $claims;
+        if (!databaseModeEnabled()) {
+            $_SESSION['teacher_claims'] = $claims;
+        }
         header('Location: teaching.php?' . ($action === 'claim' ? 'claimed=1' : 'released=1'));
         exit;
     }
 }
 
-$available = array_filter($offerings, static fn(array $course, string $id): bool => $course['teacher'] === '待认领' && !in_array($id, $claims, true), ARRAY_FILTER_USE_BOTH);
+$available = array_filter($offerings, static fn(array $course, string $id): bool => $course['teacher'] === '待认领' && ($course['status'] ?? 'open') === 'open' && !in_array($id, $claims, true), ARRAY_FILTER_USE_BOTH);
 $mine = array_intersect_key($offerings, array_fill_keys($claims, true));
 $pageTitle = '我的授课';
 $active = 'teaching.php';
@@ -57,13 +66,13 @@ require __DIR__ . '/partials/header.php';
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
 
         <section class="simple-panel">
-            <h2>我已认领的教学班</h2>
+            <h2>我的教学班</h2>
             <?php if ($mine === []): ?><p>暂无教学班。</p><?php else: ?>
                 <div class="table-scroll"><table class="data-table"><thead><tr><th>教学班</th><th>上课时间</th><th>操作</th></tr></thead><tbody>
                     <?php foreach ($mine as $id => $course): ?><tr>
                         <td><?= e($course['name'] . ' · ' . $course['class']) ?></td>
                         <td><?= e($course['day'] . ' ' . $course['time']) ?></td>
-                        <td><?php if ($open): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="release"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="text-button" type="submit">取消认领</button></form><?php else: ?>已结束<?php endif; ?></td>
+                        <td><?php if ($open && ($course['self_claimed'] ?? true)): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="release"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="text-button" type="submit">取消认领</button></form><?php else: ?><?= $open ? '已安排' : '已结束' ?><?php endif; ?></td>
                     </tr><?php endforeach; ?>
                 </tbody></table></div>
             <?php endif; ?>
@@ -81,7 +90,7 @@ require __DIR__ . '/partials/header.php';
                 </tbody></table></div>
             <?php endif; ?>
         </section>
-        <p class="page-note">当前认领结果仅保存在本次教师登录会话中。正式版需接入 MySQL，供学生和教务员共同查看。</p>
+        <p class="page-note"><?= databaseModeEnabled() ? '授课安排保存在数据库中，课程查询页会同步显示。' : '当前认领结果仅保存在本次教师登录会话中。' ?></p>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

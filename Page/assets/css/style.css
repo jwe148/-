@@ -141,6 +141,8 @@ button:disabled { opacity: .55; cursor: not-allowed; }
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
 .data-table th, .data-table td { padding: 12px; border-bottom: 1px solid var(--line); }
 .data-table th { background: #f9fafb; }
+.grade-form { display: flex; align-items: center; gap: 8px; }
+.grade-form select { min-height: 40px; padding: 8px 10px; border: 1px solid #cbd4dd; border-radius: 4px; background: #fff; color: var(--text); }
 
 footer { border-top: 1px solid var(--line); background: #fff; }
 .footer-wrap { display: flex; justify-content: space-between; gap: 15px; padding: 22px 0; color: var(--muted); font-size: 12px; }

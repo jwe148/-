@@ -1,9 +1,20 @@
 <?php
 declare(strict_types=1);
 
-// 学生端的本地演示状态。正式系统需改为 MySQL 中按学生编号保存的选课记录。
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/student_registration_db.php';
+
+// 未配置数据库时使用本地会话；配置后按登录学生与当前学期读取 MySQL。
 function studentSelection(): array
 {
+    if (databaseModeEnabled()) {
+        $user = function_exists('currentUser') ? currentUser() : null;
+        $semesterId = $GLOBALS['selectionPeriod']['semester_id'] ?? null;
+        if ($user === null || $user['role'] !== 'student' || !is_int($semesterId)) {
+            return ['primary' => [], 'backup' => []];
+        }
+        return dbStudentSelection(databaseConnection(), $user['id'], $semesterId);
+    }
     $selection = $_SESSION['student_selection'] ?? null;
     return is_array($selection) && isset($selection['primary'], $selection['backup'])
         ? $selection
@@ -12,6 +23,12 @@ function studentSelection(): array
 
 function studentGrades(): array
 {
+    if (databaseModeEnabled()) {
+        $user = function_exists('currentUser') ? currentUser() : null;
+        return $user !== null && $user['role'] === 'student'
+            ? dbStudentGrades(databaseConnection(), $user['id'])
+            : [];
+    }
     return [
         ['semester' => '2025—2026学年 第二学期', 'course' => '程序设计基础', 'grade' => '良好'],
         ['semester' => '2025—2026学年 第二学期', 'course' => '数据结构', 'grade' => '优秀'],
@@ -20,6 +37,9 @@ function studentGrades(): array
 
 function selectionOpen(array $period): bool
 {
+    if (($period['status'] ?? 'open') !== 'open') {
+        return false;
+    }
     $zone = new DateTimeZone('Asia/Shanghai');
     $now = new DateTimeImmutable('now', $zone);
     return $now >= new DateTimeImmutable($period['start'], $zone)
@@ -34,7 +54,7 @@ function selectionTimeLabel(string $value): string
 function seatsRemaining(string $id, array $offerings): int
 {
     $course = $offerings[$id];
-    $selectedHere = in_array($id, studentSelection()['primary'], true) ? 1 : 0;
+    $selectedHere = databaseModeEnabled() ? 0 : (in_array($id, studentSelection()['primary'], true) ? 1 : 0);
     return max(0, $course['capacity'] - $course['selected'] - $selectedHere);
 }
 
@@ -51,7 +71,7 @@ function validSelectionToken($token): bool
     return is_string($token) && hash_equals(selectionToken(), $token);
 }
 
-function validateStudentSelection(array $primary, array $backup, array $offerings): array
+function validateStudentSelection(array $primary, array $backup, array $offerings, ?array $completed = null): array
 {
     $errors = [];
     if (count($primary) !== 4 || count($backup) !== 2) {
@@ -61,7 +81,7 @@ function validateStudentSelection(array $primary, array $backup, array $offering
     if (count(array_filter($all, 'is_string')) !== 6 || count(array_unique($all)) !== 6) {
         return ['六个教学班必须各不相同。'];
     }
-    $completed = array_column(studentGrades(), 'course');
+    $completed = $completed ?? array_column(studentGrades(), 'course');
     $codes = [];
     foreach ($all as $id) {
         if (!isset($offerings[$id])) {
@@ -69,6 +89,9 @@ function validateStudentSelection(array $primary, array $backup, array $offering
             continue;
         }
         $course = $offerings[$id];
+        if (($course['status'] ?? 'open') !== 'open') {
+            $errors[] = $course['name'] . '当前不可选。';
+        }
         if (in_array($course['code'], $codes, true)) {
             $errors[] = $course['name'] . '不能重复选择不同教学班。';
         }

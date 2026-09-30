@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/db.php';
+
 // 仅供界面联调。接入 MySQL 后应从导入的用户表读取账号和密码哈希。
 if (session_status() !== PHP_SESSION_ACTIVE) {
     session_name('course_registration_demo');
@@ -25,9 +27,14 @@ function demoAccounts(): array
 function currentUser(): ?array
 {
     $user = $_SESSION['user'] ?? null;
-    return is_array($user) && isset($user['username'], $user['name'], $user['role'], $user['label'])
-        ? $user
-        : null;
+    $source = databaseModeEnabled() ? 'database' : 'demo';
+    if (!is_array($user)
+        || !isset($user['username'], $user['name'], $user['role'], $user['label'])
+        || ($user['source'] ?? null) !== $source
+        || ($source === 'database' && (!isset($user['id']) || !is_int($user['id']) || $user['id'] < 1))) {
+        return null;
+    }
+    return $user;
 }
 
 function requireLogin(): array

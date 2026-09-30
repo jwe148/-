@@ -1,7 +1,13 @@
 <?php
 declare(strict_types=1);
 
-// 目标 MySQL 连接入口。当前演示页面尚未切换到数据库。
+// 设置 CR_DB_USER 后用于数据库登录、学生选课与教师认领。
+function databaseModeEnabled(): bool
+{
+    $user = getenv('CR_DB_USER');
+    return $user !== false && $user !== '';
+}
+
 function databaseConnection(): PDO
 {
     $user = getenv('CR_DB_USER');

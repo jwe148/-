@@ -11,6 +11,11 @@ if ($user['role'] === 'student') {
     $links += ['selection.php' => '我的选课', 'schedule.php' => '我的课表', 'grades.php' => '我的成绩'];
 } elseif ($user['role'] === 'teacher') {
     $links['teaching.php'] = '我的授课';
+    if (databaseModeEnabled()) {
+        $links['grade_entry.php'] = '成绩录入';
+    }
+} elseif ($user['role'] === 'admin' && databaseModeEnabled()) {
+    $links['admin_closure.php'] = '关闭选课';
 }
 ?>
 <!doctype html>

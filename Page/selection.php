@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
 $user = requireRole('student');
-require __DIR__ . '/data/catalog.php';
+require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 
 $selection = studentSelection();
@@ -19,10 +19,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     } elseif (!$open) {
         $errors[] = '当前不在选课时间内。';
     } else {
-        $errors = validateStudentSelection($primary, $backup, $offerings);
+        try {
+            if (databaseModeEnabled()) {
+                $errors = dbSaveStudentSelection(
+                    databaseConnection(), $user['id'], $selectionPeriod['semester_id'], $primary, $backup, $offerings
+                );
+            } else {
+                $errors = validateStudentSelection($primary, $backup, $offerings);
+                if ($errors === []) {
+                    $_SESSION['student_selection'] = ['primary' => $primary, 'backup' => $backup];
+                }
+            }
+        } catch (Throwable $error) {
+            error_log('Course registration save failed: ' . $error->getMessage());
+            $errors[] = '提交未完成，请稍后重试。';
+        }
     }
     if ($errors === []) {
-        $_SESSION['student_selection'] = ['primary' => $primary, 'backup' => $backup];
         header('Location: selection.php?saved=1');
         exit;
     }
@@ -37,7 +50,7 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>我的选课</h1>
-            <p>选择 4 个首选教学班和 2 个备选教学班。重新提交可调整选课方案。</p>
+            <p><?= $open ? '选择 4 个首选教学班和 2 个备选教学班。重新提交可调整选课方案。' : '选课已结束，以下为当前保存的选择和最终补位结果。' ?></p>
         </div>
         <div class="info-line"><strong><?= $open ? '选课开放中' : '选课已结束' ?></strong><span>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if (isset($_GET['saved'])): ?><p class="message success" role="status">选课方案已保存。<a href="schedule.php">查看课表</a></p><?php endif; ?>
@@ -82,7 +95,7 @@ require __DIR__ . '/partials/header.php';
             </section>
             <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课方案</button><a href="schedule.php">查看我的课表</a></div>
         </form>
-        <p class="page-note">提交时检查首选名额、先修课和首选课程时间冲突。备选即使当前满额也可登记，补位时须重新检查。演示数据仅保存在当前登录会话中。</p>
+        <p class="page-note">提交时检查首选名额、先修课和首选课程时间冲突。备选即使当前满额也可登记，补位时须重新检查。<?= databaseModeEnabled() ? (($selectionPeriod['status'] ?? 'open') === 'closed' ? '当前显示最终选课记录。' : '当前选课记录保存在 MySQL 中。') : '演示数据仅保存在当前登录会话中。' ?></p>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

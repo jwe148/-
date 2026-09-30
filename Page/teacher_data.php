@@ -1,9 +1,19 @@
 <?php
 declare(strict_types=1);
 
-// 教师端本地演示状态。接入 MySQL 后应按教师编号与教学班编号持久化。
+require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/teacher_claim_db.php';
+
+// 无数据库配置时仍使用本地会话演示。
 function teacherClaims(): array
 {
+    if (databaseModeEnabled()) {
+        $user = function_exists('currentUser') ? currentUser() : null;
+        $semesterId = $GLOBALS['selectionPeriod']['semester_id'] ?? null;
+        return $user !== null && $user['role'] === 'teacher' && is_int($semesterId)
+            ? dbTeacherClaims(databaseConnection(), $user['id'], $semesterId)
+            : [];
+    }
     $claims = $_SESSION['teacher_claims'] ?? [];
     return is_array($claims) ? array_values(array_filter($claims, 'is_string')) : [];
 }
@@ -55,6 +65,9 @@ function validateTeacherClaim(string $id, array $claims, array $offerings, bool 
 
 function showTeacherClaims(array &$offerings, array $claims, string $teacherName): void
 {
+    if (databaseModeEnabled()) {
+        return;
+    }
     foreach ($claims as $id) {
         if (isset($offerings[$id]) && $offerings[$id]['teacher'] === '待认领') {
             $offerings[$id]['teacher'] = $teacherName;

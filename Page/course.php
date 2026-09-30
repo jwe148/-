@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
 $user = requireLogin();
-require __DIR__ . '/data/catalog.php';
+require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 require __DIR__ . '/teacher_data.php';
 if ($user['role'] === 'teacher') {
@@ -38,6 +38,7 @@ require __DIR__ . '/partials/header.php';
                         <dl class="detail-list">
                             <div><dt>教学班</dt><dd><?= e($course['code'] . ' · ' . $course['class']) ?></dd></div>
                             <div><dt>授课教师</dt><dd><?= e($course['teacher']) ?></dd></div>
+                            <div><dt>状态</dt><dd><?= e(($course['status'] ?? 'open') === 'cancelled' ? '已停开' : ((($course['status'] ?? 'open') === 'confirmed') ? '已开设' : '选课中')) ?></dd></div>
                             <div><dt>上课时间</dt><dd><?= e($course['day'] . ' ' . $course['time']) ?></dd></div>
                             <div><dt>上课地点</dt><dd><?= e($course['location']) ?></dd></div>
                             <div><dt>先修课程</dt><dd><?= e($course['prerequisite']) ?></dd></div>

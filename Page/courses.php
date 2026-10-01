@@ -31,7 +31,7 @@ require __DIR__ . '/partials/header.php';
         <section class="page-banner">
             <div class="container">
                 <h1>课程查询</h1>
-                <p><?= e($semester) ?> · 按课程名称、课程代码或教师筛选，查看时间与剩余名额。</p>
+                <p><?= e($semester) ?></p>
             </div>
         </section>
         <section class="catalog-section">
@@ -48,17 +48,16 @@ require __DIR__ . '/partials/header.php';
                             <?php endforeach; ?>
                         </select>
                     </label>
-                    <button class="primary-button" type="submit">筛选 <span>→</span></button>
-                    <a class="clear-filter" href="courses.php">清除</a>
+                    <button class="primary-button" type="submit">筛选</button>
+                    <?php if ($query !== '' || $day !== ''): ?><a class="clear-filter" href="courses.php">清除</a><?php endif; ?>
                 </form>
 
                 <div class="catalog-meta">
                     <h2>教学班列表 <small>共 <?= count($filtered) ?> 个</small></h2>
-                    <?php if (!databaseModeEnabled()): ?><span class="demo-badge">演示数据</span><?php endif; ?>
                 </div>
 
                 <?php if ($filtered === []): ?>
-                    <div class="empty-state"><h3>没有找到符合条件的教学班</h3><p>试试其他课程名称、教师或星期。</p><a href="courses.php">查看全部教学班 →</a></div>
+                    <div class="empty-state"><h3>没有找到教学班</h3><p>请调整关键词或上课星期。</p><a href="courses.php">查看全部教学班</a></div>
                 <?php else: ?>
                     <div class="course-grid">
                         <?php foreach ($filtered as $id => $course): ?>
@@ -77,7 +76,7 @@ require __DIR__ . '/partials/header.php';
                                         <div><span>已选人数</span><b><?= $selected ?>/<?= $course['capacity'] ?></b></div>
                                         <progress value="<?= $selected ?>" max="<?= $course['capacity'] ?>"></progress>
                                     </div>
-                                    <a class="course-detail-link" href="course.php?id=<?= rawurlencode($id) ?>">查看教学班详情 →</a>
+                                    <a class="course-detail-link" href="course.php?id=<?= rawurlencode($id) ?>">查看详情</a>
                                 </div>
                             </article>
                         <?php endforeach; ?>

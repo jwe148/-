@@ -74,7 +74,7 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>我的选课</h1>
-            <p><?= $open ? '选择 4 个首选教学班和 2 个备选教学班。重新提交可调整选课方案。' : '选课已结束，以下为当前保存的选择和最终补位结果。' ?></p>
+            <p><?= $open ? '填写 4 个首选和 2 个备选；选课期内可以重新提交。' : '选课已结束，以下为最终记录。' ?></p>
         </div>
         <div class="info-line"><strong><?= $open ? '选课开放中' : '选课已结束' ?></strong><span>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if ($prefillNotice !== ''): ?><p class="message" role="status"><?= e($prefillNotice) ?></p><?php endif; ?>
@@ -85,7 +85,7 @@ require __DIR__ . '/partials/header.php';
         <form method="post" action="selection.php" class="form-panel" id="selection-form">
             <input type="hidden" name="token" value="<?= e(selectionToken()) ?>">
             <section class="form-section">
-                <h2>首选教学班 <small>成功提交后进入课表并占用名额</small></h2>
+                <h2>首选教学班 <small>保存后占用名额</small></h2>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <?php $chosen = isset($primary[$i]) && is_string($primary[$i]) ? $primary[$i] : ''; ?>
@@ -102,7 +102,7 @@ require __DIR__ . '/partials/header.php';
                 </div>
             </section>
             <section class="form-section">
-                <h2>备选教学班 <small>按顺序记录，当前不占名额；补位时再检查是否有空位</small></h2>
+                <h2>备选教学班 <small>按顺序补位，暂不占名额</small></h2>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 2; $i++): ?>
                         <?php $chosen = isset($backup[$i]) && is_string($backup[$i]) ? $backup[$i] : ''; ?>
@@ -122,7 +122,7 @@ require __DIR__ . '/partials/header.php';
             <p class="selection-warning" id="selection-duplicate" role="alert" hidden></p>
             <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课方案</button><a href="schedule.php">查看我的课表</a></div>
         </form>
-        <p class="page-note">提交时检查首选名额、先修课和首选课程时间冲突。备选即使当前满额也可登记，补位时须重新检查。<?= databaseModeEnabled() ? (($selectionPeriod['status'] ?? 'open') === 'closed' ? '当前显示最终选课记录。' : '当前选课记录保存在 MySQL 中。') : '演示数据仅保存在当前登录会话中。' ?></p>
+        <p class="page-note">保存时检查名额、先修课程和上课时间。备选可登记已满的教学班，补位时会重新检查。<?= databaseModeEnabled() ? '' : '演示模式下，选课记录只在本次登录中有效。' ?></p>
     </div>
 </main>
 <script src="assets/js/selection.js" defer></script>

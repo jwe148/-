@@ -14,9 +14,9 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><p><?= e($semester) ?></p><h1>我的成绩</h1><p>仅显示当前登录学生的成绩。</p></div>
+        <div class="page-heading"><p><?= e($semester) ?></p><h1>我的成绩</h1></div>
         <section class="simple-panel"><h2>当前学期</h2>
-            <?php if ($currentGrades === []): ?><p>暂无成绩。授课教师录入后，可在这里查看。</p><?php else: ?>
+            <?php if ($currentGrades === []): ?><p>暂无成绩。</p><?php else: ?>
                 <div class="table-scroll"><table class="data-table"><thead><tr><th>课程</th><th>成绩等级</th></tr></thead><tbody>
                     <?php foreach ($currentGrades as $record): ?><tr><td><?= e($record['course']) ?></td><td><?= e($record['grade']) ?></td></tr><?php endforeach; ?>
                 </tbody></table></div>
@@ -29,7 +29,7 @@ require __DIR__ . '/partials/header.php';
                 </tbody></table></div>
             <?php endif; ?>
         </section>
-        <p class="page-note"><?= databaseModeEnabled() ? '成绩从 MySQL 读取；教师保存后立即可见。' : '历史成绩为本地演示数据；教师录入需要配置数据库。' ?></p>
+        <?php if (!databaseModeEnabled()): ?><p class="page-note">当前显示演示成绩。</p><?php endif; ?>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

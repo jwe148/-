@@ -63,11 +63,11 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container">
-        <div class="page-heading"><p><?= e($semester) ?></p><h1>我的课表</h1><p>当前首选教学班，共 <?= count($selection['primary']) ?> 门。</p></div>
+        <div class="page-heading"><p><?= e($semester) ?></p><h1>我的课表</h1><p>已选 <?= count($selection['primary']) ?> 门课程</p></div>
         <?php if (isset($_GET['removed'])): ?><p class="message success" role="status">已退课，名额已恢复。<a href="selection.php">前往补选</a></p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if ($selection['primary'] === []): ?>
-            <div class="empty-state"><h2>课表暂无课程</h2><p><?= $open ? '先提交选课方案，成功选中的首选教学班会显示在这里。' : '当前没有保留的教学班。' ?></p><?php if ($open): ?><a href="selection.php">前往选课 →</a><?php endif; ?></div>
+            <div class="empty-state"><h2>课表暂无课程</h2><p><?= $open ? '提交选课方案后，首选课程会显示在这里。' : '没有保留的课程。' ?></p><?php if ($open): ?><a href="selection.php">去选课</a><?php endif; ?></div>
         <?php else: ?>
             <div class="timetable">
                 <?php foreach ($byDay as $day => $dayCourses): ?>
@@ -90,7 +90,7 @@ require __DIR__ . '/partials/header.php';
             <?php if ($selection['backup'] === []): ?><p>尚未提交备选教学班。</p><?php else: ?>
                 <ol><?php foreach ($selection['backup'] as $id): ?><?php if (isset($offerings[$id])): ?><li><?= e($offerings[$id]['name'] . ' · ' . offeringTimeLabel($offerings[$id])) ?></li><?php endif; ?><?php endforeach; ?></ol>
             <?php endif; ?>
-            <?php if ($open): ?><a href="selection.php">调整选课方案 →</a><?php endif; ?>
+            <?php if ($open): ?><a href="selection.php">调整选课方案</a><?php endif; ?>
         </div>
         <?php if (databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed'): ?>
             <div class="simple-panel"><h2>关闭结果</h2>
@@ -104,9 +104,9 @@ require __DIR__ . '/partials/header.php';
                     <?php foreach ($backupAttempts as $attempt): ?><li>备选 <?= (int) $attempt['backup_rank'] ?>：<?= e($attempt['course_name']) ?> · <?= e($attemptLabels[$attempt['outcome']] ?? '未补入') ?></li><?php endforeach; ?>
                 </ol></div>
             <?php endif; ?>
-            <p class="page-note">选课已关闭，课表显示最终占座结果，不能再调整。</p>
+            <p class="page-note">选课已关闭，课表不能再调整。</p>
         <?php else: ?>
-            <p class="page-note">备选教学班当前不占名额；关闭选课时才会按顺序尝试补位。</p>
+            <p class="page-note">备选暂不占名额，关闭选课时按顺序尝试补位。</p>
         <?php endif; ?>
     </div>
 </main>

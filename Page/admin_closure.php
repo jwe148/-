@@ -53,7 +53,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1><p>截止后确定教学班，处理停开班级和学生备选补位。</p></div>
+        <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1><p>选课截止后处理教学班和备选补位。</p></div>
         <div class="info-line"><strong><?= e($statusLabels[$selectionPeriod['status'] ?? 'open'] ?? '未知状态') ?></strong><span>选课截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表已生成。</p><?php endif; ?>
         <?php if (isset($_GET['already'])): ?><p class="message success" role="status">此前已关闭，本次未重复处理。</p><?php endif; ?>
@@ -84,7 +84,7 @@ require __DIR__ . '/partials/header.php';
                     </form>
                 </section>
             <?php endif; ?>
-            <p class="page-note">重复提交不会再次分配；关闭结果保存在数据库中。</p>
+            <p class="page-note">关闭操作只执行一次，重复进入可查看已有结果。</p>
         <?php else: ?>
             <p class="message error">关闭选课需要配置 MySQL 并导入学期数据。</p>
         <?php endif; ?>

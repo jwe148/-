@@ -58,7 +58,7 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>我的授课</h1>
-            <p>认领尚未安排教师的教学班。系统会检查与已认领教学班的上课时间是否冲突。</p>
+            <p>认领尚未安排教师的教学班。时间冲突时无法认领。</p>
         </div>
         <div class="info-line"><strong><?= $open ? '认领开放中' : '认领已结束' ?></strong><span>截止时间：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if (isset($_GET['claimed'])): ?><p class="message success" role="status">已认领教学班。</p><?php endif; ?>
@@ -90,7 +90,7 @@ require __DIR__ . '/partials/header.php';
                 </tbody></table></div>
             <?php endif; ?>
         </section>
-        <p class="page-note"><?= databaseModeEnabled() ? '授课安排保存在数据库中，课程查询页会同步显示。' : '当前认领结果仅保存在本次教师登录会话中。' ?></p>
+        <?php if (!databaseModeEnabled()): ?><p class="page-note">演示模式下，认领记录只在本次登录中有效。</p><?php endif; ?>
     </div>
 </main>
 <?php require __DIR__ . '/partials/footer.php'; ?>

@@ -75,8 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <main class="login-layout">
         <section class="login-panel">
             <div class="login-brand"><small>吉林大学</small><strong>课程注册系统</strong></div>
-            <h1>账号登录</h1>
-            <p>选择身份后输入账号和密码。</p>
+            <h1>登录</h1>
             <div class="role-tabs">
                 <?php foreach ($accounts as $roleKey => $account): ?>
                     <a class="<?= $role === $roleKey ? 'active' : '' ?>" href="login.php?role=<?= $roleKey ?>" <?= $role === $roleKey ? 'aria-current="page"' : '' ?>><?= $account['label'] ?></a>
@@ -86,12 +85,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <form action="login.php?role=<?= $role ?>" method="post">
                 <label>账号<input type="text" name="username" value="<?= htmlspecialchars($username, ENT_QUOTES | ENT_SUBSTITUTE, 'UTF-8') ?>" placeholder="请输入学号或工号" autocomplete="username" required></label>
                 <label>密码<input type="password" name="password" placeholder="请输入密码" autocomplete="current-password" required></label>
-                <button class="primary-button" type="submit">登录 <span>→</span></button>
+                <button class="primary-button" type="submit">登录</button>
             </form>
-            <?php if ($dbMode): ?>
-                <p class="page-note">当前使用数据库账号登录。</p>
-            <?php else: ?>
-                <div class="demo-credentials"><strong>演示账号</strong><span><?= $accounts[$role]['username'] ?> / Demo@2026</span><small>仅供本地界面演示；配置 MySQL 后使用数据库账号。</small></div>
+            <?php if (!$dbMode): ?>
+                <div class="demo-credentials"><strong>演示账号</strong><span><?= $accounts[$role]['username'] ?> / Demo@2026</span><small>演示数据只保存在本次登录中。</small></div>
             <?php endif; ?>
         </section>
     </main>

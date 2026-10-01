@@ -58,7 +58,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><p>教师服务</p><h1>成绩录入</h1><p>仅可维护本人任教、已确认开设且学期已关闭的教学班。</p></div>
+        <div class="page-heading"><p>教师服务</p><h1>成绩录入</h1><p>选择已结课的教学班录入成绩。</p></div>
         <?php if (isset($_GET['saved'])): ?><p class="message success" role="status">成绩已保存，学生现在可以查看。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if (databaseModeEnabled()): ?>
@@ -77,7 +77,7 @@ require __DIR__ . '/partials/header.php';
             <?php if ($selected !== null): ?>
                 <section class="simple-panel">
                     <h2><?= e($selected['course_name'] . ' · ' . $selected['class_name']) ?></h2>
-                    <p><?= e($selected['semester_name']) ?>。保存后成绩立即对该学生可见。</p>
+                    <p><?= e($selected['semester_name']) ?> · 保存后学生即可查看。</p>
                     <?php if ($selected['students'] === []): ?><p>暂无有效选课学生。</p><?php else: ?>
                         <div class="table-scroll"><table class="data-table"><thead><tr><th>学生</th><th>当前成绩</th><th>录入或修改</th></tr></thead><tbody>
                             <?php foreach ($selected['students'] as $student): ?><tr>

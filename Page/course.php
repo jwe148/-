@@ -24,7 +24,7 @@ require __DIR__ . '/partials/header.php';
     <main>
         <section class="page-banner">
             <div class="container">
-                <a class="breadcrumb" href="courses.php">← 返回教学班列表</a>
+                <a class="breadcrumb" href="courses.php">返回教学班列表</a>
                 <h1><?= $course === null ? '未找到教学班' : e($course['name']) ?></h1>
                 <p><?= $course === null ? '请返回列表重新选择。' : e($semester . ' · ' . $course['code'] . ' · ' . $course['class']) ?></p>
             </div>
@@ -34,7 +34,7 @@ require __DIR__ . '/partials/header.php';
             <section class="catalog-section">
                 <div class="container detail-layout">
                     <article class="detail-card">
-                        <div class="detail-title"><h2>基本信息</h2><?php if (!databaseModeEnabled()): ?><span class="demo-badge">演示数据</span><?php endif; ?></div>
+                        <h2>基本信息</h2>
                         <dl class="detail-list">
                             <div><dt>教学班</dt><dd><?= e($course['code'] . ' · ' . $course['class']) ?></dd></div>
                             <div><dt>授课教师</dt><dd><?= e($course['teacher']) ?></dd></div>
@@ -48,14 +48,12 @@ require __DIR__ . '/partials/header.php';
                         <p class="detail-description"><?= e($course['description']) ?></p>
                     </article>
                     <aside class="detail-side">
-                        <h2>教学班名额</h2>
-                        <p class="remaining-number"><?= $remaining ?><span> / <?= $course['capacity'] ?> 席剩余</span></p>
+                        <h2>名额</h2>
+                        <p class="remaining-number"><?= $remaining ?><span> 席剩余</span></p>
                         <progress value="<?= $selected ?>" max="<?= $course['capacity'] ?>"></progress>
-                        <p class="side-note">已选 <?= $selected ?> 人。<?= databaseModeEnabled() ? '人数来自数据库，提交选课时会重新校验。' : '当前人数仅用于本地演示。' ?></p>
+                        <p class="side-note">已选 <?= $selected ?> / 上限 <?= $course['capacity'] ?> 人</p>
                         <?php if ($user['role'] === 'student'): ?>
-                            <a class="primary-button" href="selection.php?offering=<?= rawurlencode($id) ?>">去选课 <span>→</span></a>
-                        <?php else: ?>
-                            <a class="primary-button" href="courses.php">返回课程列表 <span>→</span></a>
+                            <a class="primary-button" href="selection.php?offering=<?= rawurlencode($id) ?>">去选课</a>
                         <?php endif; ?>
                     </aside>
                 </div>

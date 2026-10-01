@@ -51,7 +51,7 @@ $saved = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -Co
 Check ($saved.Content.Contains('选课方案已保存')) 'save four primary and full backup'
 
 $schedule = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
-Check ($schedule.Content.Contains('当前首选教学班，共 4 门') -and $schedule.Content.Contains('软件工程')) 'schedule after selection'
+Check ($schedule.Content.Contains('已选 4 门课程') -and $schedule.Content.Contains('软件工程')) 'schedule after selection'
 $catalog = Invoke-WebRequest "$BaseUrl/courses.php?q=SE301" -WebSession $student -UseBasicParsing
 Check ($catalog.Content.Contains('剩余 2 席')) 'remaining seats decrease'
 $grades = Invoke-WebRequest "$BaseUrl/grades.php" -WebSession $student -UseBasicParsing

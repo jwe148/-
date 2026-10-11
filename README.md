@@ -1,44 +1,32 @@
 # 课程注册系统
 
-正式材料：[开发计划](课程注册系统开发计划.md)、[需求分析](课程注册系统需求分析文档.md)、[设计文档](课程注册系统设计文档.md)、[测试计划](课程注册系统测试计划.md)、[测试报告](课程注册系统测试报告.md)。旧稿在`archive/`，不作为当前提交版。
+正式材料：[开发计划](课程注册系统开发计划.md)、[需求分析](课程注册系统需求分析文档.md)、[设计文档](课程注册系统设计文档.md)、[测试计划](课程注册系统测试计划.md)、[测试报告](课程注册系统测试报告.md)，另附[工作总结](课程注册系统工作总结.md)。旧稿在`archive/`，不作为当前提交版。
 
 首次在另一台电脑运行，请按下方[从 GitHub 下载并迁移到另一台电脑](#从-github-下载并迁移到另一台电脑)操作，包含环境安装、生成数据库、导入演示数据及迁移原有数据的完整步骤。
 
-## 启动
+## 使用说明
 
-在PowerShell中运行，保持窗口开启：
+| 情况 | 操作入口 |
+| --- | --- |
+| 首次安装和生成演示数据库 | 下方迁移说明第1～8步 |
+| 保留原电脑已有数据 | 下方迁移说明第9步 |
+| 数据库已准备好，重新启动 | 下方迁移说明第8步的启动命令 |
+| 运行自动测试 | 本文“测试”及测试计划第5节 |
 
-```powershell
-cd 'D:\360MoveData\Users\Lenovo\Desktop\25-26\code'
-& 'D:\phpstudy_pro\Extensions\php\php8.0.2nts\php.exe' -S localhost:8000 -t .\Page
-```
+需要PHP 8.0+、PDO MySQL和MySQL 8.0.16+。启动前在同一PowerShell窗口设置`CR_DB_*`；未设置`CR_DB_USER`时使用会话演示模式，不读取数据库。更改配置后须重启PHP。MySQL密码与网页登录密码不同。
 
-访问 http://localhost:8000/ 。停止服务按`Ctrl+C`。
+## 旧数据库升级
 
-## 数据库
+新库执行`database/schema.sql`即可。旧库按缺少的内容执行对应脚本：
 
-使用PHP 8.0+、PDO MySQL和MySQL 8.0.16+。在启动PHP前，于同一窗口设置：
+| 内容 | 升级脚本 |
+| --- | --- |
+| 人员资料 | `database/add_person_profiles.sql` |
+| 草稿、任教资格和模拟计费 | `database/add_registration_extras.sql` |
+| 课程所属院系 | `database/add_course_department.sql` |
+| 将开放演示学期截止延长至2026年11月1日17:00 | `database/extend_selection_deadline.sql` |
 
-```powershell
-$env:CR_DB_HOST = '127.0.0.1'
-$env:CR_DB_PORT = '3306'
-$env:CR_DB_NAME = 'course_registration'
-$env:CR_DB_USER = '你的数据库用户'
-$env:CR_DB_PASSWORD = '你的MySQL密码'
-& 'D:\phpstudy_pro\Extensions\php\php8.0.2nts\php.exe' .\tests\db_connection.php
-```
-
-未设置`CR_DB_USER`时为会话演示模式，不读取数据库；配置变化后须重启PHP。MySQL密码和网页登录密码是两回事。
-
-新建库先执行`database/schema.sql`。如需导入样例，只对空库运行：
-
-```powershell
-& 'D:\phpstudy_pro\Extensions\php\php8.0.2nts\php.exe' .\database\import_demo.php --demo
-```
-
-本次新增功能：草稿、整份课表删除、教师班级名单、任教资格、模拟计费及只读目录。已有库须执行`database/add_registration_extras.sql`；管理员在“任教与计费”授予课程资格，新教师默认无资格。旧演示库可执行`database/seed_demo_qualifications.sql`给`teacher01`授予样例资格，重复执行会恢复撤销的样例资格。新导入样例会给`teacher01`授予样例课程资格。
-
-已有库需要人员表时执行`database/add_person_profiles.sql`；延后开放学期截止可执行`database/extend_selection_deadline.sql`。`CREATE TABLE IF NOT EXISTS`不会自动修改旧字段，也不会清空数据。
+升级前备份数据。`CREATE TABLE IF NOT EXISTS`不会修改旧字段；院系脚本只补空值。旧演示库可按需执行`database/seed_demo_qualifications.sql`，重复执行会恢复`teacher01`被撤销的样例资格；新导入样例已含资格。真实新增教师由教务授予资格。
 
 ## 账号
 
@@ -46,7 +34,7 @@ $env:CR_DB_PASSWORD = '你的MySQL密码'
 
 `users.password_hash`支持明文和PHP密码哈希，登录自动识别格式并验证，不修改原存储值。明文在教务人员页可查询，哈希只显示状态且不回填密码输入框，留空编辑保留原值。新增或重置继续保存输入的明文密码，重置会使旧会话失效。占位账号禁用。当前截止时间为北京时间2026年11月1日17:00。
 
-课程详情展示“所属院系”。已有库执行`database/add_course_department.sql`；演示院系为样例，实际归属可在`courses.department`中填写。升级仅补空值，不覆盖已填写院系。
+课程详情展示“所属院系”，演示院系为样例；实际归属可在`courses.department`中填写。
 
 ## 计费与课程目录
 

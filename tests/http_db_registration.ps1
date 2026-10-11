@@ -9,7 +9,7 @@ function Check([bool]$Condition, [string]$Name) {
 
 $student02 = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $loginPage = Invoke-WebRequest "$BaseUrl/login.php?role=student" -WebSession $student02 -UseBasicParsing
-Check ($loginPage.Content.Contains('当前使用数据库账号登录')) 'database mode enabled'
+Check (-not $loginPage.Content.Contains('class="demo-credentials"')) 'database mode enabled'
 $login = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student02';password='Demo@2026'} -WebSession $student02 -UseBasicParsing
 Check ($login.BaseResponse.ResponseUri.AbsolutePath -eq '/index.php') 'student02 login'
 $empty = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student02 -UseBasicParsing
@@ -43,7 +43,7 @@ $null = Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $studen
 $newSession = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $null = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student02';password='Demo@2026'} -WebSession $newSession -UseBasicParsing
 $persisted = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $newSession -UseBasicParsing
-Check ($persisted.Content.Contains('当前首选教学班，共 4 门')) 'schedule survives logout'
+Check ($persisted.Content.Contains('已选 4 门课程') -and $persisted.Content.Contains('软件工程')) 'schedule survives logout'
 $newToken = [regex]::Match($persisted.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
 
 $student01 = New-Object Microsoft.PowerShell.Commands.WebRequestSession

@@ -34,6 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     'label' => $accounts[$role]['label'],
                     'role' => $role,
                     'source' => 'database',
+                    'auth_stamp' => hash('sha256', $record['password_hash']),
                 ];
             }
         } catch (Throwable $exception) {

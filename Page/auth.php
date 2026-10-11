@@ -34,6 +34,27 @@ function currentUser(): ?array
         || ($source === 'database' && (!isset($user['id']) || !is_int($user['id']) || $user['id'] < 1))) {
         return null;
     }
+    if ($source === 'database') {
+        try {
+            $query = databaseConnection()->prepare('SELECT username, display_name, role, password_hash, is_active FROM users WHERE id = ?');
+            $query->execute([$user['id']]);
+            $record = $query->fetch();
+        } catch (Throwable $error) {
+            error_log('Course registration session check failed: ' . $error->getMessage());
+            http_response_code(503);
+            exit('课程数据暂不可用，请稍后重试。');
+        }
+        if (!is_array($record) || (int) $record['is_active'] !== 1 || $record['role'] !== $user['role']
+            || !is_string($user['auth_stamp'] ?? null)
+            || !hash_equals(hash('sha256', $record['password_hash']), $user['auth_stamp'])) {
+            $_SESSION = [];
+            session_regenerate_id(true);
+            return null;
+        }
+        $user['username'] = $record['username'];
+        $user['name'] = $record['display_name'];
+        $_SESSION['user'] = $user;
+    }
     return $user;
 }
 

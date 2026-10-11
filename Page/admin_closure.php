@@ -76,7 +76,7 @@ require __DIR__ . '/partials/header.php';
             <?php if (($selectionPeriod['status'] ?? 'open') === 'open'): ?>
                 <section class="simple-panel">
                     <h2>执行关闭</h2>
-                    <p>无教师或关闭前不足 3 人的教学班将停开。系统先停开，再按学生备选顺序补位；名额和时间冲突会重新检查。</p>
+                    <p>系统先停开无教师教学班，按备选顺序补齐首选空缺，再停开补位后仍不足 3 人的教学班，并用剩余可用备选补位；名额、先修课和时间冲突会重新检查。</p>
                     <form method="post" action="admin_closure.php" class="form-actions">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课并生成最终课表</button>

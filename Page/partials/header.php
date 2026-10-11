@@ -15,6 +15,7 @@ if ($user['role'] === 'student') {
         $links['grade_entry.php'] = '成绩录入';
     }
 } elseif ($user['role'] === 'admin' && databaseModeEnabled()) {
+    $links['admin_people.php'] = '人员资料';
     $links['admin_closure.php'] = '关闭选课';
 }
 ?>

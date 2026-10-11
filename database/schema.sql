@@ -17,6 +17,21 @@ CREATE TABLE IF NOT EXISTS users (
   CONSTRAINT ck_users_active CHECK (is_active IN (0, 1))
 ) ENGINE=InnoDB;
 
+-- 教务维护资料；旧导入账号可无资料行，首次编辑时补全。
+CREATE TABLE IF NOT EXISTS person_profiles (
+  user_id BIGINT UNSIGNED NOT NULL,
+  date_of_birth DATE NOT NULL,
+  social_security_number VARCHAR(32) NOT NULL,
+  person_status VARCHAR(32) NOT NULL,
+  department VARCHAR(100) NULL,
+  graduation_date DATE NULL,
+  revision BIGINT UNSIGNED NOT NULL DEFAULT 1,
+  PRIMARY KEY (user_id),
+  UNIQUE KEY uq_person_identity (social_security_number),
+  CONSTRAINT fk_person_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE,
+  CONSTRAINT ck_person_revision CHECK (revision >= 1)
+) ENGINE=InnoDB;
+
 CREATE TABLE IF NOT EXISTS semesters (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,
   name VARCHAR(100) NOT NULL,

@@ -1,0 +1,230 @@
+{
+  "date": "2026-10-10",
+  "environment": {
+    "php": "8.0.2 NTS",
+    "mysql": "8.0.21",
+    "platform": "Windows"
+  },
+  "scope": "Business correctness, robustness, isolation and coursework requirements; traffic and load testing excluded",
+  "stability_assertions_passed": true,
+  "coursework_acceptance": "incomplete",
+  "known_dynamic_rule_gaps": [
+    "REQUIREMENT_GAP PDF p7: dropped primary leaves a gap that closure does not fill from available backups",
+    "REQUIREMENT_GAP PDF p7: two-student first backup is cancelled before leveling could bring it to three"
+  ],
+  "latest_run_suites": [
+    {
+      "name": "php_lint",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 34,
+      "requirement_gaps": [],
+      "seconds": 2.4639238999999997
+    },
+    {
+      "name": "selection_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 12,
+      "requirement_gaps": [],
+      "seconds": 0.0857887
+    },
+    {
+      "name": "teacher_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 7,
+      "requirement_gaps": [],
+      "seconds": 0.07556149999999999
+    },
+    {
+      "name": "closure_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 4,
+      "requirement_gaps": [],
+      "seconds": 0.0720045
+    },
+    {
+      "name": "http_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 20,
+      "requirement_gaps": [],
+      "seconds": 1.7499992999999998
+    },
+    {
+      "name": "http_demo_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 41,
+      "requirement_gaps": [],
+      "seconds": 2.4788571
+    },
+    {
+      "name": "db_connection",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 0,
+      "requirement_gaps": [],
+      "seconds": 0.0992637
+    },
+    {
+      "name": "db_seed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.2172506
+    },
+    {
+      "name": "db_extreme",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 115,
+      "requirement_gaps": [
+        "REQUIREMENT_GAP PDF p7: dropped primary leaves a gap that closure does not fill from available backups",
+        "REQUIREMENT_GAP PDF p7: two-student first backup is cancelled before leveling could bring it to three"
+      ],
+      "seconds": 1.7754999
+    },
+    {
+      "name": "http_db_registration",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 15,
+      "requirement_gaps": [],
+      "seconds": 2.7835642999999997
+    },
+    {
+      "name": "http_db_teacher",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 10,
+      "requirement_gaps": [],
+      "seconds": 4.0054818
+    },
+    {
+      "name": "http_db_grades",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 3.0768138
+    },
+    {
+      "name": "http_db_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 56,
+      "requirement_gaps": [],
+      "seconds": 5.0667645
+    },
+    {
+      "name": "concurrent_seat_1",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5605048
+    },
+    {
+      "name": "http_db_closure",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 4.1275490999999995
+    },
+    {
+      "name": "db_closed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 0.1121143
+    },
+    {
+      "name": "database_outage",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 12,
+      "requirement_gaps": [],
+      "seconds": 13.702115
+    }
+  ],
+  "ten_round_seat_race": [
+    {
+      "name": "concurrent_seat_1",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5372591
+    },
+    {
+      "name": "concurrent_seat_2",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5244732
+    },
+    {
+      "name": "concurrent_seat_3",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.4904406
+    },
+    {
+      "name": "concurrent_seat_4",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5010979999999999
+    },
+    {
+      "name": "concurrent_seat_5",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5290944
+    },
+    {
+      "name": "concurrent_seat_6",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5485964999999999
+    },
+    {
+      "name": "concurrent_seat_7",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5130001
+    },
+    {
+      "name": "concurrent_seat_8",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5260583
+    },
+    {
+      "name": "concurrent_seat_9",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.5352006
+    },
+    {
+      "name": "concurrent_seat_10",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "seconds": 0.478037
+    }
+  ],
+  "migration_checks_passed": 3,
+  "http_php_diagnostics": "No warnings, notices, parse errors, fatal errors or uncaught exceptions"
+}

@@ -61,6 +61,12 @@ function dbChangeTeacherClaim(PDO $pdo, int $teacherId, int $semesterId, string 
                 $pdo->rollBack();
                 return [(int) $offering['teacher_id'] === $teacherId ? '你已认领该教学班。' : '该教学班已有授课教师。'];
             }
+            $timeQuery = $pdo->prepare('SELECT id FROM offering_times WHERE offering_id = ? FOR SHARE');
+            $timeQuery->execute([$offeringId]);
+            if ($timeQuery->fetchColumn() === false) {
+                $pdo->rollBack();
+                return ['教学班缺少上课时间，不能认领。'];
+            }
             // 先锁定教师和目标班，再以当前读检查数据库中的全部上课时段。
             $conflictQuery = $pdo->prepare("SELECT EXISTS(
                 SELECT 1 FROM offering_times target_time

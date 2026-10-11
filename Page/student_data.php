@@ -49,7 +49,7 @@ function selectionOpen(array $period): bool
 
 function selectionTimeLabel(string $value): string
 {
-    return (new DateTimeImmutable($value, new DateTimeZone('Asia/Shanghai')))->format('m月d日 H:i');
+    return (new DateTimeImmutable($value, new DateTimeZone('Asia/Shanghai')))->format('Y年m月d日 H:i');
 }
 
 function seatsRemaining(string $id, array $offerings): int

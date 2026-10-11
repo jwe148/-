@@ -141,6 +141,10 @@ a.dashboard-link:hover { background: #f7f9fb; text-decoration: none; }
 .data-table { width: 100%; border-collapse: collapse; text-align: left; }
 .data-table th, .data-table td { padding: 12px; border-bottom: 1px solid var(--line); }
 .data-table th { background: #f9fafb; }
+.people-fields { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 18px; }
+.people-fields label { display: grid; gap: 7px; font-weight: 700; }
+.people-fields input, .people-fields select { width: 100%; min-height: 40px; padding: 8px 10px; border: 1px solid #cbd4dd; border-radius: 4px; background: #fff; }
+.people-inline { display: inline; margin-left: 10px; }
 .grade-form { display: flex; align-items: center; gap: 8px; }
 .grade-form select { min-height: 40px; padding: 8px 10px; border: 1px solid #cbd4dd; border-radius: 4px; background: #fff; color: var(--text); }
 
@@ -166,5 +170,6 @@ footer { border-top: 1px solid var(--line); background: #fff; }
     .form-panel, .detail-card, .detail-side { padding: 18px; }
     .form-section h2 small { display: block; margin: 6px 0 0; }
     .form-actions, .grade-form { flex-wrap: wrap; }
+    .people-fields { grid-template-columns: 1fr; }
     .footer-wrap { flex-direction: column; }
 }

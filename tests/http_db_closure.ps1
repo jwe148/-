@@ -40,7 +40,7 @@ Check ($closed.Content.Contains('停开：无教师') -and $closed.Content.Conta
 Check ($closed.Content.Contains('备选补入 1')) 'full first backup skipped and second backup promoted'
 
 $schedule = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
-Check ($schedule.Content.Contains('当前首选教学班，共 4 门') -and $schedule.Content.Contains('数据处理实践')) 'student final schedule contains promoted backup'
+Check ($schedule.Content.Contains('已选 4 门课程') -and $schedule.Content.Contains('数据处理实践')) 'student final schedule contains promoted backup'
 Check ($schedule.Content.Contains('人机交互：无教师，已停开') -and $schedule.Content.Contains('数据处理实践：由备选补入')) 'student sees closure result'
 Check ($schedule.Content.Contains('名额已满，未补入') -and $schedule.Content.Contains('备选 2：数据处理实践')) 'student sees backup attempt reasons'
 $afterSelection = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing

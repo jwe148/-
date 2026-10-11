@@ -10,7 +10,7 @@ CREATE TABLE IF NOT EXISTS users (
   username VARCHAR(64) NOT NULL,
   display_name VARCHAR(100) NOT NULL,
   role ENUM('student', 'teacher', 'admin') NOT NULL,
-  -- 沿用旧字段名以兼容已有数据库；本地演示现在保存明文密码。
+  -- 沿用旧字段名；可保存明文或 PHP 密码哈希，登录按格式验证并保留原值。
   password_hash VARCHAR(255) NOT NULL,
   is_active TINYINT(1) NOT NULL DEFAULT 1,
   PRIMARY KEY (id),

@@ -27,15 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if (is_array($record)
                 && hash_equals($role, $record['role'])
                 && passwordMatches($password, $record['password_hash'])) {
-                // 旧密码验证成功后才转换；条件更新避免覆盖同时发生的密码重置。
-                if (passwordIsLegacyHash($record['password_hash'])) {
-                    $migration = databaseConnection()->prepare('UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ? AND is_active = 1');
-                    $migration->execute([$password, $record['id'], $record['password_hash']]);
-                    if ($migration->rowCount() !== 1) {
-                        throw new RuntimeException('密码状态已变化，请重新登录。');
-                    }
-                    $record['password_hash'] = $password;
-                }
+                // 验证成功后保留数据库中的明文或哈希，使用原存储值校验会话。
                 $authenticated = [
                     'id' => (int) $record['id'],
                     'username' => $record['username'],

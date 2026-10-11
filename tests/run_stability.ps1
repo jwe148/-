@@ -77,6 +77,7 @@ try {
         Run-Check $name { & $Php (Join-Path $Project "tests\$name.php") }
     }
     Run-Check 'selection_ui' { & node (Join-Path $Project 'tests\selection_ui.test.cjs') }
+    Run-Check 'password_rules' { & $Php (Join-Path $Project 'tests\password_rules.php') }
     Start-Php $DemoPort 'demo'
     $demoUrl = "http://127.0.0.1:$DemoPort"
     Run-Check 'http_demo' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_smoke.ps1') -BaseUrl $demoUrl }
@@ -120,6 +121,7 @@ try {
     Reset-Demo
     Start-Php $DbPort 'database'
     $dbUrl = "http://127.0.0.1:$DbPort"
+    Run-Check 'http_password' { & $Php (Join-Path $Project 'tests\http_password.php') '--disposable-demo' $dbUrl }
     Run-Check 'http_db_people' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_db_people.ps1') -BaseUrl $dbUrl }
     Run-Check 'http_db_completeness' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_completeness.ps1') -BaseUrl $dbUrl }
     Run-Check 'http_extras' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_extras.ps1') -BaseUrl $dbUrl }

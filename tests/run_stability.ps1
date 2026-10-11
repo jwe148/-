@@ -111,6 +111,8 @@ try {
     Write-Output 'PASS existing-data personnel schema upgrade and repeat execution'
     Run-Check 'db_connection' { & $Php (Join-Path $Project 'tests\db_connection.php') }
     Run-Check 'db_seed' { & $Php (Join-Path $Project 'tests\db_seed.php') }
+    Run-Check 'db_more_demo' { & $Php (Join-Path $Project 'tests\db_more_demo.php') '--disposable-demo' }
+    Reset-Demo
     Run-Check 'db_people' { & $Php (Join-Path $Project 'tests\db_people.php') '--disposable-demo' }
     Reset-Demo
     Run-Check 'db_completeness' { & $Php (Join-Path $Project 'tests\db_completeness.php') '--disposable-demo' }

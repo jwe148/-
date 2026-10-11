@@ -7,6 +7,8 @@ require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 
 $selection = studentSelection();
+$draft = databaseModeEnabled() ? dbSelectionDraft(databaseConnection(), $user['id'], $selectionPeriod['semester_id']) : ($_SESSION['selection_draft'] ?? null);
+if (is_array($draft) && selectionOpen($selectionPeriod)) $selection = $draft;
 $primary = $selection['primary'];
 $backup = $selection['backup'];
 $open = selectionOpen($selectionPeriod);
@@ -42,7 +44,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = '当前不在选课时间内。';
     } else {
         try {
-            if (databaseModeEnabled()) {
+            $saveDraft = ($_POST['action'] ?? '') === 'draft';
+            if ($saveDraft) {
+                $errors = draftErrors($primary, $backup, $offerings);
+                if ($errors === []) {
+                    if (databaseModeEnabled()) $errors = dbChangeStudentPlan(databaseConnection(), $user['id'], $selectionPeriod['semester_id'], 'draft', $primary, $backup, $offerings);
+                    else $_SESSION['selection_draft'] = ['primary'=>$primary, 'backup'=>$backup];
+                }
+            } elseif (databaseModeEnabled()) {
                 $errors = dbSaveStudentSelection(
                     databaseConnection(), $user['id'], $selectionPeriod['semester_id'], $primary, $backup, $offerings
                 );
@@ -50,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $errors = validateStudentSelection($primary, $backup, $offerings);
                 if ($errors === []) {
                     $_SESSION['student_selection'] = ['primary' => $primary, 'backup' => $backup];
+                    unset($_SESSION['selection_draft']);
                 }
             }
         } catch (Throwable $error) {
@@ -58,7 +68,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
     if ($errors === []) {
-        header('Location: selection.php?saved=1');
+        header('Location: selection.php?' . (($_POST['action'] ?? '') === 'draft' ? 'draft=1' : 'saved=1'));
         exit;
     }
 }
@@ -74,18 +84,18 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>我的选课</h1>
-            <p><?= $open ? '填写 4 个首选和 2 个备选；选课期内可以重新提交。' : '选课已结束，以下为最终记录。' ?></p>
         </div>
-        <div class="info-line"><strong><?= $open ? '选课开放中' : '选课已结束' ?></strong><span>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
+        <div class="info-line"><strong><?= $open ? '选课开放中' : '选课已结束' ?></strong><span>截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if ($prefillNotice !== ''): ?><p class="message" role="status"><?= e($prefillNotice) ?></p><?php endif; ?>
         <?php if (isset($_GET['saved'])): ?><p class="message success" role="status">选课方案已保存。<a href="schedule.php">查看课表</a></p><?php endif; ?>
+        <?php if (isset($_GET['draft'])): ?><p class="message success" role="status">草稿已保存，未占用名额。</p><?php elseif (is_array($draft) && $open): ?><p class="message" role="status">已载入未提交草稿，正式提交时检查名额与冲突。</p><?php endif; ?>
         <?php if ($errors !== []): ?>
             <div class="message error" role="alert"><strong>提交失败</strong><ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div>
         <?php endif; ?>
         <form method="post" action="selection.php" class="form-panel" id="selection-form">
             <input type="hidden" name="token" value="<?= e(selectionToken()) ?>">
             <section class="form-section">
-                <h2>首选教学班 <small>保存后占用名额</small></h2>
+                <div class="section-heading"><h2 id="primary-count" aria-live="polite">首选 <?= $primaryCount ?>/4</h2><span>提交后占座</span></div>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <?php $chosen = isset($primary[$i]) && is_string($primary[$i]) ? $primary[$i] : ''; ?>
@@ -102,7 +112,7 @@ require __DIR__ . '/partials/header.php';
                 </div>
             </section>
             <section class="form-section">
-                <h2>备选教学班 <small>按顺序补位，暂不占名额</small></h2>
+                <div class="section-heading"><h2 id="backup-count" aria-live="polite">备选 <?= $backupCount ?>/2</h2><span>按顺序补位，不占座</span></div>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 2; $i++): ?>
                         <?php $chosen = isset($backup[$i]) && is_string($backup[$i]) ? $backup[$i] : ''; ?>
@@ -118,11 +128,10 @@ require __DIR__ . '/partials/header.php';
                     <?php endfor; ?>
                 </div>
             </section>
-            <div class="selection-summary" aria-live="polite"><span id="primary-count">首选 <?= $primaryCount ?>/4</span><span id="backup-count">备选 <?= $backupCount ?>/2</span></div>
             <p class="selection-warning" id="selection-duplicate" role="alert" hidden></p>
-            <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课方案</button><a href="schedule.php">查看我的课表</a></div>
+            <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课</button><button class="text-button" type="submit" name="action" value="draft" formnovalidate <?= $open ? '' : 'disabled' ?>>保存草稿</button><a href="schedule.php">查看课表</a></div>
         </form>
-        <p class="page-note">保存时检查名额、先修课程和上课时间。备选可登记已满的教学班，补位时会重新检查。<?= databaseModeEnabled() ? '' : '演示模式下，选课记录只在本次登录中有效。' ?></p>
+        <details class="page-help"><summary>选课规则</summary><p>提交 4 个首选、2 个备选。同一课程不能重复选择；提交时检查名额、先修与时间冲突。备选可以登记已满的班级，补位时重新检查。</p><p>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></p><?php if (!databaseModeEnabled()): ?><p>演示记录仅在本次登录中有效。</p><?php endif; ?></details>
     </div>
 </main>
 <script src="assets/js/selection.js" defer></script>

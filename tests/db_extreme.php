@@ -61,6 +61,7 @@ function fixtureExtreme(bool $expired = false): array
         $id = $prefix . '-' . $i;
         $ids[] = $id;
         executeExtreme('INSERT INTO courses (code, name, description) VALUES (?, ?, ?)', [$id, $id, 'extreme test fixture']);
+        executeExtreme('INSERT INTO teacher_qualifications(teacher_id,course_code) VALUES(?,?)',[$teacher,$id]);
         executeExtreme('INSERT INTO offerings (id, course_code, semester_id, class_name, teacher_id, location) VALUES (?, ?, ?, ?, ?, ?)', [$id, $id, $semesterId, '01', $teacher, 'test']);
         $start = sprintf('%02d:00:00', 8 + $i);
         $end = sprintf('%02d:00:00', 9 + $i);

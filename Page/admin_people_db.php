@@ -1,6 +1,8 @@
 <?php
 declare(strict_types=1);
 
+require_once __DIR__ . '/password.php';
+
 const PERSON_FIELDS = ['username', 'display_name', 'password', 'date_of_birth', 'social_security_number', 'person_status', 'department', 'graduation_date', 'is_active'];
 
 function personRoleValid(string $role): bool
@@ -73,7 +75,7 @@ function dbPersonRecord(PDO $pdo, int $id, string $role, bool $lock = false): ?a
     if ($id < 1 || !personRoleValid($role)) {
         return null;
     }
-    $query = $pdo->prepare('SELECT u.id, u.username, u.display_name, u.role, u.is_active,
+    $query = $pdo->prepare('SELECT u.id, u.username, u.display_name, u.role, u.is_active, u.password_hash AS password,
         p.date_of_birth, p.social_security_number, p.person_status, p.department, p.graduation_date,
         COALESCE(p.revision, 0) AS revision
         FROM users u LEFT JOIN person_profiles p ON p.user_id = u.id
@@ -95,7 +97,7 @@ function dbPersonList(PDO $pdo, string $role, string $search, int $page): array
     $total = (int) $count->fetchColumn();
     $pages = max(1, (int) ceil($total / 50));
     $page = min(max(1, $page), $pages);
-    $query = $pdo->prepare('SELECT u.id, u.username, u.display_name, u.is_active, p.person_status
+    $query = $pdo->prepare('SELECT u.id, u.username, u.display_name, u.is_active, u.password_hash AS password, p.person_status
         FROM users u LEFT JOIN person_profiles p ON p.user_id = u.id WHERE ' . $where . ' ORDER BY u.id LIMIT 50 OFFSET ' . (($page - 1) * 50));
     $query->execute($params);
     return ['rows' => $query->fetchAll(), 'total' => $total, 'page' => $page, 'pages' => $pages];
@@ -123,11 +125,11 @@ function dbSavePerson(PDO $pdo, int $adminId, string $role, ?int $id, array $inp
             $pdo->rollBack();
             return ['id' => null, 'errors' => ['教务员账号不可用。']];
         }
-        $hash = $input['password'] === '' ? null : password_hash($input['password'], PASSWORD_DEFAULT);
+        $passwordValue = $input['password'] === '' ? null : $input['password'];
         $profileExists = false;
         if ($id === null) {
             $pdo->prepare('INSERT INTO users (username, display_name, role, password_hash, is_active) VALUES (?, ?, ?, ?, ?)')
-                ->execute([$input['username'], $input['display_name'], $role, $hash, $input['is_active']]);
+                ->execute([$input['username'], $input['display_name'], $role, $passwordValue, $input['is_active']]);
             $id = (int) $pdo->lastInsertId();
         } else {
             $record = dbPersonRecord($pdo, $id, $role, true);
@@ -145,7 +147,7 @@ function dbSavePerson(PDO $pdo, int $adminId, string $role, ?int $id, array $inp
             }
             $profileExists = (int) $record['revision'] > 0;
             $pdo->prepare('UPDATE users SET display_name = ?, is_active = ?, password_hash = COALESCE(?, password_hash) WHERE id = ?')
-                ->execute([$input['display_name'], $input['is_active'], $hash, $id]);
+                ->execute([$input['display_name'], $input['is_active'], $passwordValue, $id]);
         }
         $profile = [$input['date_of_birth'], $input['social_security_number'], $input['person_status'],
             $role === 'teacher' ? $input['department'] : null, $role === 'student' ? $input['graduation_date'] : null];

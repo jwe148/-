@@ -29,7 +29,7 @@ function dbChangeTeacherClaim(PDO $pdo, int $teacherId, int $semesterId, string 
             $pdo->rollBack();
             return ['教师账号不可用。'];
         }
-        $offeringQuery = $pdo->prepare('SELECT id, teacher_id, status FROM offerings WHERE id = ? AND semester_id = ? FOR UPDATE');
+        $offeringQuery = $pdo->prepare('SELECT id, teacher_id, status, course_code FROM offerings WHERE id = ? AND semester_id = ? FOR UPDATE');
         $offeringQuery->execute([$offeringId, $semesterId]);
         $offering = $offeringQuery->fetch();
         if (!is_array($offering)) {
@@ -61,6 +61,9 @@ function dbChangeTeacherClaim(PDO $pdo, int $teacherId, int $semesterId, string 
                 $pdo->rollBack();
                 return [(int) $offering['teacher_id'] === $teacherId ? '你已认领该教学班。' : '该教学班已有授课教师。'];
             }
+            $qualification=$pdo->prepare('SELECT teacher_id FROM teacher_qualifications WHERE teacher_id=? AND course_code=? FOR SHARE');
+            $qualification->execute([$teacherId,$offering['course_code']]);
+            if (!$qualification->fetchColumn()) { $pdo->rollBack(); return ['尚未取得该课程的任教资格，请联系教务员。']; }
             $timeQuery = $pdo->prepare('SELECT id FROM offering_times WHERE offering_id = ? FOR SHARE');
             $timeQuery->execute([$offeringId]);
             if ($timeQuery->fetchColumn() === false) {

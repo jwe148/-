@@ -15,6 +15,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = '页面已过期，请刷新后重试。';
     } elseif (!$open) {
         $errors[] = '选课已结束，不能退课。';
+    } elseif (($_POST['action'] ?? '') === 'delete') {
+        if (($_POST['confirm'] ?? '') !== 'yes') $errors[] = '请确认删除整份课表。';
+        else {
+            try {
+                if (databaseModeEnabled()) $errors = dbChangeStudentPlan(databaseConnection(), $user['id'], $selectionPeriod['semester_id'], 'delete');
+                else { $_SESSION['student_selection']=['primary'=>[], 'backup'=>[]]; unset($_SESSION['selection_draft']); }
+                if ($errors === []) { header('Location: schedule.php?deleted=1'); exit; }
+            } catch (Throwable $error) { error_log('Delete schedule failed: '.$error->getMessage()); $errors[]='删除未完成，请稍后重试。'; }
+        }
     } elseif (!in_array($id, $selection['primary'], true)) {
         $errors[] = '只能退选自己课表中的教学班。';
     } else {
@@ -65,6 +74,7 @@ require __DIR__ . '/partials/header.php';
     <div class="container">
         <div class="page-heading"><p><?= e($semester) ?></p><h1>我的课表</h1><p>已选 <?= count($selection['primary']) ?> 门课程</p></div>
         <?php if (isset($_GET['removed'])): ?><p class="message success" role="status">已退课，名额已恢复。<a href="selection.php">前往补选</a></p><?php endif; ?>
+        <?php if(isset($_GET['deleted'])): ?><p class="message success">课表、备选和草稿已清空，名额已释放。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if ($selection['primary'] === []): ?>
             <div class="empty-state"><h2>课表暂无课程</h2><p><?= $open ? '提交选课方案后，首选课程会显示在这里。' : '没有保留的课程。' ?></p><?php if ($open): ?><a href="selection.php">去选课</a><?php endif; ?></div>
@@ -85,13 +95,13 @@ require __DIR__ . '/partials/header.php';
                 <?php endforeach; ?>
             </div>
         <?php endif; ?>
-        <div class="simple-panel">
-            <h2><?= ($selectionPeriod['status'] ?? 'open') === 'closed' ? '未补入的备选' : '备选顺序' ?></h2>
+        <?php if ($open): ?><details class="page-help"><summary>删除整份课表</summary><form method="post" action="schedule.php"><input type="hidden" name="token" value="<?= e(selectionToken()) ?>"><input type="hidden" name="action" value="delete"><label><input type="checkbox" name="confirm" value="yes" required>确认清空本学期课表、备选和草稿</label><button class="text-button" type="submit">确认删除</button></form></details><?php endif; ?>
+        <details class="simple-panel disclosure-panel"><summary><?= ($selectionPeriod['status'] ?? 'open') === 'closed' ? '未补入的备选' : '备选顺序' ?> · <?= count($selection['backup']) ?> 门</summary><div class="disclosure-content">
             <?php if ($selection['backup'] === []): ?><p>尚未提交备选教学班。</p><?php else: ?>
                 <ol><?php foreach ($selection['backup'] as $id): ?><?php if (isset($offerings[$id])): ?><li><?= e($offerings[$id]['name'] . ' · ' . offeringTimeLabel($offerings[$id])) ?></li><?php endif; ?><?php endforeach; ?></ol>
             <?php endif; ?>
             <?php if ($open): ?><a href="selection.php">调整选课方案</a><?php endif; ?>
-        </div>
+        </div></details>
         <?php if (databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed'): ?>
             <div class="simple-panel"><h2>关闭结果</h2>
                 <?php if ($closureChanges === []): ?><p>课表无需调整。</p><?php else: ?><ol>
@@ -106,7 +116,7 @@ require __DIR__ . '/partials/header.php';
             <?php endif; ?>
             <p class="page-note">选课已关闭，课表不能再调整。</p>
         <?php else: ?>
-            <p class="page-note">备选暂不占名额，关闭选课时按顺序尝试补位。</p>
+
         <?php endif; ?>
     </div>
 </main>

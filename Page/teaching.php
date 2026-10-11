@@ -47,7 +47,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
-$available = array_filter($offerings, static fn(array $course, string $id): bool => $course['teacher'] === '待认领' && ($course['status'] ?? 'open') === 'open' && !in_array($id, $claims, true), ARRAY_FILTER_USE_BOTH);
+$eligibleCodes = null;
+if (databaseModeEnabled()) {
+    $q=databaseConnection()->prepare('SELECT course_code FROM teacher_qualifications WHERE teacher_id=?'); $q->execute([$user['id']]);
+    $eligibleCodes=$q->fetchAll(PDO::FETCH_COLUMN);
+}
+$available = array_filter($offerings, static fn(array $course, string $id): bool => ($eligibleCodes === null || in_array($course['code'], $eligibleCodes, true)) && $course['teacher'] === '待认领' && ($course['status'] ?? 'open') === 'open' && !in_array($id, $claims, true), ARRAY_FILTER_USE_BOTH);
 $mine = array_intersect_key($offerings, array_fill_keys($claims, true));
 $pageTitle = '我的授课';
 $active = 'teaching.php';
@@ -58,9 +63,8 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>我的授课</h1>
-            <p>认领尚未安排教师的教学班。时间冲突时无法认领。</p>
         </div>
-        <div class="info-line"><strong><?= $open ? '认领开放中' : '认领已结束' ?></strong><span>截止时间：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
+        <div class="info-line"><strong><?= $open ? '认领开放中' : '认领已结束' ?></strong><span>截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if (isset($_GET['claimed'])): ?><p class="message success" role="status">已认领教学班。</p><?php endif; ?>
         <?php if (isset($_GET['released'])): ?><p class="message success" role="status">已取消认领。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
@@ -72,7 +76,7 @@ require __DIR__ . '/partials/header.php';
                     <?php foreach ($mine as $id => $course): ?><tr>
                         <td><?= e($course['name'] . ' · ' . $course['class']) ?></td>
                         <td><?= e(offeringTimeLabel($course)) ?></td>
-                        <td><?php if ($open && ($course['self_claimed'] ?? true)): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="release"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="text-button" type="submit">取消认领</button></form><?php else: ?><?= $open ? '已安排' : '已结束' ?><?php endif; ?></td>
+                        <td><?php if (databaseModeEnabled()): ?><a href="roster.php?id=<?= rawurlencode($id) ?>">学生名单</a> <?php endif; ?><?php if ($open && ($course['self_claimed'] ?? true)): ?><form method="post" action="teaching.php"><input type="hidden" name="token" value="<?= e(teacherToken()) ?>"><input type="hidden" name="action" value="release"><input type="hidden" name="id" value="<?= e($id) ?>"><button class="text-button" type="submit">取消认领</button></form><?php else: ?><?= $open ? '已安排' : '已结束' ?><?php endif; ?></td>
                     </tr><?php endforeach; ?>
                 </tbody></table></div>
             <?php endif; ?>
@@ -80,7 +84,7 @@ require __DIR__ . '/partials/header.php';
 
         <section class="simple-panel">
             <h2>待认领教学班</h2>
-            <?php if ($available === []): ?><p>暂无待认领教学班。</p><?php else: ?>
+            <?php if ($available === []): ?><p>暂无符合任教资格的待认领教学班。</p><?php else: ?>
                 <div class="table-scroll"><table class="data-table"><thead><tr><th>教学班</th><th>上课时间</th><th>操作</th></tr></thead><tbody>
                     <?php foreach ($available as $id => $course): ?><tr>
                         <td><a href="course.php?id=<?= rawurlencode($id) ?>"><?= e($course['name'] . ' · ' . $course['class']) ?></a></td>

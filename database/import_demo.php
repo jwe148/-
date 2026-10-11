@@ -21,7 +21,7 @@ foreach (['users', 'semesters', 'courses', 'offerings', 'enrollments'] as $table
 $days = ['周一' => 1, '周二' => 2, '周三' => 3, '周四' => 4, '周五' => 5];
 $prerequisiteCodes = ['程序设计基础' => 'PRE-PROG', '数据结构' => 'PRE-DS', '线性代数' => 'PRE-LA'];
 $userInsert = $pdo->prepare('INSERT INTO users (username, display_name, role, password_hash, is_active) VALUES (?, ?, ?, ?, ?)');
-$courseInsert = $pdo->prepare('INSERT INTO courses (code, name, description) VALUES (?, ?, ?)');
+$courseInsert = $pdo->prepare('INSERT INTO courses (code, name, description, department) VALUES (?, ?, ?, ?)');
 $prerequisiteInsert = $pdo->prepare('INSERT INTO course_prerequisites (course_code, prerequisite_code) VALUES (?, ?)');
 $offeringInsert = $pdo->prepare('INSERT INTO offerings (id, course_code, semester_id, class_name, teacher_id, location, capacity) VALUES (?, ?, ?, ?, ?, ?, ?)');
 $historyOfferingInsert = $pdo->prepare('INSERT INTO offerings (id, course_code, semester_id, class_name, teacher_id, location, capacity, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)');
@@ -33,7 +33,7 @@ $gradeInsert = $pdo->prepare('INSERT INTO grades (enrollment_id, grade_value) VA
 
 try {
     $pdo->beginTransaction();
-    $demoHash = password_hash('Demo@2026', PASSWORD_DEFAULT);
+    $demoPassword = 'Demo@2026';
     $loginIds = [];
     foreach ([
         ['student01', '演示学生', 'student'],
@@ -42,7 +42,7 @@ try {
         ['teacher01', '演示教师', 'teacher'],
         ['admin01', '演示教务员', 'admin'],
     ] as [$username, $name, $role]) {
-        $userInsert->execute([$username, $name, $role, $demoHash, 1]);
+        $userInsert->execute([$username, $name, $role, $demoPassword, 1]);
         $loginIds[$username] = (int) $pdo->lastInsertId();
     }
 
@@ -64,13 +64,13 @@ try {
     $historySemesterId = (int) $pdo->lastInsertId();
 
     foreach ($prerequisiteCodes as $name => $code) {
-        $courseInsert->execute([$code, $name, '先修课程资料，仅用于本地演示。']);
+        $courseInsert->execute([$code, $name, '先修课程资料，仅用于本地演示。', $code === 'PRE-LA' ? '数学学院' : '计算机学院']);
     }
     $seenCourses = [];
     $prerequisites = [];
     foreach ($offerings as $course) {
         if (!isset($seenCourses[$course['code']])) {
-            $courseInsert->execute([$course['code'], $course['name'], $course['description']]);
+            $courseInsert->execute([$course['code'], $course['name'], $course['description'], $course['department']]);
             $seenCourses[$course['code']] = true;
         }
         if ($course['prerequisite'] !== '无') {
@@ -127,6 +127,8 @@ try {
         $historyEnrollmentInsert->execute([$loginIds['student02'], $id, 'active', 'primary', '2026-02-20 12:05:00']);
         $gradeInsert->execute([(int) $pdo->lastInsertId(), '及格']);
     }
+    // 演示教师可教样例课程；真实新增教师须由教务单独授予。
+    $pdo->exec("INSERT IGNORE INTO teacher_qualifications(teacher_id,course_code) SELECT u.id,c.code FROM users u CROSS JOIN courses c WHERE u.username='teacher01' AND u.role='teacher'");
     $pdo->commit();
     $selectedCount = array_sum(array_column($offerings, 'selected'));
     echo '演示数据导入完成：当前学期 ' . count($offerings) . ' 个教学班、' . $selectedCount . ' 个已选名额（其中 ' . $seatNumber . ' 个占位名额），另有 4 条历史成绩。' . PHP_EOL;

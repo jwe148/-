@@ -24,6 +24,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $result = dbCloseSemester(databaseConnection(), $user['id'], $selectionPeriod['semester_id']);
             $errors = $result['errors'];
             if ($errors === []) {
+                try { dbDispatchBilling(databaseConnection(), $user['id'], $selectionPeriod['semester_id']); }
+                catch (Throwable $sendError) { error_log('Billing dispatch failed: '.$sendError->getMessage()); }
                 header('Location: admin_closure.php?' . ($result['changed'] ? 'closed=1' : 'already=1'));
                 exit;
             }
@@ -53,14 +55,14 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1><p>选课截止后处理教学班和备选补位。</p></div>
+        <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1></div>
         <div class="info-line"><strong><?= e($statusLabels[$selectionPeriod['status'] ?? 'open'] ?? '未知状态') ?></strong><span>选课截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
         <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表已生成。</p><?php endif; ?>
         <?php if (isset($_GET['already'])): ?><p class="message success" role="status">此前已关闭，本次未重复处理。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if (databaseModeEnabled()): ?>
             <section class="simple-panel">
-                <h2>教学班处理结果</h2>
+                <h2>教学班处理结果</h2><p><a href="admin_extras.php">查看计费发送记录 / 重试</a></p>
                 <?php if ($overview === []): ?><p>暂无教学班数据。</p><?php else: ?>
                     <div class="table-scroll"><table class="data-table"><thead><tr><th>教学班</th><th>教师</th><th>关闭前人数</th><th>当前人数</th><th>结果</th></tr></thead><tbody>
                         <?php foreach ($overview as $row): ?><tr>
@@ -76,15 +78,14 @@ require __DIR__ . '/partials/header.php';
             <?php if (($selectionPeriod['status'] ?? 'open') === 'open'): ?>
                 <section class="simple-panel">
                     <h2>执行关闭</h2>
-                    <p>系统先停开无教师教学班，按备选顺序补齐首选空缺，再停开补位后仍不足 3 人的教学班，并用剩余可用备选补位；名额、先修课和时间冲突会重新检查。</p>
+                    <p>停开不符合条件的教学班，按备选顺序补位并生成最终课表。</p><details class="page-help"><summary>处理规则</summary><p>先停开无教师班并补位，再停开仍不足 3 人的班，用剩余备选补位。每次检查名额、先修和时间冲突。</p></details>
                     <form method="post" action="admin_closure.php" class="form-actions">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
-                        <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课并生成最终课表</button>
+                        <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课</button>
                         <?php if (!$afterDeadline): ?><span>截止后才能操作。</span><?php endif; ?>
                     </form>
                 </section>
             <?php endif; ?>
-            <p class="page-note">关闭操作只执行一次，重复进入可查看已有结果。</p>
         <?php else: ?>
             <p class="message error">关闭选课需要配置 MySQL 并导入学期数据。</p>
         <?php endif; ?>

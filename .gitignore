@@ -1,0 +1,9 @@
+
+# Local settings and generated files
+~$*
+tmp/
+*.log
+.env
+.env.*
+!.env.example
+__pycache__/

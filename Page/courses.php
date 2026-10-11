@@ -38,7 +38,7 @@ require __DIR__ . '/partials/header.php';
             <div class="container">
                 <form class="filter-panel" method="get" action="courses.php" role="search">
                     <label class="filter-search">课程或教师
-                        <input type="search" name="q" value="<?= e($query) ?>" placeholder="例如：软件工程、王老师、SE301">
+                        <input type="search" name="q" value="<?= e($query) ?>" placeholder="课程、教师或课程编号">
                     </label>
                     <label>上课星期
                         <select name="day">
@@ -69,13 +69,8 @@ require __DIR__ . '/partials/header.php';
                                 </div>
                                 <div class="course-body">
                                     <h3><?= e($course['name']) ?></h3>
-                                    <p>教师：<?= e($course['teacher']) ?></p>
-                                    <p>时间：<?= e(offeringTimeLabel($course)) ?></p>
-                                    <p>地点：<?= e($course['location']) ?></p>
-                                    <div class="capacity" aria-label="已选 <?= $selected ?> 人，容量 <?= $course['capacity'] ?> 人">
-                                        <div><span>已选人数</span><b><?= $selected ?>/<?= $course['capacity'] ?></b></div>
-                                        <progress value="<?= $selected ?>" max="<?= $course['capacity'] ?>"></progress>
-                                    </div>
+                                    <p><?= e($course['teacher'] . ' · ' . $course['location']) ?></p>
+                                    <p><?= e(offeringTimeLabel($course)) ?></p>
                                     <a class="course-detail-link" href="course.php?id=<?= rawurlencode($id) ?>">查看详情</a>
                                 </div>
                             </article>

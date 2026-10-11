@@ -116,19 +116,22 @@ try {
     Reset-Demo
     Run-Check 'db_extreme' { & $Php (Join-Path $Project 'tests\db_extreme.php') '--disposable-demo' }
     Reset-Demo
+    Run-Check 'db_extras' { & $Php (Join-Path $Project 'tests\db_extras.php') '--disposable-demo' }
+    Reset-Demo
     Start-Php $DbPort 'database'
     $dbUrl = "http://127.0.0.1:$DbPort"
     Run-Check 'http_db_people' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_db_people.ps1') -BaseUrl $dbUrl }
     Run-Check 'http_db_completeness' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_completeness.ps1') -BaseUrl $dbUrl }
+    Run-Check 'http_extras' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_extras.ps1') -BaseUrl $dbUrl }
     foreach ($name in @('http_db_registration','http_db_teacher','http_db_grades')) {
         Run-Check $name { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project "tests\$name.ps1") -BaseUrl $dbUrl }
     }
     Reset-Demo
     Run-Check 'http_db_stability' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_stability.ps1') -BaseUrl $dbUrl -DatabaseMode }
-    $migration = (Join-Path $Project 'database\extend_demo_deadline_2027.sql').Replace('\','/')
+    $migration = (Join-Path $Project 'database\extend_selection_deadline.sql').Replace('\','/')
     $null = Invoke-Sql "USE course_registration; UPDATE semesters SET selection_ends_at='2026-10-09 17:00:00' WHERE status='open'; SOURCE $migration; SOURCE $migration;"
     $date = Invoke-Sql "SELECT selection_ends_at FROM course_registration.semesters WHERE status='open';"
-    if ($date -ne '2027-10-09 17:00:00') { throw 'Deadline migration did not update correctly' }
+    if ($date -ne '2026-11-01 17:00:00') { throw 'Deadline migration did not update correctly' }
     Write-Output 'PASS deadline migration updates old date and permits repeat execution'
     for ($race=1; $race -le $RaceRuns; $race++) {
         Reset-Demo

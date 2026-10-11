@@ -17,6 +17,7 @@ if ($user['role'] === 'student') {
 } elseif ($user['role'] === 'admin' && databaseModeEnabled()) {
     $links['admin_people.php'] = '人员资料';
     $links['admin_closure.php'] = '关闭选课';
+    $links['admin_extras.php'] = '任教与计费';
 }
 ?>
 <!doctype html>

@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require __DIR__ . '/../Page/db.php';
+require __DIR__ . '/../Page/password.php';
 require __DIR__ . '/../Page/data/catalog.php';
 
 $pdo = databaseConnection();
@@ -33,7 +34,7 @@ $checks['historical_grades'] = $pdo->query("SELECT c.name, g.grade_value FROM gr
     ['name' => '程序设计基础', 'grade_value' => '良好'],
 ];
 $checks['inactive_placeholders'] = (int) $pdo->query("SELECT COUNT(*) FROM users WHERE role = 'student' AND is_active = 0")->fetchColumn() === $expectedSeats - 4;
-$checks['demo_login_hash'] = password_verify(
+$checks['demo_login_password'] = passwordMatches(
     'Demo@2026',
     (string) $pdo->query("SELECT password_hash FROM users WHERE username = 'student01'")->fetchColumn()
 );

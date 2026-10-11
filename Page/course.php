@@ -34,9 +34,8 @@ require __DIR__ . '/partials/header.php';
             <section class="catalog-section">
                 <div class="container detail-layout">
                     <article class="detail-card">
-                        <h2>基本信息</h2>
                         <dl class="detail-list">
-                            <div><dt>教学班</dt><dd><?= e($course['code'] . ' · ' . $course['class']) ?></dd></div>
+                            <div><dt>所属院系</dt><dd><?= e(($course['department'] ?? '') !== '' ? $course['department'] : '未填写') ?></dd></div>
                             <div><dt>授课教师</dt><dd><?= e($course['teacher']) ?></dd></div>
                             <div><dt>状态</dt><dd><?= e(($course['status'] ?? 'open') === 'cancelled' ? '已停开' : ((($course['status'] ?? 'open') === 'confirmed') ? '已开设' : '选课中')) ?></dd></div>
                             <div><dt>上课时间</dt><dd><?= e(offeringTimeLabel($course)) ?></dd></div>
@@ -44,13 +43,11 @@ require __DIR__ . '/partials/header.php';
                             <div><dt>先修课程</dt><dd><?= e($course['prerequisite']) ?></dd></div>
                             <div><dt>人数上限</dt><dd><?= $course['capacity'] ?> 人</dd></div>
                         </dl>
-                        <h3>课程简介</h3>
-                        <p class="detail-description"><?= e($course['description']) ?></p>
+                        <details class="page-help"><summary>课程简介</summary><p class="detail-description"><?= e($course['description']) ?></p></details>
                     </article>
                     <aside class="detail-side">
                         <h2>名额</h2>
                         <p class="remaining-number"><?= $remaining ?><span> 席剩余</span></p>
-                        <progress value="<?= $selected ?>" max="<?= $course['capacity'] ?>"></progress>
                         <p class="side-note">已选 <?= $selected ?> / 上限 <?= $course['capacity'] ?> 人</p>
                         <?php if ($user['role'] === 'student'): ?>
                             <a class="primary-button" href="selection.php?offering=<?= rawurlencode($id) ?>">去选课</a>

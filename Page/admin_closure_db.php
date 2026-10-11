@@ -1,5 +1,6 @@
 <?php
 declare(strict_types=1);
+require_once __DIR__.'/billing_db.php';
 
 function dbClosureOverview(PDO $pdo, int $semesterId): array
 {
@@ -273,6 +274,7 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
         }
         $pdo->prepare("UPDATE semesters SET status = 'closed', closed_at = ? WHERE id = ?")
             ->execute([$now->format('Y-m-d H:i:s'), $semesterId]);
+        dbQueueBilling($pdo, $semesterId);
         $pdo->commit();
         return ['changed' => true, 'errors' => []];
     } catch (Throwable $error) {

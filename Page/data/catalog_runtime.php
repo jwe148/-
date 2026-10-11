@@ -4,10 +4,12 @@ declare(strict_types=1);
 require __DIR__ . '/catalog.php';
 require_once __DIR__ . '/offering_view.php';
 require_once __DIR__ . '/../db.php';
+require_once __DIR__ . '/catalog_provider.php';
 
 if (databaseModeEnabled()) {
     try {
         $pdo = databaseConnection();
+        $definitions = readCourseDefinitions($pdo);
         $periodQuery = $pdo->prepare('SELECT id, selection_starts_at, selection_ends_at, status FROM semesters WHERE name = ?');
         $periodQuery->execute([$semester]);
         $period = $periodQuery->fetch();
@@ -32,10 +34,13 @@ if (databaseModeEnabled()) {
         $query->execute([$selectionPeriod['semester_id']]);
         $offerings = [];
         foreach ($query->fetchAll() as $row) {
+            if (!isset($definitions[$row['code']])) throw new RuntimeException('目录缺少课程定义。');
+            $row['name']=$definitions[$row['code']]['name']; $row['description']=$definitions[$row['code']]['description'];
             $offerings[$row['id']] = [
                 'code' => $row['code'],
                 'name' => $row['name'],
                 'description' => $row['description'],
+                'department' => $definitions[$row['code']]['department'],
                 'class' => $row['class'],
                 'location' => $row['location'],
                 'capacity' => (int) $row['capacity'],
@@ -68,14 +73,15 @@ if (databaseModeEnabled()) {
             }
         }
 
-        $prerequisiteQuery = $pdo->prepare('SELECT cp.course_code, required.name
+        $prerequisiteQuery = $pdo->prepare('SELECT cp.course_code, required.code AS prerequisite_code, required.name
             FROM course_prerequisites cp JOIN courses required ON required.code = cp.prerequisite_code
             JOIN offerings o ON o.course_code = cp.course_code
-            WHERE o.semester_id = ? GROUP BY cp.course_code, required.name ORDER BY required.name');
+            WHERE o.semester_id = ? GROUP BY cp.course_code, required.code, required.name ORDER BY required.name');
         $prerequisiteQuery->execute([$selectionPeriod['semester_id']]);
         $prerequisites = [];
         foreach ($prerequisiteQuery->fetchAll() as $row) {
-            $prerequisites[$row['course_code']][] = $row['name'];
+            if (!isset($definitions[$row['prerequisite_code']])) throw new RuntimeException('目录缺少先修定义。');
+            $prerequisites[$row['course_code']][] = $definitions[$row['prerequisite_code']]['name'];
         }
         foreach ($offerings as &$offering) {
             $offering['prerequisites'] = $prerequisites[$offering['code']] ?? [];

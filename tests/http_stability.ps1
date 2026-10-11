@@ -66,7 +66,7 @@ $escaped = Request 'courses.php?q=%3Cscript%3Ealert(1)%3C%2Fscript%3E' $student
 Check (-not $escaped.Content.Contains('<script>alert(1)</script>') -and $escaped.Content.Contains('&lt;script&gt;')) 'search output escapes markup'
 $selection = Request 'selection.php' $student
 $token = [regex]::Match($selection.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
-Check ($token.Length -eq 32 -and $selection.Content.Contains('2027年10月09日 17:00')) 'selection token and extended deadline shown'
+Check ($token.Length -eq 32 -and $selection.Content.Contains('2026年11月01日 17:00')) 'selection token and extended deadline shown'
 $before = (Request 'schedule.php' $student).Content
 foreach ($body in @('primary%5B%5D=SE301-01', 'token%5B%5D=x&primary%5B%5D=SE301-01', "token=$token&primary=SE301-01&backup=OS312-01", "token=$token&primary%5B0%5D%5Bnested%5D=x&backup%5B%5D=OS312-01")) {
     $rejected = Request 'selection.php' $student 'POST' $body

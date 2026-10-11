@@ -52,12 +52,15 @@ function dbCompletedCourseNames(PDO $pdo, int $studentId): array
     // 历史中文成绩及 A-D 视为通过，用于先修课程判断。
     $passing = ['优秀', '良好', '中等', '及格', 'A', 'B', 'C', 'D'];
     $marks = implode(',', array_fill(0, count($passing), '?'));
-    $query = $pdo->prepare("SELECT DISTINCT c.name FROM grades g
+    $query = $pdo->prepare("SELECT DISTINCT c.code FROM grades g
         JOIN enrollments e ON e.id = g.enrollment_id
         JOIN offerings o ON o.id = e.offering_id JOIN courses c ON c.code = o.course_code
         WHERE e.student_id = ? AND e.status = 'active' AND g.grade_value IN ({$marks})");
     $query->execute(array_merge([$studentId], $passing));
-    return $query->fetchAll(PDO::FETCH_COLUMN);
+    $codes=$query->fetchAll(PDO::FETCH_COLUMN);
+    require_once __DIR__.'/data/catalog_provider.php';
+    $definitions=readCourseDefinitions($pdo);
+    return array_map(static fn($code)=>$definitions[$code]['name'] ?? $code,$codes);
 }
 
 function dbLockedSelectionPeriod(PDO $pdo, int $semesterId): ?array
@@ -155,6 +158,7 @@ function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array
                 $enroll->execute([$studentId, $id]);
             }
         }
+        $pdo->prepare('DELETE FROM selection_drafts WHERE student_id=? AND semester_id=?')->execute([$studentId,$semesterId]);
         $pdo->commit();
         return [];
     } catch (Throwable $error) {

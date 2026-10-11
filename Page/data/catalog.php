@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 // 界面阶段的演示数据。接入 MySQL 时由课程与教学班数据表替换。
 $semester = '2026—2027学年 第一学期';
-$selectionPeriod = ['start' => '2026-09-21 08:00:00', 'end' => '2027-10-09 17:00:00'];
+$selectionPeriod = ['start' => '2026-09-21 08:00:00', 'end' => '2026-11-01 17:00:00'];
 $offerings = [
     'SE301-01' => [
         'code' => 'SE301', 'name' => '软件工程', 'class' => '01 班',
@@ -83,6 +83,10 @@ $offerings = [
         'description' => '介绍监督学习、模型评估和常见算法。',
     ],
 ];
+
+// 院系归属是演示样例，不代表学校实际开课安排。
+foreach ($offerings as &$demoCourse) $demoCourse['department'] = $demoCourse['code'] === 'DSP342' ? '电子信息学院' : '计算机学院';
+unset($demoCourse);
 
 function e(string $value): string
 {

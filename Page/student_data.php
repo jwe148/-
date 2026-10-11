@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/student_registration_db.php';
+require_once __DIR__ . '/registration_extras.php';
 require_once __DIR__ . '/data/offering_view.php';
 
 // 未配置数据库时使用本地会话；配置后按登录学生与当前学期读取 MySQL。

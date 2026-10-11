@@ -69,7 +69,7 @@ peopleCheck($record['date_of_birth']==='2000-02-29' && $record['graduation_date'
 $record=dbPersonRecord($pdo,$teacher,'teacher');
 peopleCheck($record['department']==='计算机学院' && $record['graduation_date']===null,'teacher required profile fields persisted');
 $hash=$pdo->query("SELECT password_hash FROM users WHERE id=$student")->fetchColumn();
-peopleCheck($hash!=='People@2026' && password_verify('People@2026',$hash),'new account password stored as verified hash');
+peopleCheck($hash==='People@2026' && passwordMatches('People@2026',$hash),'new account password stored as queryable plaintext');
 peopleCheck(dbPersonRecord($pdo,$student,'teacher')===null && dbPersonRecord($pdo,$admin,'admin')===null,'record lookup enforces person roles');
 peopleCheck(dbPersonList($pdo,'student','people_student',999)['total']===1 && dbPersonList($pdo,'student','people_student',999)['page']===1,'list search and pagination clamp work');
 peopleCheck(dbPersonList($pdo,'student',"' OR 1=1 --",1)['total']===0,'SQL-looking search stays literal');
@@ -103,14 +103,14 @@ peopleRejected(fn()=>dbSavePerson($pdo,$admin,'teacher',$teacher,$input,1),'dupl
 
 $input=$s; $input['password']=''; $input['display_name']='已修改人员'; $input['is_active']='0';
 peopleCheck(dbSavePerson($pdo,$admin,'student',$student,$input,1)['errors']===[],'edit name and disable account');
-peopleCheck($pdo->query("SELECT password_hash FROM users WHERE id=$student")->fetchColumn()===$hash && (int)dbPersonRecord($pdo,$student,'student')['revision']===2,'blank update password preserves hash and increments revision');
+peopleCheck($pdo->query("SELECT password_hash FROM users WHERE id=$student")->fetchColumn()===$hash && (int)dbPersonRecord($pdo,$student,'student')['revision']===2,'blank update password preserves value and increments revision');
 peopleRejected(fn()=>dbSavePerson($pdo,$admin,'student',$student,$input,1),'stale editor version');
 peopleRejected(fn()=>dbSavePerson($pdo,$admin,'teacher',$student,$t,2),'cross-role edit');
 peopleRejected(fn()=>dbSavePerson($pdo,$admin,'student',999999,$input,1),'missing edit target');
 $changed=$input; $changed['username']='renamed_account';
 peopleRejected(fn()=>dbSavePerson($pdo,$admin,'student',$student,$changed,2),'existing account username immutable');
 $input['password']='Changed@2026'; $input['is_active']='1';
-peopleCheck(dbSavePerson($pdo,$admin,'student',$student,$input,2)['errors']===[] && password_verify('Changed@2026',$pdo->query("SELECT password_hash FROM users WHERE id=$student")->fetchColumn()),'reset password and re-enable account');
+peopleCheck(dbSavePerson($pdo,$admin,'student',$student,$input,2)['errors']===[] && $pdo->query("SELECT password_hash FROM users WHERE id=$student")->fetchColumn()==='Changed@2026','reset password and re-enable account');
 $legacy=peopleInput('student','student01','LEGACY-S'); $legacy['password']='';
 peopleCheck((int)dbPersonRecord($pdo,$existingStudent,'student')['revision']===0 && dbSavePerson($pdo,$admin,'student',$existingStudent,$legacy,0)['errors']===[],'legacy imported account can receive first profile');
 peopleRejected(fn()=>dbDeletePerson($pdo,$admin,'student',$existingStudent,1),'linked student deletion');

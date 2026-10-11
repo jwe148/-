@@ -106,6 +106,7 @@ $catalog = []; $ids = [];
 for ($i=0; $i<6; $i++) {
     $id = 'COMPLETE-' . $i; $ids[] = $id;
     completeSql('INSERT INTO courses (code,name,description) VALUES (?,?,?)', [$id, $id, 'end-to-end fixture']);
+    completeSql('INSERT INTO teacher_qualifications(teacher_id,course_code) VALUES(?,?),(?,?)',[$teacher,$id,$teacher2,$id]);
     completeSql("INSERT INTO offerings (id,course_code,semester_id,class_name,location) VALUES (?,?,?,'01','test')", [$id,$id,$sid]);
     completeSql('INSERT INTO offering_times (offering_id,weekday,starts_at,ends_at) VALUES (?,1,?,?)', [$id,sprintf('%02d:00:00',8+$i),sprintf('%02d:00:00',9+$i)]);
     $catalog[$id] = ['code'=>$id,'name'=>$id,'teacher'=>'待认领','capacity'=>10,'selected'=>0,'status'=>'open','prerequisites'=>[],'times'=>[['day'=>'周一','time'=>sprintf('%02d:00—%02d:00',8+$i,9+$i)]]];

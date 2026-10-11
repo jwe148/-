@@ -2,6 +2,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/password.php';
 
 // 未配置 MySQL 时使用内置演示账号；数据库模式从 users 表验证身份。
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -16,11 +17,11 @@ if (session_status() !== PHP_SESSION_ACTIVE) {
 
 function demoAccounts(): array
 {
-    $passwordHash = '$2y$10$LuZNyh/KZux4YIBS0l8R/eIiLtJgjmSKqtmD7Q6hHZCrb7PcXW1ti';
+    $passwordValue = 'Demo@2026';
     return [
-        'student' => ['username' => 'student01', 'name' => '演示学生', 'label' => '学生', 'password_hash' => $passwordHash],
-        'teacher' => ['username' => 'teacher01', 'name' => '演示教师', 'label' => '教师', 'password_hash' => $passwordHash],
-        'admin' => ['username' => 'admin01', 'name' => '演示教务员', 'label' => '教务员', 'password_hash' => $passwordHash],
+        'student' => ['username' => 'student01', 'name' => '演示学生', 'label' => '学生', 'password_hash' => $passwordValue],
+        'teacher' => ['username' => 'teacher01', 'name' => '演示教师', 'label' => '教师', 'password_hash' => $passwordValue],
+        'admin' => ['username' => 'admin01', 'name' => '演示教务员', 'label' => '教务员', 'password_hash' => $passwordValue],
     ];
 }
 

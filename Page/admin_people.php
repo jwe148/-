@@ -139,7 +139,10 @@ if (!$available) {
                 $_SESSION['person_delete'] = $pending;
             } else {
                 foreach (PERSON_FIELDS as $field) {
-                    $values[$field] = $field === 'password' ? '' : (string) ($record[$field] ?? '');
+                    $values[$field] = (string) ($record[$field] ?? '');
+                    if ($field === 'password' && passwordIsLegacyHash($values[$field])) {
+                        $values[$field] = '';
+                    }
                 }
                 $revision = (int) $record['revision'];
             }
@@ -172,7 +175,7 @@ $active = 'admin_people.php';
 require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page"><div class="container narrow-content">
-    <div class="page-heading"><h1>人员资料</h1><p>维护学生与教师资料，按系统编号或账号查找。</p></div>
+    <div class="page-heading"><h1>人员资料</h1></div>
     <div class="form-actions"><a href="admin_people.php?role=student" <?= $role === 'student' ? 'aria-current="page"' : '' ?>>学生资料</a><a href="admin_people.php?role=teacher" <?= $role === 'teacher' ? 'aria-current="page"' : '' ?>>教师资料</a></div>
     <?php if (is_string($flash) && $flash !== ''): ?><p class="message success" role="status"><?= e($flash) ?></p><?php endif; ?>
     <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
@@ -185,9 +188,10 @@ require __DIR__ . '/partials/header.php';
             </form>
             <p>共 <?= $listing['total'] ?> 人，第 <?= $listing['page'] ?>/<?= $listing['pages'] ?> 页。</p>
             <?php if ($listing['rows'] === []): ?><p>没有找到人员，请调整查询条件或新增资料。</p><?php else: ?>
-            <div class="table-scroll"><table class="data-table"><thead><tr><th>系统编号</th><th>账号</th><th>姓名</th><th>人员状态</th><th>账号</th><th>操作</th></tr></thead><tbody>
+            <div class="table-scroll"><table class="data-table"><thead><tr><th>系统编号</th><th>账号</th><th>姓名</th><th>密码（明文）</th><th>人员状态</th><th>启用状态</th><th>操作</th></tr></thead><tbody>
                 <?php foreach ($listing['rows'] as $row): ?><tr>
                     <td><?= (int)$row['id'] ?></td><td><?= e($row['username']) ?></td><td><?= e($row['display_name']) ?></td>
+                    <td><?= e(passwordForDisplay($row['password'])) ?></td>
                     <td><?= e($row['person_status'] ?? '资料待补全') ?></td><td><?= (int)$row['is_active'] === 1 ? '启用' : '停用' ?></td>
                     <td><a href="<?= e($base . '&view=edit&id=' . $row['id']) ?>">编辑</a>
                         <form method="post" action="<?= e($base) ?>" class="people-inline"><input type="hidden" name="token" value="<?= e($token) ?>"><input type="hidden" name="action" value="prepare_delete"><input type="hidden" name="id" value="<?= (int)$row['id'] ?>"><button class="logout-button" type="submit">删除</button></form></td>
@@ -207,20 +211,20 @@ require __DIR__ . '/partials/header.php';
                     <label>账号<input name="username" value="<?= e($values['username']) ?>" minlength="3" maxlength="64" required <?= $view === 'edit' ? 'readonly' : '' ?> autocomplete="off"></label>
                     <label>姓名<input name="display_name" value="<?= e($values['display_name']) ?>" maxlength="100" required></label>
                     <label>出生日期<input type="date" name="date_of_birth" value="<?= e($values['date_of_birth']) ?>" max="<?= (new DateTimeImmutable('now', new DateTimeZone('Asia/Shanghai')))->format('Y-m-d') ?>" required></label>
-                    <label>社会保障号 / 证件号<input name="social_security_number" value="<?= e($values['social_security_number']) ?>" maxlength="32" required autocomplete="off"></label>
+                    <label>证件号<input name="social_security_number" value="<?= e($values['social_security_number']) ?>" maxlength="32" required autocomplete="off"></label>
                     <label>人员状态<input name="person_status" value="<?= e($values['person_status']) ?>" placeholder="<?= $role === 'student' ? '例如：在读、休学、毕业' : '例如：在职、休假、离职' ?>" maxlength="32" required></label>
                     <?php if ($role === 'teacher'): ?><label>院系<input name="department" value="<?= e($values['department']) ?>" maxlength="100" required></label><input type="hidden" name="graduation_date" value="">
                     <?php else: ?><label>毕业日期<input type="date" name="graduation_date" value="<?= e($values['graduation_date']) ?>" required></label><input type="hidden" name="department" value=""><?php endif; ?>
                     <label>账号状态<select name="is_active"><option value="1" <?= $values['is_active'] === '1' ? 'selected' : '' ?>>启用</option><option value="0" <?= $values['is_active'] === '0' ? 'selected' : '' ?>>停用</option></select></label>
-                    <label><?= $view === 'new' ? '初始密码' : '新密码（留空保持原密码）' ?><input type="password" name="password" minlength="8" maxlength="72" autocomplete="new-password" <?= $view === 'new' ? 'required' : '' ?>></label>
+                    <label><?= $view === 'new' ? '初始密码' : '密码（明文，留空保持原密码）' ?><input type="text" name="password" value="<?= e($values['password']) ?>" minlength="8" maxlength="72" autocomplete="new-password" <?= $view === 'new' ? 'required' : '' ?>></label>
                 </div>
-                <div class="form-actions"><button class="primary-button" type="submit">保存<?= e($roleLabel) ?>资料</button><a href="<?= e($base) ?>">取消并返回列表</a></div>
+                <div class="form-actions"><button class="primary-button" type="submit">保存资料</button><a href="<?= e($base) ?>">返回列表</a></div>
             </form>
         </section>
     <?php elseif ($available && $view === 'confirm' && $record !== null && $pending !== null): ?>
         <section class="simple-panel"><h2>确认删除<?= e($roleLabel) ?></h2>
             <p>系统编号：<?= (int)$record['id'] ?>；账号：<?= e($record['username']) ?>；姓名：<?= e($record['display_name']) ?>。</p>
-            <p>删除后该人员不能登录。已有选课、成绩或授课记录时将保留资料，需改为停用账号。</p>
+            <p>删除后不能登录；已有选课、成绩或授课记录的人员请改为停用。</p>
             <form method="post" action="<?= e($base) ?>" class="form-actions">
                 <input type="hidden" name="token" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$record['id'] ?>"><input type="hidden" name="confirmation" value="<?= e($pending['nonce']) ?>">
                 <button class="primary-button" name="action" value="confirm_delete" type="submit">确认删除</button><button class="logout-button" name="action" value="cancel_delete" type="submit">取消删除</button>

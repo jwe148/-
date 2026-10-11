@@ -28,7 +28,7 @@ $null=Request 'login.php?role=admin' $admin 'POST' @{username='admin01';password
 $list=Request 'admin_people.php?role=student' $admin
 $script:Token=Hidden $list 'token'
 Check ($list.StatusCode -eq 200 -and $Token.Length -eq 32 -and $list.Content.Contains('人员资料')) 'admin list and CSRF token'
-Check (-not $list.Content.Contains('password_hash') -and -not $list.Content.Contains('social_security_number')) 'list omits password and identity fields'
+Check (-not $list.Content.Contains('password_hash') -and -not $list.Content.Contains('social_security_number')) 'list omits raw hash field name and identity fields'
 foreach ($path in @('admin_people.php?role=admin','admin_people.php?role%5B%5D=student')) {
     Check ((Request $path $admin).StatusCode -eq 400) "invalid person role rejected: $path"
 }
@@ -49,6 +49,8 @@ $s=Form 'student' 'web_people_student' 'WEB-S'
 $saved=Request 'admin_people.php?role=student' $admin 'POST' $s
 $studentId=Hidden $saved 'id'; $rev=Hidden $saved 'revision'
 Check ($saved.Content.Contains('已新增学生') -and $studentId -match '^[1-9][0-9]*$' -and $rev -eq '1') 'student created with generated system ID'
+Check ($saved.Content.Contains('value="WebPeople@2026"')) 'admin edit displays plaintext password'
+Check ((Request 'admin_people.php?q=web_people_student' $admin).Content.Contains('WebPeople@2026')) 'admin lookup displays plaintext password'
 Check ($saved.Content.Contains('value="2000-02-29"') -and $saved.Content.Contains('value="2027-06-30"')) 'student full profile displayed'
 $dup=Form 'student' 'web_people_duplicate' 'WEB-S'
 Check ((Request 'admin_people.php' $admin 'POST' $dup).Content.Contains('账号或证件号已存在')) 'duplicate identity rejected'

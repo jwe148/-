@@ -26,7 +26,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $record = $statement->fetch();
             if (is_array($record)
                 && hash_equals($role, $record['role'])
-                && password_verify($password, $record['password_hash'])) {
+                && passwordMatches($password, $record['password_hash'])) {
+                // 旧密码验证成功后才转换；条件更新避免覆盖同时发生的密码重置。
+                if (passwordIsLegacyHash($record['password_hash'])) {
+                    $migration = databaseConnection()->prepare('UPDATE users SET password_hash = ? WHERE id = ? AND password_hash = ? AND is_active = 1');
+                    $migration->execute([$password, $record['id'], $record['password_hash']]);
+                    if ($migration->rowCount() !== 1) {
+                        throw new RuntimeException('密码状态已变化，请重新登录。');
+                    }
+                    $record['password_hash'] = $password;
+                }
                 $authenticated = [
                     'id' => (int) $record['id'],
                     'username' => $record['username'],
@@ -43,7 +52,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } else {
         $account = $accounts[$role];
-        if (hash_equals($account['username'], $username) && password_verify($password, $account['password_hash'])) {
+        if (hash_equals($account['username'], $username) && passwordMatches($password, $account['password_hash'])) {
             $authenticated = [
                 'username' => $account['username'],
                 'name' => $account['name'],

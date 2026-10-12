@@ -140,7 +140,7 @@ if (!$available) {
             } else {
                 foreach (PERSON_FIELDS as $field) {
                     $values[$field] = (string) ($record[$field] ?? '');
-                    if ($field === 'password' && passwordIsHash($values[$field])) {
+                    if ($field === 'password') {
                         $values[$field] = '';
                     }
                 }
@@ -216,7 +216,7 @@ require __DIR__ . '/partials/header.php';
                     <?php if ($role === 'teacher'): ?><label>院系<input name="department" value="<?= e($values['department']) ?>" maxlength="100" required></label><input type="hidden" name="graduation_date" value="">
                     <?php else: ?><label>毕业日期<input type="date" name="graduation_date" value="<?= e($values['graduation_date']) ?>" required></label><input type="hidden" name="department" value=""><?php endif; ?>
                     <label>账号状态<select name="is_active"><option value="1" <?= $values['is_active'] === '1' ? 'selected' : '' ?>>启用</option><option value="0" <?= $values['is_active'] === '0' ? 'selected' : '' ?>>停用</option></select></label>
-                    <label><?= $view === 'new' ? '初始密码' : '新密码（留空保持原密码）' ?><input type="text" name="password" value="<?= e($values['password']) ?>" minlength="8" maxlength="72" autocomplete="new-password" <?= $view === 'new' ? 'required' : '' ?>></label>
+                    <label><?= $view === 'new' ? '初始密码' : '新密码（留空保持原密码）' ?><input type="password" name="password" value="<?= e($values['password']) ?>" minlength="8" maxlength="72" autocomplete="new-password" <?= $view === 'new' ? 'required' : '' ?>></label>
                 </div>
                 <div class="form-actions"><button class="primary-button" type="submit">保存资料</button><a href="<?= e($base) ?>">返回列表</a></div>
             </form>

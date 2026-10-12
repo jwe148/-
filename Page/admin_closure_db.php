@@ -46,6 +46,10 @@ function dbClosureTimeConflict(string $candidateId, array $activeIds, array $tim
     return false;
 }
 
+/**
+ * 截止后关闭指定学期，事务内完成停开、按备选顺序补位及计费记录生成。
+ * 先补位再判断最低开班人数；返回结果或错误列表，异常时回滚全部修改。
+ */
 function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
 {
     try {

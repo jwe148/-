@@ -12,7 +12,7 @@ $checks = [
     'wrong bcrypt password rejected' => !passwordMatches('Wrong@2026', $hash),
     'stored hash cannot be used as login password' => !passwordMatches($hash, $hash),
     'hash concealed with accurate display status' => passwordForDisplay($hash) === '哈希密码（不可查看原文，可重置）',
-    'plaintext available for display' => passwordForDisplay('Demo@2026') === 'Demo@2026',
+    'legacy plaintext concealed' => passwordForDisplay('Demo@2026') === '旧格式密码（不显示原文，可重置）',
     'plaintext comparison is case sensitive' => !passwordMatches('Demo@2026', 'demo@2026'),
 ];
 foreach (password_algos() as $algorithm) {

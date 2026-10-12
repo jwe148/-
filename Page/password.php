@@ -16,5 +16,5 @@ function passwordMatches(string $password, string $stored): bool
 
 function passwordForDisplay(string $stored): string
 {
-    return passwordIsHash($stored) ? '哈希密码（不可查看原文，可重置）' : $stored;
+    return passwordIsHash($stored) ? '哈希密码（不可查看原文，可重置）' : '旧格式密码（不显示原文，可重置）';
 }

@@ -49,8 +49,9 @@ $s=Form 'student' 'web_people_student' 'WEB-S'
 $saved=Request 'admin_people.php?role=student' $admin 'POST' $s
 $studentId=Hidden $saved 'id'; $rev=Hidden $saved 'revision'
 Check ($saved.Content.Contains('已新增学生') -and $studentId -match '^[1-9][0-9]*$' -and $rev -eq '1') 'student created with generated system ID'
-Check ($saved.Content.Contains('value="WebPeople@2026"')) 'admin edit displays plaintext password'
-Check ((Request 'admin_people.php?q=web_people_student' $admin).Content.Contains('WebPeople@2026')) 'admin lookup displays plaintext password'
+Check (-not $saved.Content.Contains('WebPeople@2026') -and $saved.Content.Contains('name="password" value=""')) 'admin edit leaves password blank'
+$passwordList = Request 'admin_people.php?q=web_people_student' $admin
+Check (-not $passwordList.Content.Contains('WebPeople@2026') -and $passwordList.Content.Contains('哈希密码')) 'admin lookup shows only password status'
 Check ($saved.Content.Contains('value="2000-02-29"') -and $saved.Content.Contains('value="2027-06-30"')) 'student full profile displayed'
 $dup=Form 'student' 'web_people_duplicate' 'WEB-S'
 Check ((Request 'admin_people.php' $admin 'POST' $dup).Content.Contains('账号或证件号已存在')) 'duplicate identity rejected'

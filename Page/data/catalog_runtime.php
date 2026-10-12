@@ -34,8 +34,11 @@ if (databaseModeEnabled()) {
         $query->execute([$selectionPeriod['semester_id']]);
         $offerings = [];
         foreach ($query->fetchAll() as $row) {
-            if (!isset($definitions[$row['code']])) throw new RuntimeException('目录缺少课程定义。');
-            $row['name']=$definitions[$row['code']]['name']; $row['description']=$definitions[$row['code']]['description'];
+            if (!isset($definitions[$row['code']])) {
+                throw new RuntimeException('目录缺少课程定义。');
+            }
+            $row['name'] = $definitions[$row['code']]['name'];
+            $row['description'] = $definitions[$row['code']]['description'];
             $offerings[$row['id']] = [
                 'code' => $row['code'],
                 'name' => $row['name'],
@@ -80,7 +83,9 @@ if (databaseModeEnabled()) {
         $prerequisiteQuery->execute([$selectionPeriod['semester_id']]);
         $prerequisites = [];
         foreach ($prerequisiteQuery->fetchAll() as $row) {
-            if (!isset($definitions[$row['prerequisite_code']])) throw new RuntimeException('目录缺少先修定义。');
+            if (!isset($definitions[$row['prerequisite_code']])) {
+                throw new RuntimeException('目录缺少先修定义。');
+            }
             $prerequisites[$row['course_code']][] = $definitions[$row['prerequisite_code']]['name'];
         }
         foreach ($offerings as &$offering) {

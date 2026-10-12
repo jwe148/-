@@ -125,7 +125,7 @@ function dbSavePerson(PDO $pdo, int $adminId, string $role, ?int $id, array $inp
             $pdo->rollBack();
             return ['id' => null, 'errors' => ['教务员账号不可用。']];
         }
-        $passwordValue = $input['password'] === '' ? null : $input['password'];
+        $passwordValue = $input['password'] === '' ? null : password_hash($input['password'], PASSWORD_DEFAULT);
         $profileExists = false;
         if ($id === null) {
             $pdo->prepare('INSERT INTO users (username, display_name, role, password_hash, is_active) VALUES (?, ?, ?, ?, ?)')

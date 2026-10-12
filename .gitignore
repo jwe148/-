@@ -6,4 +6,8 @@ tmp/
 .env
 .env.*
 !.env.example
+config.local.php
 __pycache__/
+
+/backups/
+/*_backup.sql

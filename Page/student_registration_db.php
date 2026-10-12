@@ -73,6 +73,10 @@ function dbLockedSelectionPeriod(PDO $pdo, int $semesterId): ?array
         : null;
 }
 
+/**
+ * 保存学生的首选、备选教学班编号；成功返回空数组，拒绝时返回错误列表。
+ * 同一事务内校验并替换原方案，首选占座、备选不占座，重提不会重复占座。
+ */
 function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array $primary, array $backup, array $catalog): array
 {
     $all = array_merge($primary, $backup);
@@ -169,6 +173,7 @@ function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array
     }
 }
 
+/** 退掉本人的一个教学班并释放名额；失败回滚，返回错误列表。 */
 function dbDropStudentOffering(PDO $pdo, int $studentId, int $semesterId, string $id): array
 {
     try {

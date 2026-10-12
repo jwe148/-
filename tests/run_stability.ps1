@@ -20,6 +20,10 @@ $DemoPort = $MysqlPort + 1000
 $DbPort = $MysqlPort + 2000
 $Servers = [Collections.Generic.List[object]]::new()
 $Results = [Collections.Generic.List[object]]::new()
+$SavedEnvironment = @{}
+foreach ($name in @('CR_DEMO_MODE', 'CR_DB_HOST', 'CR_DB_PORT', 'CR_DB_NAME', 'CR_DB_USER', 'CR_DB_PASSWORD', 'CR_TEST_DATADIR', 'CR_CATALOG_FILE', 'CR_BILLING_MODE')) {
+    $SavedEnvironment[$name] = [Environment]::GetEnvironmentVariable($name, 'Process')
+}
 $DbProcess = $null
 $MysqlArgs = @('--no-defaults', '--host=127.0.0.1', "--port=$MysqlPort", '--user=root', '--default-character-set=utf8mb4')
 Write-Output "ARTIFACTS $RunDir"
@@ -64,7 +68,10 @@ function Start-Php([int]$Port, [string]$Name) {
     throw "PHP server $Name did not become ready"
 }
 try {
-    Remove-Item Env:CR_DB_USER,Env:CR_DB_PASSWORD -ErrorAction SilentlyContinue
+    # 显式隔离演示测试，不读取 config.local.php。
+    $env:CR_DEMO_MODE = '1'
+    Remove-Item Env:CR_CATALOG_FILE,Env:CR_BILLING_MODE -ErrorAction SilentlyContinue
+    Run-Check 'config_rules' { & $Php (Join-Path $Project 'tests\config_rules.php') }
     Run-Check 'php_lint' {
         $files = @(& rg --files $Project -g '*.php')
         foreach ($file in $files) {
@@ -74,7 +81,7 @@ try {
         }
     }
     foreach ($name in @('selection_rules','teacher_rules','closure_rules')) {
-        Run-Check $name { & $Php (Join-Path $Project "tests\$name.php") }
+        Run-Check $name { & $Php (Join-Path $Project 'tests\rules.php') ($name -replace '_rules$', '') }
     }
     Run-Check 'selection_ui' { & node (Join-Path $Project 'tests\selection_ui.test.cjs') }
     Run-Check 'password_rules' { & $Php (Join-Path $Project 'tests\password_rules.php') }
@@ -97,6 +104,7 @@ try {
         try { $null = Invoke-Sql 'SELECT 1;'; $ready = $true; break } catch { Start-Sleep -Milliseconds 200 }
     }
     if (-not $ready) { throw 'Isolated MySQL did not become ready' }
+    $env:CR_DEMO_MODE = '0'
     $env:CR_DB_HOST = '127.0.0.1'
     $env:CR_DB_PORT = [string]$MysqlPort
     $env:CR_DB_NAME = 'course_registration'
@@ -167,6 +175,9 @@ try {
     Write-Output "STABILITY_FAILURE $($_.Exception.Message)"
     $Results.Add([pscustomobject]@{ name='runner_error'; passed=$false; detail=$_.Exception.Message })
 } finally {
+    foreach ($name in $SavedEnvironment.Keys) {
+        [Environment]::SetEnvironmentVariable($name, $SavedEnvironment[$name], 'Process')
+    }
     foreach ($process in $Servers) {
         if (-not $process.HasExited) { Stop-Process -Id $process.Id -Force -ErrorAction SilentlyContinue }
     }

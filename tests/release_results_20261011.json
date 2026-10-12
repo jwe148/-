@@ -1,0 +1,329 @@
+{
+  "date": "2026-10-11",
+  "timezone": "Asia/Shanghai",
+  "executor": "Codex automated regression; human acceptance pending",
+  "base_commit": "32578847c1cc290b03a27bf41e414600635db7c0",
+  "version_note": "Test directory consolidation; source_sha256 identifies the tested source files. Earlier release evidence is preserved in archive/test_results.json.",
+  "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\tests\\run_stability.ps1 -RaceRuns 1",
+  "environment": {
+    "php": "PHP 8.0.2 (cli) (built: Feb  3 2021 18:36:37) ( NTS Visual C++ 2019 x64 )",
+    "mysql": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe  Ver 8.0.21 for Win64 on x86_64 (MySQL Community Server - GPL)",
+    "node": "v24.14.0"
+  },
+  "stage_count": 29,
+  "stage_pass_checks": 819,
+  "race_runs": 1,
+  "runner_exit_code": 0,
+  "notes": [
+    "Isolated temporary MySQL; daily database not used.",
+    "PHP lint includes config.local.php syntax only; its contents and digest are excluded from this artifact.",
+    "Screenshots and manual acceptance remain pending.",
+    "Merged selection/teacher/closure rule files into rules.php without dropping assertions. PHP lint checks decrease by 2 because there are 2 fewer PHP files."
+  ],
+  "source_sha256": {
+    "Page/admin_closure.php": "65e7628bb0ef5191e89b09314992d3c13e6b866aa08eb1ffcd0abe4cc70cb5ce",
+    "Page/admin_closure_db.php": "cbbf689ba0402842d53d9692071b6b17cff9f252c7044061152b2fb22fe4cc94",
+    "Page/admin_extras.php": "caec6a037624bc07fbca8243c4364148ad3f718189cfb4e6e4a39523791ca775",
+    "Page/admin_people.php": "9f2397c22d288d3de9af5a640f062ba700cb2b051b56ef4c175fbbc683a23af5",
+    "Page/admin_people_db.php": "ab9b79be79c5c0c0afd3409ba8018ae94be2b0b94f4359f62de5a21ca9465cd6",
+    "Page/assets/css/style.css": "d0cfb4e9d9bd71df119af7734a7c82ccbe483d1d8f56562e543cfc206eb91e99",
+    "Page/assets/js/selection.js": "cd1ea4166006ffeb28c4ba950394783fd297158f50a3d63cbc1d76d5b1de558e",
+    "Page/auth.php": "fdc494f323f6000ea137a78c5ee7726541c069544a72676f8c787541700effa1",
+    "Page/billing_db.php": "69f6b515aba8d649b0c932430ba897cd66821941838d73606e223a16266b71b5",
+    "Page/catalog_api.php": "8d3f6245d3264674d71d5f8e1996baec4962dd10f982425d211b6599186a4631",
+    "Page/course.php": "4fd4a4ac441f83936f22190b887817bfef91cb4bbcbe734219728298e1a24252",
+    "Page/courses.php": "8c73faeeb3a1b565a99ca68c2daa9316180f2a6121dce307b05af059f5e92dda",
+    "Page/data/catalog.php": "0e1a4da4216c8346681e65e21ee2cc226dc73e74734d0042e9ffdebacdc8e6b4",
+    "Page/data/catalog_provider.php": "4a7a21ab8c519c3614491f1d289517e923c78244073aeec41f744558abb7471e",
+    "Page/data/catalog_runtime.php": "f705b0a488ab7c6903303effaba85ebb5e3383c1e45f6c72878ca4b27bc132bf",
+    "Page/data/offering_view.php": "2db2545cab8a74620099b4ae9a705bf3b92f5e31e048e8ca1999d9950d025e9e",
+    "Page/db.php": "d49cbe096239df225771144a1abc34ccce3a9d614c74752cfa29bdcabbaa128e",
+    "Page/grade_entry.php": "66d374c492bfdacd262c9e2db96d8d24c355532ec64e86fcc024437ca71b4300",
+    "Page/grades.php": "25571cb58f4ea6e71a5954680abd5561b55deb3e0210e254276b1059fe61b304",
+    "Page/index.php": "9d0f555f3a75b0e6debf5472c4e29cd68c93148348586ce6155b66613de4c3b2",
+    "Page/login.php": "9f1224b3f85b3ed7b126f6a17fb752b225e1c3813eac28fb2657c6f612ee218f",
+    "Page/logout.php": "6e977cac9a2e8c4568bfa922fe9e4aa8d510f7c930e4308fb41e64c7305a55f1",
+    "Page/partials/footer.php": "d7afae9ef9fd6d5410effdd3eb034586ffe51968d2844c006db6f0ae5f36ec32",
+    "Page/partials/header.php": "5c83755d4284cb129d74dbd92adbf6530a2673724bdb9cefecc1b6158de53750",
+    "Page/password.php": "afe4f4dc4300f3205d959bbe19d5ebe5476b3f4ece6e6c1841c51c972fd12314",
+    "Page/registration_extras.php": "cf651d161368661021b967a28845038abb6d9b4cfe0b2982996185f5c164e96c",
+    "Page/roster.php": "13f8a0efc0aae30682f06d7a8f3aa8dccc9ed61aca2b53b567bb1fdf10c4bc96",
+    "Page/schedule.php": "1b7ef2c2cfc712b19ca14c82821f82661b6cb682d84599fc850870a8c951843f",
+    "Page/selection.php": "dd3a1c15788f0d71792d06ddfca6efd436756636a0fdec0a800c1c5b3ed85400",
+    "Page/student_data.php": "2d28a74192df40e39d5588c17073a6dd45b33ee70273a38cad23465c718671a1",
+    "Page/student_registration_db.php": "dc7662cc2ef2575e95fee07663f04e035e957e2e30c28883caf444595f4a0a8c",
+    "Page/teacher_claim_db.php": "d5fa05234798a892b7eb8d58cc61967e0e98c9d7f1991b4209e7300ca350a433",
+    "Page/teacher_data.php": "e2a3a25242aa27059ebaaf53f59f1463d4a0a1c99156a3e8618a7f8b44422f56",
+    "Page/teacher_grades_db.php": "5fefe7d67fe245743c6cbfe3f0033ddc372c6a0014846d41029098aa4348d62b",
+    "Page/teaching.php": "0360ea271dad5f257b4ec644062dc380462233a758f3ea2c0649d9128becc157",
+    "database/add_course_department.sql": "8cbb2ef7055d14ec370bd80c800b25cfc41130893032c24b8bb85d3a5be97be5",
+    "database/add_person_profiles.sql": "767072dcfee2b18a488565a22217370ca4a8e2fc97a5868711a2e42ad9d0d527",
+    "database/add_registration_extras.sql": "f8cc779dd602acdd0ded2e32d5558b4bfa9860cfc1ab646ee0d9772e52f227c6",
+    "database/extend_demo_deadline_2027.sql": "036c00bed18e8f5b39aa45cf4d13efe7fee80b661d4d89c1d253317bb3c7c5d0",
+    "database/extend_selection_deadline.sql": "abd1c0125d2928f7a15e7599cf3fb695334de414bfb45bc5ad26aad57b9324b2",
+    "database/import_demo.php": "8dc42671ecb1acbd27b68c2e4ce814e2ccf31f37b00a0d095b303ed3b6af01da",
+    "database/import_more_demo.php": "2e52a694a8431d4ec07b749bb7bfdb9e273ca6f8dcf8f5d02f5445096e26641d",
+    "database/schema.sql": "400bc7139cc3dad992a3fb56a4efce812a10bff10f2c598af4f209858646dbde",
+    "database/seed_demo_qualifications.sql": "dbfcbaf600936b03c83ed2a8d33723f6ae00497107f6bff5b134f4d53ed14e9e",
+    "tests/advance_demo_deadline.php": "23ea1c68251ff01b05256d1b7cabfb2850c5f019632b94e8abac8fb1f988c788",
+    "tests/concurrent_seat.php": "79793153282a6abd9f1d4f938649fe31a2f7fbc2fb934c270b073e1e78927745",
+    "tests/config_rules.php": "b2a68fb468f7582e4996a02ea940430bcfc6a5dfbf63d4cb80aea48696bdeced",
+    "tests/db_closed.php": "809cb3501ae57fad7ce975c38547874ea226c5d68f0e5c78d51d551f8afe6e58",
+    "tests/db_completeness.php": "39cccd83df1c8ae50f094aed81fa47414a734848a6812cce77593e7ad5ad9520",
+    "tests/db_connection.php": "110bbe7b348a86ad7a490e79a75987f2fe3ffe2bd6396c90d79b8a49ada141b0",
+    "tests/db_extras.php": "6f9caf4c33ae914b61e932650321322cedf8a515f7031909304d52ebc0447756",
+    "tests/db_extreme.php": "66d0f5b40c742303bd87035a1d7bf4ac2e96ab3b64e149af00cdae2026dc7234",
+    "tests/db_more_demo.php": "23c0b79694639f83d1d71c477131a3db8eeb8ed9dd41f490fb496dc70dfb26d4",
+    "tests/db_people.php": "e5103699c75399c37e31eec2ba47d12fbd655ddda157947eaa3b2ccd96a35d3a",
+    "tests/db_seed.php": "c4a46afad8a62878b330c232856c016773c9f492088eb0915c870349482cc3b1",
+    "tests/http_completeness.ps1": "369b6b88c91c139c7da885c1d3e7be5f73c889c400c2e5bfd7814b37a39764eb",
+    "tests/http_db_closure.ps1": "f53dc835fbfa8928f32c9faaf74ce6272c82b461e2abfaf337f26560aedd5085",
+    "tests/http_db_grades.ps1": "be4c9ba179b14193920c9d35ca0dce1212ea3dad7db1f45985e9dac3fce1b808",
+    "tests/http_db_people.ps1": "ff707320ec8a970a5bff487766f3b8ab8fb7fe80db08bb0578911fc44b5a17ab",
+    "tests/http_db_registration.ps1": "b2076206a2d9d807467aebddf5d251e00f1b1b03c8365f25695689e8f5c3ca96",
+    "tests/http_db_teacher.ps1": "68d8fafd682b5da7cc7041ef762429143a3a48f3d6db564f045a558ff24c5717",
+    "tests/http_extras.ps1": "ea0ddacf7cb3721b1f5a4785faa8899b48bd42ef72d5f513a0dbbc57cc0f2a0e",
+    "tests/http_password.php": "adaa64acd4a17f064442eb0ef1a321f8424f3c70f30f66906b370d15497edccd",
+    "tests/http_smoke.ps1": "7e42f7e271c288307642ae093b58d049c0d8f38e5cb2ad01bbbd5297ed4b9bed",
+    "tests/http_stability.ps1": "9c7321ccd746eb1a20f51fd476b5725ea8857bec5eac6fe82f764d54f19e320e",
+    "tests/password_rules.php": "a3a13b912244ed22160862f93c06440cb5d5967410c24ba42b3c848d6ac30790",
+    "tests/rules.php": "62286b1db7862a43bb3ef4f147754f8ff8157c215503652df52da845c87b95bf",
+    "tests/run_stability.ps1": "f0da2c398e503074803cd80965172d2c2699c32405f59eafe1a57617192f5586",
+    "tests/selection_ui.test.cjs": "dd823de8c7c7567fdd679a6bab2bd4987835e16b4abc5392c82aabbe85298c4b",
+    "config.example.php": "d8773df1c106f571bb0be503cad1e9fc5fc0f1d320cd610083dbeb0cb6b54f93"
+  },
+  "results": [
+    {
+      "name": "config_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 18,
+      "requirement_gaps": [],
+      "seconds": 0.0939695
+    },
+    {
+      "name": "php_lint",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 51,
+      "requirement_gaps": [],
+      "seconds": 4.0836274999999995
+    },
+    {
+      "name": "selection_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 12,
+      "requirement_gaps": [],
+      "seconds": 0.121083
+    },
+    {
+      "name": "teacher_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 7,
+      "requirement_gaps": [],
+      "seconds": 0.0897702
+    },
+    {
+      "name": "closure_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 4,
+      "requirement_gaps": [],
+      "seconds": 0.0876957
+    },
+    {
+      "name": "selection_ui",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 7,
+      "requirement_gaps": [],
+      "seconds": 0.12464499999999999
+    },
+    {
+      "name": "password_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 17,
+      "requirement_gaps": [],
+      "seconds": 2.30855
+    },
+    {
+      "name": "http_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 20,
+      "requirement_gaps": [],
+      "seconds": 1.5721676999999998
+    },
+    {
+      "name": "http_demo_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 41,
+      "requirement_gaps": [],
+      "seconds": 2.3185265999999998
+    },
+    {
+      "name": "http_demo_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 38,
+      "requirement_gaps": [],
+      "seconds": 3.078627
+    },
+    {
+      "name": "db_connection",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 0,
+      "requirement_gaps": [],
+      "seconds": 0.0936939
+    },
+    {
+      "name": "db_seed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.1137642
+    },
+    {
+      "name": "db_more_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 26,
+      "requirement_gaps": [],
+      "seconds": 0.6536385
+    },
+    {
+      "name": "db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 66,
+      "requirement_gaps": [],
+      "seconds": 2.2735879999999997
+    },
+    {
+      "name": "db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 33,
+      "requirement_gaps": [],
+      "seconds": 1.3558019
+    },
+    {
+      "name": "db_extreme",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 130,
+      "requirement_gaps": [],
+      "seconds": 2.6200674
+    },
+    {
+      "name": "db_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 35,
+      "requirement_gaps": [],
+      "seconds": 0.5272934
+    },
+    {
+      "name": "http_password",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 59,
+      "requirement_gaps": [],
+      "seconds": 3.1143205999999997
+    },
+    {
+      "name": "http_db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 54,
+      "requirement_gaps": [],
+      "seconds": 5.751629599999999
+    },
+    {
+      "name": "http_db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 38,
+      "requirement_gaps": [],
+      "seconds": 4.057688
+    },
+    {
+      "name": "http_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 15,
+      "requirement_gaps": [],
+      "seconds": 4.3879499
+    },
+    {
+      "name": "http_db_registration",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 15,
+      "requirement_gaps": [],
+      "seconds": 3.2184589
+    },
+    {
+      "name": "http_db_teacher",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 10,
+      "requirement_gaps": [],
+      "seconds": 3.8995091
+    },
+    {
+      "name": "http_db_grades",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 3.0665665
+    },
+    {
+      "name": "http_db_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 56,
+      "requirement_gaps": [],
+      "seconds": 6.3200935
+    },
+    {
+      "name": "concurrent_seat_1",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5454931
+    },
+    {
+      "name": "http_db_closure",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 4.3377289999999995
+    },
+    {
+      "name": "db_closed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 0.10912169999999999
+    },
+    {
+      "name": "database_outage",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 12,
+      "requirement_gaps": [],
+      "seconds": 13.6665557
+    }
+  ]
+}

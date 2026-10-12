@@ -187,3 +187,5 @@ footer { border-top: 1px solid var(--line); background: #fff; }
     .section-heading { flex-wrap: wrap; gap: 4px 12px; }
     .dashboard-link { grid-template-columns: 1fr; }
 }
+
+.availability-line { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin-top: 16px; color: var(--muted); font-size: 13px; }

@@ -36,6 +36,8 @@ if ($OutageOnly) {
             Check ($page.StatusCode -eq 503 -and $page.Content.Contains('课程数据暂不可用')) "authenticated outage handled: $path"
             Check (-not $page.Content.Contains('SQLSTATE') -and -not $page.Content.Contains('Fatal error')) "authenticated outage hides internals: $path"
         }
+        $available = Request 'selection_availability.php' $saved
+        Check ($available.StatusCode -eq 503 -and -not $available.Content.Contains('SQLSTATE')) 'availability fails safely during database outage'
         $write = Request 'selection.php' $saved 'POST' @{token='old';primary='SE301-01'}
         Check ($write.StatusCode -eq 503) 'authenticated write fails safely during database outage'
     }

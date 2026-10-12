@@ -49,6 +49,9 @@ Check ($token.Length -eq 32) 'selection form token'
 $body = "token=$token&primary%5B%5D=SE301-01&primary%5B%5D=DB305-01&primary%5B%5D=CN309-01&primary%5B%5D=AI320-01&backup%5B%5D=OS312-01&backup%5B%5D=DSP342-01"
 $saved = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing
 Check ($saved.Content.Contains('选课方案已保存')) 'save four primary and full backup'
+$available = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check ($available.open -and $available.offerings.'SE301-01'.remaining -eq 2 -and $available.offerings.'SE301-01'.owned) 'demo availability includes own session seat'
+
 
 $schedule = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
 Check ($schedule.Content.Contains('已选 4 门课程') -and $schedule.Content.Contains('软件工程')) 'schedule after selection'
@@ -61,6 +64,9 @@ $removed = Invoke-WebRequest "$BaseUrl/schedule.php" -Method Post -Body "token=$
 Check ($removed.Content.Contains('已退课')) 'drop course'
 $catalog = Invoke-WebRequest "$BaseUrl/courses.php?q=SE301" -WebSession $student -UseBasicParsing
 Check ($catalog.Content.Contains('剩余 3 席')) 'remaining seats restored'
+$available = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check ($available.offerings.'SE301-01'.remaining -eq 3 -and -not $available.offerings.'SE301-01'.owned) 'demo availability updates after drop'
+
 
 $logout = Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $student -UseBasicParsing
 Check ($logout.BaseResponse.ResponseUri.AbsolutePath -eq '/login.php') 'logout'

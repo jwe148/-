@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="300" viewBox="0 0 1100 300" role="img" aria-label="系统结构图"><title>系统结构图</title>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#334155" stroke-width="1.5"/></marker><marker id="inherit" markerWidth="13" markerHeight="13" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="white" stroke="#334155"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#172b3f;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round} .line{fill:none;stroke:#334155;stroke-width:1.8} .box{fill:#f8fbff;stroke:#4778aa;stroke-width:1.8}</style>
+<rect width="1100" height="300" fill="white"/>
+<text x="550" y="48.0" font-size="30" text-anchor="middle" font-weight="bold">
+<tspan x="550" dy="0">系统结构图</tspan>
+</text>
+<rect x="40" y="100" width="270" height="110" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="175.0" y="147.41000000000003" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="175.0" dy="0">浏览器</tspan>
+<tspan x="175.0" dy="31.28">页面与表单</tspan>
+</text>
+<rect x="415" y="100" width="270" height="110" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="550.0" y="147.41000000000003" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="550.0" dy="0">PHP页面与业务处理</tspan>
+<tspan x="550.0" dy="31.28">身份、规则、事务</tspan>
+</text>
+<rect x="790" y="100" width="270" height="110" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="925.0" y="147.41000000000003" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="925.0" dy="0">MySQL数据库</tspan>
+<tspan x="925.0" dy="31.28">账号与业务记录</tspan>
+</text>
+<path d="M310 135 H415" class="line" marker-end="url(#arrow)"/>
+<path d="M415 180 H310" class="line" marker-end="url(#arrow)"/>
+<path d="M685 135 H790" class="line" marker-end="url(#arrow)"/>
+<path d="M790 180 H685" class="line" marker-end="url(#arrow)"/>
+<text x="550" y="267.0" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="550" dy="0">请求提交 → 业务检查与保存 → 页面显示结果</tspan>
+</text>
+</svg>

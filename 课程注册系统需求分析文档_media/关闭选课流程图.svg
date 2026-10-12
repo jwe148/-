@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="850" height="1020" viewBox="0 0 850 1020" role="img" aria-label="关闭选课流程图"><title>关闭选课流程图</title>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#334155" stroke-width="1.5"/></marker><marker id="inherit" markerWidth="13" markerHeight="13" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="white" stroke="#334155"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#172b3f;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round} .line{fill:none;stroke:#334155;stroke-width:1.8} .box{fill:#f8fbff;stroke:#4778aa;stroke-width:1.8}</style>
+<rect width="850" height="1020" fill="white"/>
+<text x="425" y="48.0" font-size="30" text-anchor="middle" font-weight="bold">
+<tspan x="425" dy="0">关闭选课流程图</tspan>
+</text>
+<rect x="160" y="80" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="120.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">截止后教务员发起关课</tspan>
+</text>
+<path d="M425 145 V174" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="174" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="214.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">锁定学期和业务记录</tspan>
+</text>
+<path d="M425 239 V268" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="268" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="308.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">停开没有教师的教学班</tspan>
+</text>
+<path d="M425 333 V362" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="362" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="402.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">按方案先后与备选顺序补位</tspan>
+</text>
+<path d="M425 427 V456" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="456" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="496.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">停开补位后仍不足3人的班</tspan>
+</text>
+<path d="M425 521 V550" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="550" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="590.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">用剩余备选再次补位</tspan>
+</text>
+<path d="M425 615 V644" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="644" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="684.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">保存结果和最终课表计费快照</tspan>
+</text>
+<path d="M425 709 V738" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="738" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="778.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">关闭学期并提交事务</tspan>
+</text>
+<path d="M425 803 V832" class="line" marker-end="url(#arrow)"/>
+<rect x="160" y="832" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="425.0" y="872.55" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="425.0" dy="0">事务提交后模拟发送计费记录</tspan>
+</text>
+<text x="425" y="950.72" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="425" dy="0">事务失败全部恢复；重复关课读取已有结果。</tspan>
+<tspan x="425" dy="28.560000000000002">模拟发送失败保留重试记录，不撤销关课。</tspan>
+</text>
+</svg>

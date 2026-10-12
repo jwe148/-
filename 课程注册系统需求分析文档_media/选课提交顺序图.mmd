@@ -1,0 +1,24 @@
+sequenceDiagram
+    actor S as 学生浏览器
+    participant P as 选课页面
+    participant B as 选课业务函数
+    participant D as MySQL
+    S->>P: POST 首选、备选、令牌
+    Note over P: 检查身份、令牌与开放期
+    P->>B: 调用正式保存函数
+    Note over B: 检查4+2数量与编号格式（失败直接返回）
+    B->>D: 开始事务，锁定学期与学生
+    D-->>B: 返回开放期与账号状态
+    B->>D: 按编号锁班，读取最新有效占座及先修成绩
+    D-->>B: 返回校验数据
+    Note over B: 检查重复课程、先修、首选名额和时间；扣除本人占座
+    alt 校验通过且写入成功
+        B->>D: 保存方案、更新首选占座、清除草稿
+        B->>D: 提交事务
+        B-->>P: 空错误列表
+        P-->>S: 重定向选课页，显示保存成功
+    else 业务拒绝或事务中数据库异常
+        B->>D: 回滚事务
+        B-->>P: 错误列表或抛出异常
+        P-->>S: 原因或受控提示，保留原记录
+    end

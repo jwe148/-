@@ -1,0 +1,8 @@
+erDiagram
+    users ||--o{ enrollments : "学生选课"
+    users o|--o{ offerings : "教师任教"
+    semesters ||--o{ offerings : "学期开班"
+    courses ||--o{ offerings : "课程开班"
+    offerings ||--o{ offering_times : "上课时段"
+    offerings ||--o{ enrollments : "实际选课"
+    enrollments ||--o| grades : "成绩"

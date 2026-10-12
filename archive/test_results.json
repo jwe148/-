@@ -2124,6 +2124,335 @@
           "seconds": 13.638418999999999
         }
       ]
+    },
+    "release_before_live_availability_20261011.json": {
+      "date": "2026-10-11",
+      "timezone": "Asia/Shanghai",
+      "executor": "Codex automated regression; human acceptance pending",
+      "base_commit": "32578847c1cc290b03a27bf41e414600635db7c0",
+      "version_note": "Test directory consolidation; source_sha256 identifies the tested source files. Earlier release evidence is preserved in archive/test_results.json.",
+      "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File .\\tests\\run_stability.ps1 -RaceRuns 1",
+      "environment": {
+        "php": "PHP 8.0.2 (cli) (built: Feb  3 2021 18:36:37) ( NTS Visual C++ 2019 x64 )",
+        "mysql": "C:\\Program Files\\MySQL\\MySQL Server 8.0\\bin\\mysqld.exe  Ver 8.0.21 for Win64 on x86_64 (MySQL Community Server - GPL)",
+        "node": "v24.14.0"
+      },
+      "stage_count": 29,
+      "stage_pass_checks": 819,
+      "race_runs": 1,
+      "runner_exit_code": 0,
+      "notes": [
+        "Isolated temporary MySQL; daily database not used.",
+        "PHP lint includes config.local.php syntax only; its contents and digest are excluded from this artifact.",
+        "Screenshots and manual acceptance remain pending.",
+        "Merged selection/teacher/closure rule files into rules.php without dropping assertions. PHP lint checks decrease by 2 because there are 2 fewer PHP files."
+      ],
+      "source_sha256": {
+        "Page/admin_closure.php": "65e7628bb0ef5191e89b09314992d3c13e6b866aa08eb1ffcd0abe4cc70cb5ce",
+        "Page/admin_closure_db.php": "cbbf689ba0402842d53d9692071b6b17cff9f252c7044061152b2fb22fe4cc94",
+        "Page/admin_extras.php": "caec6a037624bc07fbca8243c4364148ad3f718189cfb4e6e4a39523791ca775",
+        "Page/admin_people.php": "9f2397c22d288d3de9af5a640f062ba700cb2b051b56ef4c175fbbc683a23af5",
+        "Page/admin_people_db.php": "ab9b79be79c5c0c0afd3409ba8018ae94be2b0b94f4359f62de5a21ca9465cd6",
+        "Page/assets/css/style.css": "d0cfb4e9d9bd71df119af7734a7c82ccbe483d1d8f56562e543cfc206eb91e99",
+        "Page/assets/js/selection.js": "cd1ea4166006ffeb28c4ba950394783fd297158f50a3d63cbc1d76d5b1de558e",
+        "Page/auth.php": "fdc494f323f6000ea137a78c5ee7726541c069544a72676f8c787541700effa1",
+        "Page/billing_db.php": "69f6b515aba8d649b0c932430ba897cd66821941838d73606e223a16266b71b5",
+        "Page/catalog_api.php": "8d3f6245d3264674d71d5f8e1996baec4962dd10f982425d211b6599186a4631",
+        "Page/course.php": "4fd4a4ac441f83936f22190b887817bfef91cb4bbcbe734219728298e1a24252",
+        "Page/courses.php": "8c73faeeb3a1b565a99ca68c2daa9316180f2a6121dce307b05af059f5e92dda",
+        "Page/data/catalog.php": "0e1a4da4216c8346681e65e21ee2cc226dc73e74734d0042e9ffdebacdc8e6b4",
+        "Page/data/catalog_provider.php": "4a7a21ab8c519c3614491f1d289517e923c78244073aeec41f744558abb7471e",
+        "Page/data/catalog_runtime.php": "f705b0a488ab7c6903303effaba85ebb5e3383c1e45f6c72878ca4b27bc132bf",
+        "Page/data/offering_view.php": "2db2545cab8a74620099b4ae9a705bf3b92f5e31e048e8ca1999d9950d025e9e",
+        "Page/db.php": "d49cbe096239df225771144a1abc34ccce3a9d614c74752cfa29bdcabbaa128e",
+        "Page/grade_entry.php": "66d374c492bfdacd262c9e2db96d8d24c355532ec64e86fcc024437ca71b4300",
+        "Page/grades.php": "25571cb58f4ea6e71a5954680abd5561b55deb3e0210e254276b1059fe61b304",
+        "Page/index.php": "9d0f555f3a75b0e6debf5472c4e29cd68c93148348586ce6155b66613de4c3b2",
+        "Page/login.php": "9f1224b3f85b3ed7b126f6a17fb752b225e1c3813eac28fb2657c6f612ee218f",
+        "Page/logout.php": "6e977cac9a2e8c4568bfa922fe9e4aa8d510f7c930e4308fb41e64c7305a55f1",
+        "Page/partials/footer.php": "d7afae9ef9fd6d5410effdd3eb034586ffe51968d2844c006db6f0ae5f36ec32",
+        "Page/partials/header.php": "5c83755d4284cb129d74dbd92adbf6530a2673724bdb9cefecc1b6158de53750",
+        "Page/password.php": "afe4f4dc4300f3205d959bbe19d5ebe5476b3f4ece6e6c1841c51c972fd12314",
+        "Page/registration_extras.php": "cf651d161368661021b967a28845038abb6d9b4cfe0b2982996185f5c164e96c",
+        "Page/roster.php": "13f8a0efc0aae30682f06d7a8f3aa8dccc9ed61aca2b53b567bb1fdf10c4bc96",
+        "Page/schedule.php": "1b7ef2c2cfc712b19ca14c82821f82661b6cb682d84599fc850870a8c951843f",
+        "Page/selection.php": "dd3a1c15788f0d71792d06ddfca6efd436756636a0fdec0a800c1c5b3ed85400",
+        "Page/student_data.php": "2d28a74192df40e39d5588c17073a6dd45b33ee70273a38cad23465c718671a1",
+        "Page/student_registration_db.php": "dc7662cc2ef2575e95fee07663f04e035e957e2e30c28883caf444595f4a0a8c",
+        "Page/teacher_claim_db.php": "d5fa05234798a892b7eb8d58cc61967e0e98c9d7f1991b4209e7300ca350a433",
+        "Page/teacher_data.php": "e2a3a25242aa27059ebaaf53f59f1463d4a0a1c99156a3e8618a7f8b44422f56",
+        "Page/teacher_grades_db.php": "5fefe7d67fe245743c6cbfe3f0033ddc372c6a0014846d41029098aa4348d62b",
+        "Page/teaching.php": "0360ea271dad5f257b4ec644062dc380462233a758f3ea2c0649d9128becc157",
+        "database/add_course_department.sql": "8cbb2ef7055d14ec370bd80c800b25cfc41130893032c24b8bb85d3a5be97be5",
+        "database/add_person_profiles.sql": "767072dcfee2b18a488565a22217370ca4a8e2fc97a5868711a2e42ad9d0d527",
+        "database/add_registration_extras.sql": "f8cc779dd602acdd0ded2e32d5558b4bfa9860cfc1ab646ee0d9772e52f227c6",
+        "database/extend_demo_deadline_2027.sql": "036c00bed18e8f5b39aa45cf4d13efe7fee80b661d4d89c1d253317bb3c7c5d0",
+        "database/extend_selection_deadline.sql": "abd1c0125d2928f7a15e7599cf3fb695334de414bfb45bc5ad26aad57b9324b2",
+        "database/import_demo.php": "8dc42671ecb1acbd27b68c2e4ce814e2ccf31f37b00a0d095b303ed3b6af01da",
+        "database/import_more_demo.php": "2e52a694a8431d4ec07b749bb7bfdb9e273ca6f8dcf8f5d02f5445096e26641d",
+        "database/schema.sql": "400bc7139cc3dad992a3fb56a4efce812a10bff10f2c598af4f209858646dbde",
+        "database/seed_demo_qualifications.sql": "dbfcbaf600936b03c83ed2a8d33723f6ae00497107f6bff5b134f4d53ed14e9e",
+        "tests/advance_demo_deadline.php": "23ea1c68251ff01b05256d1b7cabfb2850c5f019632b94e8abac8fb1f988c788",
+        "tests/concurrent_seat.php": "79793153282a6abd9f1d4f938649fe31a2f7fbc2fb934c270b073e1e78927745",
+        "tests/config_rules.php": "b2a68fb468f7582e4996a02ea940430bcfc6a5dfbf63d4cb80aea48696bdeced",
+        "tests/db_closed.php": "809cb3501ae57fad7ce975c38547874ea226c5d68f0e5c78d51d551f8afe6e58",
+        "tests/db_completeness.php": "39cccd83df1c8ae50f094aed81fa47414a734848a6812cce77593e7ad5ad9520",
+        "tests/db_connection.php": "110bbe7b348a86ad7a490e79a75987f2fe3ffe2bd6396c90d79b8a49ada141b0",
+        "tests/db_extras.php": "6f9caf4c33ae914b61e932650321322cedf8a515f7031909304d52ebc0447756",
+        "tests/db_extreme.php": "66d0f5b40c742303bd87035a1d7bf4ac2e96ab3b64e149af00cdae2026dc7234",
+        "tests/db_more_demo.php": "23c0b79694639f83d1d71c477131a3db8eeb8ed9dd41f490fb496dc70dfb26d4",
+        "tests/db_people.php": "e5103699c75399c37e31eec2ba47d12fbd655ddda157947eaa3b2ccd96a35d3a",
+        "tests/db_seed.php": "c4a46afad8a62878b330c232856c016773c9f492088eb0915c870349482cc3b1",
+        "tests/http_completeness.ps1": "369b6b88c91c139c7da885c1d3e7be5f73c889c400c2e5bfd7814b37a39764eb",
+        "tests/http_db_closure.ps1": "f53dc835fbfa8928f32c9faaf74ce6272c82b461e2abfaf337f26560aedd5085",
+        "tests/http_db_grades.ps1": "be4c9ba179b14193920c9d35ca0dce1212ea3dad7db1f45985e9dac3fce1b808",
+        "tests/http_db_people.ps1": "ff707320ec8a970a5bff487766f3b8ab8fb7fe80db08bb0578911fc44b5a17ab",
+        "tests/http_db_registration.ps1": "b2076206a2d9d807467aebddf5d251e00f1b1b03c8365f25695689e8f5c3ca96",
+        "tests/http_db_teacher.ps1": "68d8fafd682b5da7cc7041ef762429143a3a48f3d6db564f045a558ff24c5717",
+        "tests/http_extras.ps1": "ea0ddacf7cb3721b1f5a4785faa8899b48bd42ef72d5f513a0dbbc57cc0f2a0e",
+        "tests/http_password.php": "adaa64acd4a17f064442eb0ef1a321f8424f3c70f30f66906b370d15497edccd",
+        "tests/http_smoke.ps1": "7e42f7e271c288307642ae093b58d049c0d8f38e5cb2ad01bbbd5297ed4b9bed",
+        "tests/http_stability.ps1": "9c7321ccd746eb1a20f51fd476b5725ea8857bec5eac6fe82f764d54f19e320e",
+        "tests/password_rules.php": "a3a13b912244ed22160862f93c06440cb5d5967410c24ba42b3c848d6ac30790",
+        "tests/rules.php": "62286b1db7862a43bb3ef4f147754f8ff8157c215503652df52da845c87b95bf",
+        "tests/run_stability.ps1": "f0da2c398e503074803cd80965172d2c2699c32405f59eafe1a57617192f5586",
+        "tests/selection_ui.test.cjs": "dd823de8c7c7567fdd679a6bab2bd4987835e16b4abc5392c82aabbe85298c4b",
+        "config.example.php": "d8773df1c106f571bb0be503cad1e9fc5fc0f1d320cd610083dbeb0cb6b54f93"
+      },
+      "results": [
+        {
+          "name": "config_rules",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 18,
+          "requirement_gaps": [],
+          "seconds": 0.0939695
+        },
+        {
+          "name": "php_lint",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 51,
+          "requirement_gaps": [],
+          "seconds": 4.0836274999999995
+        },
+        {
+          "name": "selection_rules",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 12,
+          "requirement_gaps": [],
+          "seconds": 0.121083
+        },
+        {
+          "name": "teacher_rules",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 7,
+          "requirement_gaps": [],
+          "seconds": 0.0897702
+        },
+        {
+          "name": "closure_rules",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 4,
+          "requirement_gaps": [],
+          "seconds": 0.0876957
+        },
+        {
+          "name": "selection_ui",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 7,
+          "requirement_gaps": [],
+          "seconds": 0.12464499999999999
+        },
+        {
+          "name": "password_rules",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 17,
+          "requirement_gaps": [],
+          "seconds": 2.30855
+        },
+        {
+          "name": "http_demo",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 20,
+          "requirement_gaps": [],
+          "seconds": 1.5721676999999998
+        },
+        {
+          "name": "http_demo_stability",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 41,
+          "requirement_gaps": [],
+          "seconds": 2.3185265999999998
+        },
+        {
+          "name": "http_demo_completeness",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 38,
+          "requirement_gaps": [],
+          "seconds": 3.078627
+        },
+        {
+          "name": "db_connection",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 0,
+          "requirement_gaps": [],
+          "seconds": 0.0936939
+        },
+        {
+          "name": "db_seed",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 14,
+          "requirement_gaps": [],
+          "seconds": 0.1137642
+        },
+        {
+          "name": "db_more_demo",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 26,
+          "requirement_gaps": [],
+          "seconds": 0.6536385
+        },
+        {
+          "name": "db_people",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 66,
+          "requirement_gaps": [],
+          "seconds": 2.2735879999999997
+        },
+        {
+          "name": "db_completeness",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 33,
+          "requirement_gaps": [],
+          "seconds": 1.3558019
+        },
+        {
+          "name": "db_extreme",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 130,
+          "requirement_gaps": [],
+          "seconds": 2.6200674
+        },
+        {
+          "name": "db_extras",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 35,
+          "requirement_gaps": [],
+          "seconds": 0.5272934
+        },
+        {
+          "name": "http_password",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 59,
+          "requirement_gaps": [],
+          "seconds": 3.1143205999999997
+        },
+        {
+          "name": "http_db_people",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 54,
+          "requirement_gaps": [],
+          "seconds": 5.751629599999999
+        },
+        {
+          "name": "http_db_completeness",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 38,
+          "requirement_gaps": [],
+          "seconds": 4.057688
+        },
+        {
+          "name": "http_extras",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 15,
+          "requirement_gaps": [],
+          "seconds": 4.3879499
+        },
+        {
+          "name": "http_db_registration",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 15,
+          "requirement_gaps": [],
+          "seconds": 3.2184589
+        },
+        {
+          "name": "http_db_teacher",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 10,
+          "requirement_gaps": [],
+          "seconds": 3.8995091
+        },
+        {
+          "name": "http_db_grades",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 11,
+          "requirement_gaps": [],
+          "seconds": 3.0665665
+        },
+        {
+          "name": "http_db_stability",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 56,
+          "requirement_gaps": [],
+          "seconds": 6.3200935
+        },
+        {
+          "name": "concurrent_seat_1",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 5,
+          "requirement_gaps": [],
+          "seconds": 0.5454931
+        },
+        {
+          "name": "http_db_closure",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 14,
+          "requirement_gaps": [],
+          "seconds": 4.3377289999999995
+        },
+        {
+          "name": "db_closed",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 11,
+          "requirement_gaps": [],
+          "seconds": 0.10912169999999999
+        },
+        {
+          "name": "database_outage",
+          "passed": true,
+          "exit_code": 0,
+          "checks": 12,
+          "requirement_gaps": [],
+          "seconds": 13.6665557
+        }
+      ]
     }
   },
   "release_checks_20261011.txt": "2026-10-11 仓库整理回归记录\n项目和临时目录路径已替换为占位符，未包含本机配置内容。\n\nRUN config_rules\nPASS forced demo ignores database configuration\nPASS environment overrides local settings as a group\nPASS zero password preserved\nPASS missing environment password defaults to empty\nPASS integer port normalized\nPASS empty settings select demo\nPASS invalid port rejected 0\nPASS invalid port rejected 1\nPASS invalid port rejected 2\nPASS invalid port rejected 3\nPASS invalid port rejected 4\nPASS invalid port rejected 5\nPASS invalid type rejected host\nPASS invalid type rejected name\nPASS invalid type rejected user\nPASS invalid type rejected password\nPASS DSN separator rejected host\nPASS DSN separator rejected name\n\nRUN php_lint\nPASS <project>\\tests\\teacher_rules.php\nPASS <project>\\tests\\db_closed.php\nPASS <project>\\tests\\db_more_demo.php\nPASS <project>\\tests\\selection_rules.php\nPASS <project>\\tests\\password_rules.php\nPASS <project>\\tests\\config_rules.php\nPASS <project>\\tests\\http_password.php\nPASS <project>\\tests\\db_extreme.php\nPASS <project>\\tests\\db_seed.php\nPASS <project>\\tests\\concurrent_seat.php\nPASS <project>\\tests\\db_extras.php\nPASS <project>\\tests\\db_people.php\nPASS <project>\\tests\\closure_rules.php\nPASS <project>\\tests\\db_connection.php\nPASS <project>\\tests\\advance_demo_deadline.php\nPASS <project>\\tests\\db_completeness.php\nPASS <project>\\config.local.php\nPASS <project>\\config.example.php\nPASS <project>\\database\\import_demo.php\nPASS <project>\\database\\import_more_demo.php\nPASS <project>\\Page\\admin_extras.php\nPASS <project>\\Page\\admin_closure_db.php\nPASS <project>\\Page\\admin_closure.php\nPASS <project>\\Page\\admin_people.php\nPASS <project>\\Page\\admin_people_db.php\nPASS <project>\\Page\\teaching.php\nPASS <project>\\Page\\teacher_grades_db.php\nPASS <project>\\Page\\teacher_data.php\nPASS <project>\\Page\\teacher_claim_db.php\nPASS <project>\\Page\\student_registration_db.php\nPASS <project>\\Page\\student_data.php\nPASS <project>\\Page\\selection.php\nPASS <project>\\Page\\schedule.php\nPASS <project>\\Page\\roster.php\nPASS <project>\\Page\\registration_extras.php\nPASS <project>\\Page\\password.php\nPASS <project>\\Page\\partials\\header.php\nPASS <project>\\Page\\partials\\footer.php\nPASS <project>\\Page\\logout.php\nPASS <project>\\Page\\login.php\nPASS <project>\\Page\\index.php\nPASS <project>\\Page\\grade_entry.php\nPASS <project>\\Page\\grades.php\nPASS <project>\\Page\\db.php\nPASS <project>\\Page\\data\\offering_view.php\nPASS <project>\\Page\\data\\catalog_runtime.php\nPASS <project>\\Page\\data\\catalog_provider.php\nPASS <project>\\Page\\data\\catalog.php\nPASS <project>\\Page\\courses.php\nPASS <project>\\Page\\course.php\nPASS <project>\\Page\\catalog_api.php\nPASS <project>\\Page\\billing_db.php\nPASS <project>\\Page\\auth.php\n\nRUN selection_rules\nPASS valid\nPASS count\nPASS duplicate\nPASS full\nPASS full_backup_allowed\nPASS prerequisite\nPASS conflict\nPASS seat_taken\nPASS seat_restored\nPASS second_meeting_conflict\nPASS second_meeting_filter\nPASS multiple_prerequisites\n\nRUN teacher_rules\nPASS claim_available\nPASS time_conflict\nPASS already_assigned\nPASS already_claimed\nPASS closed\nPASS missing\nPASS second_meeting_conflict\n\nRUN closure_rules\nPASS overlap\nPASS adjacent_allowed\nPASS other_day_allowed\nPASS second_segment_checked\n\nRUN selection_ui\nPASS script accepts pages without selection form\nPASS empty form initializes both counts and hides duplicate warning\nPASS six unique courses display complete counts and valid fields\nPASS different classes of same course invalidate both choices\nPASS three duplicate choices all remain invalid\nPASS correcting duplicates clears validity, aria and warning\nPASS clearing choice decrements count without duplicate warning\nCHECKS 7\n\nRUN password_rules\nPASS plaintext accepted exactly\nPASS wrong plaintext rejected\nPASS empty stored value rejected\nPASS bcrypt identified as hash\nPASS plaintext identified as plaintext\nPASS bcrypt password accepted\nPASS wrong bcrypt password rejected\nPASS stored hash cannot be used as login password\nPASS hash concealed with accurate display status\nPASS legacy plaintext concealed\nPASS plaintext comparison is case sensitive\nPASS 2y supported hash accepted\nPASS 2y wrong password rejected\nPASS argon2i supported hash accepted\nPASS argon2i wrong password rejected\nPASS argon2id supported hash accepted\nPASS argon2id wrong password rejected\n\nRUN http_demo\nPASS anonymous redirect\nPASS teacher forbidden from student page\nPASS teacher form token\nPASS teacher claims offering\nPASS teacher catalog shows claim\nPASS teacher time conflict\nPASS teacher releases offering\nPASS student login\nPASS student forbidden from teacher page\nPASS course detail links to selection\nPASS course prefilled without saving\nPASS prefill does not change schedule\nPASS selection form token\nPASS save four primary and full backup\nPASS schedule after selection\nPASS remaining seats decrease\nPASS grades page\nPASS drop course\nPASS remaining seats restored\nPASS logout\n\nRUN http_demo_stability\nPASS anonymous redirected: index.php\nPASS anonymous redirected: courses.php\nPASS anonymous redirected: course.php\nPASS anonymous redirected: selection.php\nPASS anonymous redirected: schedule.php\nPASS anonymous redirected: grades.php\nPASS anonymous redirected: teaching.php\nPASS anonymous redirected: grade_entry.php\nPASS anonymous redirected: admin_closure.php\nPASS invalid login rejected without server error\nPASS invalid login rejected without server error\nPASS invalid login rejected without server error\nPASS student login for stability checks\nPASS student access forbidden: teaching.php\nPASS student access forbidden: grade_entry.php\nPASS student access forbidden: admin_closure.php\nPASS unknown or malformed offering: course.php?id=missing\nPASS unknown or malformed offering: course.php?id%5B%5D=x\nPASS array query handled: courses.php?q%5B%5D=x&day%5B%5D=x\nPASS array query handled: selection.php?offering%5B%5D=x\nPASS search output escapes markup\nPASS selection token and extended deadline shown\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS invalid drop token rejected\nPASS invalid drop does not mutate schedule\nPASS query parameters cannot select another student grades\nPASS GET logout rejected\nPASS valid account with wrong role rejected\nPASS malformed teacher request rejected without server error\nPASS malformed teacher request rejected without server error\nPASS malformed teacher request rejected without server error\nPASS malformed teacher requests do not change claims\nPASS logged-out session cannot access protected page\nPASS token from previous login rejected\n\nRUN http_demo_completeness\nPASS catalog contains all eleven unique offerings\nPASS offering detail and selection entry: course.php?id=SE301-01\nPASS offering detail and selection entry: course.php?id=DB305-01\nPASS offering detail and selection entry: course.php?id=CN309-01\nPASS offering detail and selection entry: course.php?id=OS312-01\nPASS offering detail and selection entry: course.php?id=AI320-01\nPASS offering detail and selection entry: course.php?id=HCI326-01\nPASS offering detail and selection entry: course.php?id=UX328-01\nPASS offering detail and selection entry: course.php?id=SEC335-01\nPASS offering detail and selection entry: course.php?id=WEB337-01\nPASS offering detail and selection entry: course.php?id=DSP342-01\nPASS offering detail and selection entry: course.php?id=ML340-01\nPASS empty search has recovery link\nPASS course code search ignores case\nPASS Chinese course name search finds matching offering\nPASS Chinese teacher name search finds assigned offering\nPASS invalid weekday safely resets filter\nPASS weekday filter excludes other weekdays\nPASS combined search applies keyword and weekday together\nPASS student page and viewport: index.php\nPASS student page and viewport: courses.php\nPASS student page and viewport: selection.php\nPASS student page and viewport: schedule.php\nPASS student page and viewport: grades.php\nPASS rendered pages reference stylesheet and selection script\nPASS static asset available: assets/css/style.css\nPASS static asset available: assets/js/selection.js\nPASS non-web project file inaccessible: database/schema.sql\nPASS non-web project file inaccessible: tests/db_extreme.php\nPASS non-web project file inaccessible: README.md\nPASS non-web project file inaccessible: ../database/schema.sql\nPASS teacher page available: index.php\nPASS teacher page available: courses.php\nPASS teacher page available: teaching.php\nPASS teacher page available: grade_entry.php\nPASS admin page available: index.php\nPASS admin page available: courses.php\nPASS admin page available: admin_closure.php\n\nRUN db_connection\n数据库连接检查退出码为0；原日志的本机主机名和临时端口已省略。\n\nRUN db_seed\nPASS semesters\nPASS current_offerings\nPASS historical_offerings\nPASS current_active_seats\nPASS full_class\nPASS unassigned_teachers\nPASS no_seed_teacher_claims\nPASS prerequisites\nPASS student_choices\nPASS student_seats\nPASS historical_grades\nPASS inactive_placeholders\nPASS demo_login_password\nPASS disabled_teacher\n\nRUN db_more_demo\nPASS interrupted import rolls back all additions\nPASS username conflict preserves existing user and rolls back\nPASS expanded demo imports into seeded database\nPASS original current classes retain their seat counts\nPASS original student plan unchanged\nPASS all 16 named test users have profiles\nPASS ten current and two historical classes created\nPASS 22 additional seat accounts cannot log in\nPASS student13 uses a working hashed password\nPASS disabled student and teacher available\nPASS teacher04 initially has no qualification\nPASS repeat import changes nothing\nPASS all classes load and second time slot is retained\nPASS last-seat full and low-enrollment scenarios ready\nPASS passing and failing prerequisite histories differ\nPASS student07 has an incomplete draft\nPASS endpoint and second-slot conflicts behave as intended\nPASS student04 has a valid ready-to-submit plan\nPASS student05 fails prerequisite validation\nPASS unqualified teacher cannot claim\nPASS qualified teacher can claim an empty class\nPASS repeat import retains edited profiles and teaching assignments\nPASS expanded data can close registration\nPASS low-enrollment and unclaimed classes cancelled\nPASS students receive their available backups after closure\nPASS repeat import after closure leaves final results intact\nExpanded demo tests complete\n\nRUN db_people\nPASS both roles created with generated unique IDs\nPASS student required profile fields persisted\nPASS teacher required profile fields persisted\nPASS new account password stored as a verifiable hash\nPASS record lookup enforces person roles\nPASS list search and pagination clamp work\nPASS SQL-looking search stays literal\nPASS invalid field display_name 0 rejects with every row unchanged\nPASS invalid field display_name 1 rejects with every row unchanged\nPASS invalid field display_name 2 rejects with every row unchanged\nPASS invalid field display_name 3 rejects with every row unchanged\nPASS invalid field person_status 4 rejects with every row unchanged\nPASS invalid field username 5 rejects with every row unchanged\nPASS invalid field username 6 rejects with every row unchanged\nPASS invalid field username 7 rejects with every row unchanged\nPASS invalid field date_of_birth 8 rejects with every row unchanged\nPASS invalid field date_of_birth 9 rejects with every row unchanged\nPASS invalid field date_of_birth 10 rejects with every row unchanged\nPASS invalid field graduation_date 11 rejects with every row unchanged\nPASS invalid field graduation_date 12 rejects with every row unchanged\nPASS invalid field social_security_number 13 rejects with every row unchanged\nPASS invalid field social_security_number 14 rejects with every row unchanged\nPASS invalid field social_security_number 15 rejects with every row unchanged\nPASS invalid field is_active 16 rejects with every row unchanged\nPASS invalid field password 17 rejects with every row unchanged\nPASS invalid field password 18 rejects with every row unchanged\nPASS invalid field password 19 rejects with every row unchanged\nPASS array field username rejects with every row unchanged\nPASS array field display_name rejects with every row unchanged\nPASS array field password rejects with every row unchanged\nPASS array field date_of_birth rejects with every row unchanged\nPASS array field social_security_number rejects with every row unchanged\nPASS array field person_status rejects with every row unchanged\nPASS array field department rejects with every row unchanged\nPASS array field graduation_date rejects with every row unchanged\nPASS array field is_active rejects with every row unchanged\nPASS empty teacher department rejects with every row unchanged\nPASS teacher graduation field rejects with every row unchanged\nPASS cannot create admin through person module rejects with every row unchanged\nPASS non-admin save rejects with every row unchanged\nPASS disabled admin save rejects with every row unchanged\nPASS duplicate username rejects with every row unchanged\nPASS duplicate identity cannot overwrite another profile rejects with every row unchanged\nPASS duplicate identity during edit rejects with every row unchanged\nPASS edit name and disable account\nPASS blank update password preserves value and increments revision\nPASS stale editor version rejects with every row unchanged\nPASS cross-role edit rejects with every row unchanged\nPASS missing edit target rejects with every row unchanged\nPASS existing account username immutable rejects with every row unchanged\nPASS reset password and re-enable account\nPASS legacy imported account can receive first profile\nPASS linked student deletion rejects with every row unchanged\nPASS linked teacher deletion rejects with every row unchanged\nPASS non-admin deletion rejects with every row unchanged\nPASS admin cannot be deleted through personnel route rejects with every row unchanged\nPASS stale delete confirmation rejects with every row unchanged\nPASS missing delete target rejects with every row unchanged\nPASS profile insertion fault after account creation rolls back every row\nPASS profile update fault after account modification rolls back every row\nPASS account deletion fault rolls back every row\nPASS simultaneous admin edits have one winner\nPASS simultaneous edits increment revision only once\nPASS unlinked student physically deleted\nPASS deleted account profile removed by foreign key\nPASS unlinked teacher physically deleted\nCHECKS 66\n\nRUN db_completeness\nPASS import refuses missing/wrong flag or existing data: \nPASS import refuses missing/wrong flag or existing data: --wrong\nPASS import refuses missing/wrong flag or existing data: --demo\nPASS end-to-end each student saves four plus two: 1\nPASS end-to-end each student saves four plus two: 2\nPASS end-to-end each student saves four plus two: 3\nPASS end-to-end only primary choices occupy seats\nPASS simultaneous teacher claim has exactly one winner\nPASS claim record and offering agree after simultaneous claim\nPASS end-to-end teacher claims adjacent class COMPLETE-1\nPASS end-to-end teacher claims adjacent class COMPLETE-2\nPASS end-to-end teacher claims adjacent class COMPLETE-3\nPASS second meeting conflict rejects teacher claim without mutation\nPASS second meeting conflict rejects student update and preserves previous seats\nPASS end-to-end drop releases one seat\nPASS repeated drop is rejected\nPASS end-to-end resave restores dropped seat without duplicates\nPASS resave returns total active seats to twelve\nPASS end-to-end current open course unavailable for grades\nPASS simultaneous closure commits once and returns idempotent second result\nPASS simultaneous closure records each offering once\nPASS end-to-end semester becomes closed\nPASS end-to-end four classes of three students confirmed\nPASS end-to-end closed semester blocks all enrollment/claim changes\nPASS end-to-end new closed course roster contains three students\nPASS end-to-end teacher enters new course grade\nPASS end-to-end student sees newly entered grade\nPASS end-to-end another student cannot see owner grade\nPASS end-to-end grade correction updates one row\nPASS end-to-end grade can be cleared\nPASS cleared grade disappears from student published grades\nPASS post-grading repeated closure leaves grades unchanged\nPASS confirmed primary choices all retain active enrollments\nCHECKS 33\n\nRUN db_extreme\nPASS exact 4 primary and 2 backup accepted\nPASS invalid selection shape/id rejected 0\nPASS invalid selection preserves all rows 0\nPASS invalid selection shape/id rejected 1\nPASS invalid selection preserves all rows 1\nPASS invalid selection shape/id rejected 2\nPASS invalid selection preserves all rows 2\nPASS invalid selection shape/id rejected 3\nPASS invalid selection preserves all rows 3\nPASS invalid selection shape/id rejected 4\nPASS invalid selection preserves all rows 4\nPASS invalid selection shape/id rejected 5\nPASS invalid selection preserves all rows 5\nPASS invalid selection shape/id rejected 6\nPASS invalid selection preserves all rows 6\nPASS invalid selection shape/id rejected 7\nPASS invalid selection preserves all rows 7\nPASS invalid selection shape/id rejected 8\nPASS invalid selection preserves all rows 8\nPASS invalid selection shape/id rejected 9\nPASS invalid selection preserves all rows 9\nPASS invalid selection shape/id rejected 10\nPASS invalid selection preserves all rows 10\nPASS invalid selection shape/id rejected 11\nPASS invalid selection preserves all rows 11\nPASS invalid selection shape/id rejected 12\nPASS invalid selection preserves all rows 12\nPASS disabled student cannot save\nPASS teacher id cannot save a student schedule\nPASS another student cannot drop owner enrollment\nPASS cross-user rejection preserves rows\nPASS save and drop rejected in period state future\nPASS period rejection preserves rows future\nPASS save and drop rejected in period state expired\nPASS period rejection preserves rows expired\nPASS save and drop rejected in period state closing\nPASS period rejection preserves rows closing\nPASS save and drop rejected in period state closed\nPASS period rejection preserves rows closed\nPASS selection storage failure reaches rollback path\nPASS storage failure restores deleted old choices and seats\nPASS selection succeeds after failure removed\nPASS database rejects capacity above 10\nPASS database rejects zero capacity\nPASS database rejects invalid weekday\nPASS database rejects zero-duration meeting\nPASS same course in different offerings rejected\nPASS teacher claim with adjacent meeting accepted\nPASS duplicate claim rejected\nPASS preassigned course cannot be released\nPASS own explicit claim can be released\nPASS teacher cannot claim offering without meeting data\nPASS missing meeting rejection preserves rows\nPASS valid grade accepted A\nPASS prerequisite pass/fail evaluated for A\nPASS valid grade accepted B\nPASS prerequisite pass/fail evaluated for B\nPASS valid grade accepted C\nPASS prerequisite pass/fail evaluated for C\nPASS valid grade accepted D\nPASS prerequisite pass/fail evaluated for D\nPASS valid grade accepted F\nPASS prerequisite pass/fail evaluated for F\nPASS valid grade accepted I\nPASS prerequisite pass/fail evaluated for I\nPASS valid grade accepted blank\nPASS prerequisite pass/fail evaluated for blank\nPASS invalid grade rejected Z\nPASS invalid grade rejected a\nPASS invalid grade rejected  A\nPASS invalid grade rejected AAAAAAAA\nPASS student cannot enter grades\nPASS current open semester cannot receive grades\nPASS teacher cannot read another teacher roster\nPASS invalid grade and roster requests preserve data\nPASS closure completes with backup case full\nPASS backup reason and order recorded full\nPASS final seats match successful substitutions full\nPASS repeated closure preserves all rows full\nPASS closure completes with backup case all_full\nPASS backup reason and order recorded all_full\nPASS final seats match successful substitutions all_full\nPASS repeated closure preserves all rows all_full\nPASS closure completes with backup case cancelled\nPASS backup reason and order recorded cancelled\nPASS final seats match successful substitutions cancelled\nPASS repeated closure preserves all rows cancelled\nPASS closure completes with backup case missing_time\nPASS backup reason and order recorded missing_time\nPASS final seats match successful substitutions missing_time\nPASS repeated closure preserves all rows missing_time\nPASS closure completes with backup case prerequisite\nPASS backup reason and order recorded prerequisite\nPASS final seats match successful substitutions prerequisite\nPASS repeated closure preserves all rows prerequisite\nPASS closure completes with backup case time_conflict\nPASS backup reason and order recorded time_conflict\nPASS final seats match successful substitutions time_conflict\nPASS repeated closure preserves all rows time_conflict\nPASS closure completes with backup case duplicate_course\nPASS backup reason and order recorded duplicate_course\nPASS final seats match successful substitutions duplicate_course\nPASS repeated closure preserves all rows duplicate_course\nPASS closure accepts 0, 2, 3, 10 student boundary fixtures\nPASS only classes with at least three students remain confirmed\nPASS closure result write failure reaches rollback path\nPASS closure failure restores status seats choices backup attempts\nPASS closure succeeds after failure removed\nPASS non-admin closure preserves all rows\nPASS empty semester closure rejected\nPASS empty semester rejection restores open state\nPASS inconsistent primary choice and seat rejected\nPASS inconsistent seat rejection preserves entire database\nPASS corrupt class with eleven active students rejected\nPASS over-capacity corruption does not partially close semester\nPASS closure levels a preexisting dropped-primary gap\nPASS dropped-primary replacement occupies the original missing rank\nPASS leveling promotes the two-student first backup\nPASS promoted first backup reaches the minimum of three\nPASS rescued first backup remains confirmed\nPASS rescued class remains unchanged on repeated closure\nPASS provisional promotion cancelled below three and second backup tried\nPASS cancelled provisional promotion restores original backup rank\nPASS second backup fills rank released by cancelled provisional promotion\nPASS cancelled provisional class has no active seats\nPASS two-phase closure fault reaches rollback\nPASS two-phase rollback restores provisional and second-backup promotions\nPASS two-phase closure recovers after removing failure\nPASS late primary cancellation fills new gap with remaining backup\nPASS two filling passes leave exactly four unique primary ranks\nCHECKS 130\n\nRUN db_extras\nPASS incomplete draft saved\nPASS draft round trip\nPASS draft never occupies or changes seats\nPASS draft isolated per student\nPASS unknown offering rejected\nPASS malformed draft rejected\nPASS teacher cannot delete student schedule\nPASS delete failure rolls back seats and draft\nPASS whole schedule deletion succeeds\nPASS deletion clears choices and draft\nPASS deletion releases all seats\nPASS repeat deletion harmless\nPASS selection can be restored after deletion\nPASS submission consumes draft\nPASS student cannot grant qualification\nPASS qualification may be revoked before assignment\nPASS unqualified claim rejected without mutation\nPASS qualified teacher can claim\nPASS assigned qualification cannot be removed\nPASS teacher sees current owned roster before closure\nPASS roster denies wrong role\nPASS roster denies other teacher class\nPASS qualified claim can be released\nPASS deadline blocks draft and whole delete\nPASS closure succeeds and queues billing\nPASS closed schedules generate billing records\nPASS billing snapshot excludes cancelled classes\nPASS repeat closure does not duplicate billing\nPASS student cannot send billing\nPASS failed billing preserved for retry\nPASS billing retry succeeds\nPASS sent billing never repeated\nPASS retry attempt count retained\nPASS read-only catalog snapshot round trip\nPASS malformed catalog rejected\nExtras tests complete\n\nRUN http_password\nPASS student plain login succeeds\nPASS student plain session works\nPASS student plain login preserves stored value\nPASS student plain wrong password rejected\nPASS student plain wrong role rejected\nPASS student plain reset revokes session\nPASS student plain reset password authenticates\nPASS student plain disable revokes session\nPASS student plain disabled login rejected\nPASS student hash login succeeds\nPASS student hash session works\nPASS student hash login preserves stored value\nPASS student hash wrong password rejected\nPASS student hash raw hash rejected\nPASS student hash wrong role rejected\nPASS student hash reset revokes session\nPASS student hash reset password authenticates\nPASS student hash disable revokes session\nPASS student hash disabled login rejected\nPASS teacher plain login succeeds\nPASS teacher plain session works\nPASS teacher plain login preserves stored value\nPASS teacher plain wrong password rejected\nPASS teacher plain wrong role rejected\nPASS teacher plain reset revokes session\nPASS teacher plain reset password authenticates\nPASS teacher plain disable revokes session\nPASS teacher plain disabled login rejected\nPASS teacher hash login succeeds\nPASS teacher hash session works\nPASS teacher hash login preserves stored value\nPASS teacher hash wrong password rejected\nPASS teacher hash raw hash rejected\nPASS teacher hash wrong role rejected\nPASS teacher hash reset revokes session\nPASS teacher hash reset password authenticates\nPASS teacher hash disable revokes session\nPASS teacher hash disabled login rejected\nPASS admin plain login succeeds\nPASS admin plain session works\nPASS admin plain login preserves stored value\nPASS admin plain wrong password rejected\nPASS admin plain wrong role rejected\nPASS admin plain reset revokes session\nPASS admin plain reset password authenticates\nPASS admin plain disable revokes session\nPASS admin plain disabled login rejected\nPASS admin hash login succeeds\nPASS admin hash session works\nPASS admin hash login preserves stored value\nPASS admin hash wrong password rejected\nPASS admin hash raw hash rejected\nPASS admin hash wrong role rejected\nPASS admin list identifies hash without showing it\nPASS admin edit leaves hashed password blank\nPASS admin hash reset revokes session\nPASS admin hash reset password authenticates\nPASS admin hash disable revokes session\nPASS admin hash disabled login rejected\n\nRUN http_db_people\nPASS anonymous cannot access personnel\nPASS student cannot access personnel\nPASS student cannot write personnel\nPASS teacher cannot access personnel\nPASS teacher cannot write personnel\nPASS admin list and CSRF token\nPASS list omits raw hash field name and identity fields\nPASS invalid person role rejected: admin_people.php?role=admin\nPASS invalid person role rejected: admin_people.php?role%5B%5D=student\nPASS missing edit target returns controlled 404\nPASS array edit ID returns controlled 404\nPASS search query escapes HTML\nPASS array search and page handled safely\nPASS unsupported method rejected\nPASS missing or invalid CSRF blocks creation\nPASS invalid date rejected and password never echoed\nPASS array profile field rejected without exception\nPASS rejected creations leave no account\nPASS student created with generated system ID\nPASS admin edit leaves password blank\nPASS admin lookup shows only password status\nPASS student full profile displayed\nPASS duplicate identity rejected\nPASS duplicate profile insertion rolls back account\nPASS created student can login\nPASS edit persists and escapes stored markup\nPASS existing session refreshes changed display name\nPASS stale editor cannot overwrite newer profile\nPASS password reset increments profile revision\nPASS password reset revokes existing session\nPASS old password no longer authenticates\nPASS reset password authenticates\nPASS admin can disable account\nPASS disable revokes existing session\nPASS disabled account cannot login\nPASS admin can re-enable account\nPASS GET delete-looking query does not delete\nPASS GET leaves profile unchanged\nPASS delete opens dedicated confirmation\nPASS wrong delete confirmation rejected\nPASS cancel deletion returns to list\nPASS cancel preserves profile\nPASS cancelled confirmation cannot be replayed\nPASS editing clears pending delete confirmation\nPASS confirmed unlinked student deleted\nPASS deleted student no longer exists\nPASS deleted account session revoked\nPASS successful delete confirmation is single use\nPASS teacher created with department\nPASS created teacher can login\nPASS role-specific lookup cannot expose other type\nPASS confirmed unlinked teacher deleted\nPASS linked teacher deletion rejected without SQL leak\nPASS linked teacher preserved after rejected deletion\n\nRUN http_db_completeness\nPASS catalog contains all eleven unique offerings\nPASS offering detail and selection entry: course.php?id=AI320-01\nPASS offering detail and selection entry: course.php?id=CN309-01\nPASS offering detail and selection entry: course.php?id=DB305-01\nPASS offering detail and selection entry: course.php?id=DSP342-01\nPASS offering detail and selection entry: course.php?id=HCI326-01\nPASS offering detail and selection entry: course.php?id=ML340-01\nPASS offering detail and selection entry: course.php?id=OS312-01\nPASS offering detail and selection entry: course.php?id=SE301-01\nPASS offering detail and selection entry: course.php?id=SEC335-01\nPASS offering detail and selection entry: course.php?id=UX328-01\nPASS offering detail and selection entry: course.php?id=WEB337-01\nPASS empty search has recovery link\nPASS course code search ignores case\nPASS Chinese course name search finds matching offering\nPASS Chinese teacher name search finds assigned offering\nPASS invalid weekday safely resets filter\nPASS weekday filter excludes other weekdays\nPASS combined search applies keyword and weekday together\nPASS student page and viewport: index.php\nPASS student page and viewport: courses.php\nPASS student page and viewport: selection.php\nPASS student page and viewport: schedule.php\nPASS student page and viewport: grades.php\nPASS rendered pages reference stylesheet and selection script\nPASS static asset available: assets/css/style.css\nPASS static asset available: assets/js/selection.js\nPASS non-web project file inaccessible: database/schema.sql\nPASS non-web project file inaccessible: tests/db_extreme.php\nPASS non-web project file inaccessible: README.md\nPASS non-web project file inaccessible: ../database/schema.sql\nPASS teacher page available: index.php\nPASS teacher page available: courses.php\nPASS teacher page available: teaching.php\nPASS teacher page available: grade_entry.php\nPASS admin page available: index.php\nPASS admin page available: courses.php\nPASS admin page available: admin_closure.php\n\nRUN http_extras\nPASS HTTP incomplete draft save\nPASS HTTP draft has no enrollment\nPASS HTTP draft survives login\nPASS HTTP whole delete requires confirmation\nPASS HTTP whole delete checks token\nPASS HTTP confirmed deletion\nPASS HTTP deletion clears draft\nPASS HTTP read-only catalog returns definitions\nPASS HTTP catalog forbids writes\nPASS HTTP admin extras page\nPASS HTTP billing action checks token\nPASS HTTP eligible claim offered\nPASS HTTP teacher roster links\nPASS HTTP teacher current roster renders\nPASS HTTP teacher cannot read other roster\n\nRUN http_db_registration\nPASS database mode enabled\nPASS student02 login\nPASS student02 starts empty\nPASS student02 grades from database\nPASS unqualified student rejected\nPASS failed submission has no partial seats\nPASS student02 selection token\nPASS student02 saves four primary and full backup\nPASS last DB305 seat occupied\nPASS full primary rejected for another student\nPASS schedule survives logout\nPASS existing student retains seat in full class\nPASS student02 drops course\nPASS other account sees restored seat\nPASS dropped course can be added again\n\nRUN http_db_teacher\nPASS teacher can view unassigned course\nPASS teacher claims course\nPASS student sees claimed teacher\nPASS claim survives new login session\nPASS duplicate claim rejected\nPASS overlapping teaching time rejected\nPASS conflicting claim has no partial update\nPASS other teacher course cannot be released\nPASS teacher releases claim\nPASS student sees available course again\n\nRUN http_db_grades\nPASS student cannot open grade entry\nPASS teacher sees closed confirmed courses\nPASS teacher sees legacy grade and roster\nPASS second course has separate enrollment\nPASS cross-course enrollment rejected\nPASS invalid grade rejected\nPASS open semester grade write rejected\nPASS letter grade saved\nPASS student immediately sees new grade\nPASS grade can be cleared\nPASS cleared grade disappears for student\n\nRUN http_db_stability\nPASS anonymous redirected: index.php\nPASS anonymous redirected: courses.php\nPASS anonymous redirected: course.php\nPASS anonymous redirected: selection.php\nPASS anonymous redirected: schedule.php\nPASS anonymous redirected: grades.php\nPASS anonymous redirected: teaching.php\nPASS anonymous redirected: grade_entry.php\nPASS anonymous redirected: admin_closure.php\nPASS invalid login rejected without server error\nPASS invalid login rejected without server error\nPASS invalid login rejected without server error\nPASS student login for stability checks\nPASS student access forbidden: teaching.php\nPASS student access forbidden: grade_entry.php\nPASS student access forbidden: admin_closure.php\nPASS unknown or malformed offering: course.php?id=missing\nPASS unknown or malformed offering: course.php?id%5B%5D=x\nPASS array query handled: courses.php?q%5B%5D=x&day%5B%5D=x\nPASS array query handled: selection.php?offering%5B%5D=x\nPASS search output escapes markup\nPASS selection token and extended deadline shown\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS malformed selection rejected without server error\nPASS malformed selection leaves schedule unchanged\nPASS invalid drop token rejected\nPASS invalid drop does not mutate schedule\nPASS query parameters cannot select another student grades\nPASS GET logout rejected\nPASS valid account with wrong role rejected\nPASS malformed teacher request rejected without server error\nPASS malformed teacher request rejected without server error\nPASS malformed teacher request rejected without server error\nPASS malformed teacher requests do not change claims\nPASS student without grades sees empty state\nPASS malformed grade request rejected without server error\nPASS malformed grade request rejected without server error\nPASS malformed grade requests leave roster unchanged\nPASS repeat selection submission 0\nPASS repeat selection submission 1\nPASS repeat selection submission 2\nPASS repeat selection submission 3\nPASS repeat selection submission 4\nPASS repeat selection submission 5\nPASS repeat selection submission 6\nPASS repeat selection submission 7\nPASS repeat selection submission 8\nPASS repeat selection submission 9\nPASS repeat submissions preserve same schedule\nPASS logged-out session cannot access protected page\nPASS token from previous login rejected\n\nRUN concurrent_seat_1\nPASS one_winner_one_full\nPASS capacity_not_exceeded\nPASS winner_has_four_seats\nPASS loser_has_no_partial_seats\nPASS loser_has_no_partial_choices\n\nRUN http_db_closure\nPASS student has one primary course that will be cancelled\nPASS admin sees preview before deadline\nPASS early close rejected without changes\nPASS 演示测试库选课时间已截止\nPASS admin closes semester\nPASS no-teacher and low-count courses cancelled\nPASS full first backup skipped and second backup promoted\nPASS student final schedule contains promoted backup\nPASS student sees closure result\nPASS student sees backup attempt reasons\nPASS student cannot resubmit after close\nPASS teacher cannot claim after close\nPASS repeated close does not allocate again\nPASS student cannot access admin closure\n\nRUN db_closed\nPASS closed_once\nPASS all_offerings_recorded\nPASS cancelled_offerings\nPASS cancelled_seats_released\nPASS original_counts\nPASS backup_promoted\nPASS student_final_seats\nPASS final_choice_rank\nPASS first_backup_remains\nPASS backup_attempt_reasons\nPASS capacity_respected\n\nRUN database_outage\nPASS database outage gives controlled login error\nPASS database outage does not leak internal exception\nPASS outage does not allow unauthenticated access\nPASS authenticated outage handled: courses.php\nPASS authenticated outage hides internals: courses.php\nPASS authenticated outage handled: selection.php\nPASS authenticated outage hides internals: selection.php\nPASS authenticated outage handled: schedule.php\nPASS authenticated outage hides internals: schedule.php\nPASS authenticated outage handled: grades.php\nPASS authenticated outage hides internals: grades.php\nPASS authenticated write fails safely during database outage\n"

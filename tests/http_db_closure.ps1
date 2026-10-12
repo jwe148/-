@@ -54,3 +54,6 @@ Check ($again.BaseResponse.ResponseUri.Query -eq '?already=1' -and $again.Conten
 $forbidden = 0
 try { $null = Invoke-WebRequest "$BaseUrl/admin_closure.php" -WebSession $student -UseBasicParsing } catch { $forbidden = [int]$_.Exception.Response.StatusCode }
 Check ($forbidden -eq 403) 'student cannot access admin closure'
+
+$available = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check (-not $available.open) 'availability reports registration closed'

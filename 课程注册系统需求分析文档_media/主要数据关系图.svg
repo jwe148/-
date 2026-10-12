@@ -1,0 +1,76 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="820" viewBox="0 0 1100 820" role="img" aria-label="主要数据关系图"><title>主要数据关系图</title>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#334155" stroke-width="1.5"/></marker><marker id="inherit" markerWidth="13" markerHeight="13" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="white" stroke="#334155"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#172b3f;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round} .line{fill:none;stroke:#334155;stroke-width:1.8} .box{fill:#f8fbff;stroke:#4778aa;stroke-width:1.8}</style>
+<rect width="1100" height="820" fill="white"/>
+<text x="550" y="48.0" font-size="30" text-anchor="middle" font-weight="bold">
+<tspan x="550" dy="0">主要数据关系图</tspan>
+</text>
+<rect x="40" y="125" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="190.0" y="167.41000000000003" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="190.0" dy="0">users</tspan>
+<tspan x="190.0" dy="31.28">账号：学生与教师</tspan>
+</text>
+<rect x="760" y="125" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="910.0" y="167.41000000000003" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="910.0" dy="0">semesters</tspan>
+<tspan x="910.0" dy="31.28">学期</tspan>
+</text>
+<rect x="760" y="355" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="910.0" y="397.41" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="910.0" dy="0">courses</tspan>
+<tspan x="910.0" dy="31.28">课程</tspan>
+</text>
+<rect x="395" y="355" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="545.0" y="397.41" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="545.0" dy="0">offerings</tspan>
+<tspan x="545.0" dy="31.28">教学班</tspan>
+</text>
+<rect x="40" y="610" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="190.0" y="652.41" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="190.0" dy="0">enrollments</tspan>
+<tspan x="190.0" dy="31.28">实际选课</tspan>
+</text>
+<rect x="395" y="610" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="545.0" y="652.41" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="545.0" dy="0">offering_times</tspan>
+<tspan x="545.0" dy="31.28">上课时段</tspan>
+</text>
+<rect x="760" y="610" width="300" height="100" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="910.0" y="652.41" font-size="23" text-anchor="middle" font-weight="normal">
+<tspan x="910.0" dy="0">grades</tspan>
+<tspan x="910.0" dy="31.28">成绩</tspan>
+</text>
+<path d="M340 150 H545 V355" class="line" marker-end="url(#arrow)"/>
+<text x="515" y="137.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="515" dy="0">教师 0..1 → 班 0..N</tspan>
+</text>
+<path d="M190 225 V610" class="line" marker-end="url(#arrow)"/>
+<text x="195" y="371.44" font-size="21" text-anchor="start" font-weight="normal">
+<tspan x="195" dy="0">学生 1</tspan>
+<tspan x="195" dy="28.560000000000002">↓</tspan>
+<tspan x="195" dy="28.560000000000002">选课 0..N</tspan>
+</text>
+<path d="M760 195 H690 V375 H695" class="line" marker-end="url(#arrow)"/>
+<text x="760" y="277.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="760" dy="0">学期 1 → 班 0..N</tspan>
+</text>
+<path d="M760 405 H695" class="line" marker-end="url(#arrow)"/>
+<text x="905" y="490.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="905" dy="0">课程 1 → 班 0..N</tspan>
+</text>
+<path d="M425 455 V520 H280 V610" class="line" marker-end="url(#arrow)"/>
+<text x="340" y="555.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="340" dy="0">班 1 → 选课 0..N</tspan>
+</text>
+<path d="M545 455 V610" class="line" marker-end="url(#arrow)"/>
+<text x="690" y="550.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="690" dy="0">班 1 → 时段 0..N</tspan>
+</text>
+<path d="M190 710 V755 H910 V710" class="line" marker-end="url(#arrow)"/>
+<text x="550" y="747.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="550" dy="0">选课 1 → 成绩 0..1</tspan>
+</text>
+<text x="550" y="800.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="550" dy="0">箭头表示关系方向；完整字段和约束以建表脚本为准。</tspan>
+</text>
+</svg>

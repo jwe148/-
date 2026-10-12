@@ -1,0 +1,110 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="1470" viewBox="0 0 1100 1470" role="img" aria-label="选课提交顺序图"><title>选课提交顺序图</title>
+<defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M1 1 L8 5 L1 9" fill="none" stroke="#334155" stroke-width="1.5"/></marker><marker id="inherit" markerWidth="13" markerHeight="13" refX="11" refY="6" orient="auto"><path d="M1 1 L11 6 L1 11 Z" fill="white" stroke="#334155"/></marker></defs>
+<style>text{font-family:"Microsoft YaHei",sans-serif;fill:#172b3f;paint-order:stroke;stroke:white;stroke-width:5px;stroke-linejoin:round} .line{fill:none;stroke:#334155;stroke-width:1.8} .box{fill:#f8fbff;stroke:#4778aa;stroke-width:1.8}</style>
+<rect width="1100" height="1470" fill="white"/>
+<text x="550" y="45.0" font-size="29" text-anchor="middle" font-weight="bold">
+<tspan x="550" dy="0">正式选课提交顺序图（数据库模式）</tspan>
+</text>
+<rect x="15" y="75" width="170" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="100.0" y="115.2" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="100.0" dy="0">学生浏览器</tspan>
+</text>
+<path d="M100 140 V1415" class="line" stroke-dasharray="7 6" />
+<rect x="295" y="75" width="170" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="380.0" y="115.2" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="380.0" dy="0">选课页面</tspan>
+</text>
+<path d="M380 140 V1415" class="line" stroke-dasharray="7 6" />
+<rect x="615" y="75" width="170" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="700.0" y="115.2" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="700.0" dy="0">选课业务函数</tspan>
+</text>
+<path d="M700 140 V1415" class="line" stroke-dasharray="7 6" />
+<rect x="915" y="75" width="170" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="1000.0" y="115.2" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="1000.0" dy="0">MySQL</tspan>
+</text>
+<path d="M1000 140 V1415" class="line" stroke-dasharray="7 6" />
+<path d="M100 185 H380" class="line" marker-end="url(#arrow)"/>
+<text x="240.0" y="173.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="240.0" dy="0">POST 首选、备选、令牌</tspan>
+</text>
+<rect x="255" y="215" width="250" height="90" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="380.0" y="253.07000000000002" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="380.0" dy="0">检查身份、令牌</tspan>
+<tspan x="380.0" dy="28.560000000000002">与开放期</tspan>
+</text>
+<path d="M380 345 H700" class="line" marker-end="url(#arrow)"/>
+<text x="540.0" y="333.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="540.0" dy="0">调用正式保存函数</tspan>
+</text>
+<rect x="580" y="375" width="245" height="85" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="702.5" y="410.57000000000005" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="702.5" dy="0">检查4+2数量</tspan>
+<tspan x="702.5" dy="28.560000000000002">与编号格式</tspan>
+</text>
+<path d="M700 495 H1000" class="line" marker-end="url(#arrow)"/>
+<text x="850.0" y="483.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">开始事务，锁定学期与学生</tspan>
+</text>
+<path d="M1000 550 H700" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="850.0" y="538.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">返回开放期与账号状态</tspan>
+</text>
+<path d="M700 610 H1000" class="line" marker-end="url(#arrow)"/>
+<text x="850.0" y="598.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">按编号锁班，读取最新有效占座</tspan>
+</text>
+<path d="M1000 665 H700" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="850.0" y="653.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">返回名额及历史先修成绩</tspan>
+</text>
+<rect x="560" y="695" width="280" height="105" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
+<text x="700.0" y="726.29" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="700.0" dy="0">检查重复课程、先修</tspan>
+<tspan x="700.0" dy="28.560000000000002">首选名额与时间冲突</tspan>
+<tspan x="700.0" dy="28.560000000000002">扣除本人已有占座</tspan>
+</text>
+<rect x="55" y="830" width="1020" height="540" rx="6" fill="none" stroke="#4778aa" stroke-width="1.8" />
+<text x="80" y="860.0" font-size="21" text-anchor="start" font-weight="bold">
+<tspan x="80" dy="0">alt</tspan>
+</text>
+<text x="520" y="860.0" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="520" dy="0">校验通过且写入成功</tspan>
+</text>
+<path d="M700 915 H1000" class="line" marker-end="url(#arrow)"/>
+<text x="850.0" y="903.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">保存方案，更新首选占座</tspan>
+</text>
+<path d="M700 970 H1000" class="line" marker-end="url(#arrow)"/>
+<text x="850.0" y="958.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">清除草稿，提交事务</tspan>
+</text>
+<path d="M700 1025 H380" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="540.0" y="1013.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="540.0" dy="0">返回成功（空错误列表）</tspan>
+</text>
+<path d="M380 1080 H100" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="240.0" y="1068.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="240.0" dy="0">重定向选课页，显示保存成功</tspan>
+</text>
+<path d="M55 1120 H1075" class="line" stroke-dasharray="7 6" />
+<text x="565" y="1152.0" font-size="22" text-anchor="middle" font-weight="normal">
+<tspan x="565" dy="0">业务拒绝或事务中数据库异常</tspan>
+</text>
+<path d="M700 1215 H1000" class="line" marker-end="url(#arrow)"/>
+<text x="850.0" y="1203.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="850.0" dy="0">回滚事务</tspan>
+</text>
+<path d="M700 1270 H380" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="540.0" y="1258.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="540.0" dy="0">返回错误列表或抛出异常</tspan>
+</text>
+<path d="M380 1335 H100" class="line" stroke-dasharray="7 6" marker-end="url(#arrow)"/>
+<text x="240.0" y="1323.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="240.0" dy="0">显示原因或受控提示，保留原记录</tspan>
+</text>
+<text x="550" y="1440.0" font-size="21" text-anchor="middle" font-weight="normal">
+<tspan x="550" dy="0">事务前校验失败直接返回；只读名额刷新独立于提交事务。</tspan>
+</text>
+</svg>

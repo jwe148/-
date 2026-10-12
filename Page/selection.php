@@ -7,6 +7,7 @@ require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
 
 $selection = studentSelection();
+$savedPrimary = $selection['primary'];
 $draft = databaseModeEnabled() ? dbSelectionDraft(databaseConnection(), $user['id'], $selectionPeriod['semester_id']) : ($_SESSION['selection_draft'] ?? null);
 if (is_array($draft) && selectionOpen($selectionPeriod)) $selection = $draft;
 $primary = $selection['primary'];
@@ -92,7 +93,7 @@ require __DIR__ . '/partials/header.php';
         <?php if ($errors !== []): ?>
             <div class="message error" role="alert"><strong>提交失败</strong><ul><?php foreach ($errors as $error): ?><li><?= e($error) ?></li><?php endforeach; ?></ul></div>
         <?php endif; ?>
-        <form method="post" action="selection.php" class="form-panel" id="selection-form">
+        <form method="post" action="selection.php" class="form-panel" id="selection-form" data-availability-url="<?= $open ? 'selection_availability.php' : '' ?>">
             <input type="hidden" name="token" value="<?= e(selectionToken()) ?>">
             <section class="form-section">
                 <div class="section-heading"><h2 id="primary-count" aria-live="polite">首选 <?= $primaryCount ?>/4</h2><span>提交后占座</span></div>
@@ -104,7 +105,7 @@ require __DIR__ . '/partials/header.php';
                                 <option value="">请选择教学班</option>
                                 <?php foreach ($offerings as $id => $course): ?>
                                     <?php $remaining = seatsRemaining($id, $offerings); ?>
-                                    <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" <?= $chosen === $id ? 'selected' : '' ?> <?= $remaining === 0 && $chosen !== $id ? 'disabled' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= $remaining === 0 ? '（已满）' : '' ?></option>
+                                    <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" data-course-name="<?= e($course['name']) ?>" data-availability-label="<?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?>" <?= $chosen === $id ? 'selected' : '' ?> <?= $remaining === 0 && !in_array($id, $savedPrimary, true) && $chosen !== $id ? 'disabled' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= e(in_array($id, $savedPrimary, true) ? '（已选，剩余' . $remaining . '人）' : ($remaining === 0 ? '（已满）' : '（剩余' . $remaining . '人）')) ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
@@ -121,13 +122,17 @@ require __DIR__ . '/partials/header.php';
                                 <option value="">请选择教学班</option>
                                 <?php foreach ($offerings as $id => $course): ?>
                                     <?php $remaining = seatsRemaining($id, $offerings); ?>
-                                    <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" <?= $chosen === $id ? 'selected' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= $remaining === 0 ? '（当前已满）' : '' ?></option>
+                                    <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" data-course-name="<?= e($course['name']) ?>" data-availability-label="<?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?>" <?= $chosen === $id ? 'selected' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= e($remaining === 0 ? '（当前已满）' : '（剩余' . $remaining . '人）') ?></option>
                                 <?php endforeach; ?>
                             </select>
                         </label>
                     <?php endfor; ?>
                 </div>
             </section>
+            <?php if ($open): ?>
+                <div class="availability-line"><span id="selection-refresh-status" role="status">名额自动更新，提交时会再次检查。</span><button class="logout-button" type="button" id="selection-refresh">刷新名额</button></div>
+                <p class="selection-warning" id="selection-availability-warning" role="alert" hidden></p>
+            <?php endif; ?>
             <p class="selection-warning" id="selection-duplicate" role="alert" hidden></p>
             <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课</button><button class="text-button" type="submit" name="action" value="draft" formnovalidate <?= $open ? '' : 'disabled' ?>>保存草稿</button><a href="schedule.php">查看课表</a></div>
         </form>

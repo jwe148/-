@@ -27,12 +27,17 @@ $admin = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $null = Invoke-WebRequest "$BaseUrl/login.php?role=admin" -Method Post -Body @{username='admin01';password='Demo@2026'} -WebSession $admin -UseBasicParsing
 $preview = Invoke-WebRequest "$BaseUrl/admin_closure.php" -WebSession $admin -UseBasicParsing
 $adminToken = [regex]::Match($preview.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
-Check ($adminToken.Length -eq 32 -and $preview.Content.Contains('截止后才能操作')) 'admin sees preview before deadline'
-$early = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken} -WebSession $admin -UseBasicParsing
-Check ($early.Content.Contains('选课截止后才能关闭')) 'early close rejected without changes'
-
-& $PhpPath "$PSScriptRoot\advance_demo_deadline.php" --disposable-demo
-if ($LASTEXITCODE -ne 0) { throw 'Failed to advance disposable demo deadline' }
+Check ($adminToken.Length -eq 32 -and $preview.Content.Contains('管理员可随时关闭')) 'admin can close before deadline'
+$futurePeriod = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{
+    token=$adminToken;action='period';start=(Get-Date).AddDays(2).ToString('yyyy-MM-ddTHH:mm:ss');
+    end=(Get-Date).AddDays(3).ToString('yyyy-MM-ddTHH:mm:ss');teaching_end=(Get-Date).AddMonths(5).ToString('yyyy-MM-ddTHH:mm:ss')
+} -WebSession $admin -UseBasicParsing
+Check ($futurePeriod.BaseResponse.ResponseUri.Query -eq '?period_saved=1') 'future selection period configured'
+$waiting = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check (-not $waiting.open) 'future period initially blocks selection'
+$immediate = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken;action='reopen'} -WebSession $admin -UseBasicParsing
+$immediateAvailability = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check ($immediate.BaseResponse.ResponseUri.Query -eq '?reopened=1' -and $immediateAvailability.open) 'admin immediately opens selection before original start'
 
 $closed = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken} -WebSession $admin -UseBasicParsing
 Check ($closed.BaseResponse.ResponseUri.Query -eq '?closed=1' -and $closed.Content.Contains('选课已关闭')) 'admin closes semester'
@@ -57,11 +62,12 @@ Check ($forbidden -eq 403) 'student cannot access admin closure'
 
 $available = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
 Check (-not $available.open) 'availability reports registration closed'
+$invalidReopen = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token='bad';action='reopen'} -WebSession $admin -UseBasicParsing
+$stillClosed = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
+Check ($invalidReopen.Content.Contains('页面已过期') -and -not $stillClosed.open) 'invalid token cannot reopen selection'
 
-$newDeadline = (Get-Date).AddDays(7).ToString('yyyy-MM-ddTHH:mm:ss')
-$newTeachingEnd = (Get-Date).AddMonths(5).ToString('yyyy-MM-ddTHH:mm:ss')
 $reopened = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{
-    token=$adminToken;action='reopen';reopen_end=$newDeadline;reopen_teaching_end=$newTeachingEnd
+    token=$adminToken;action='reopen'
 } -WebSession $admin -UseBasicParsing
 Check ($reopened.BaseResponse.ResponseUri.Query -eq '?reopened=1' -and $reopened.Content.Contains('选课已重新开启')) 'admin reopens a closed registration period'
 $openAvailability = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
@@ -69,7 +75,5 @@ Check ($openAvailability.open) 'availability reports registration reopened'
 $restored = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing
 Check ($restored.Content.Contains('选课方案已保存')) 'student can edit restored selection after reopen'
 
-& $PhpPath "$PSScriptRoot\advance_demo_deadline.php" --disposable-demo
-if ($LASTEXITCODE -ne 0) { throw 'Failed to advance reopened demo deadline' }
 $reclosed = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken;action='close'} -WebSession $admin -UseBasicParsing
 Check ($reclosed.BaseResponse.ResponseUri.Query -eq '?closed=1') 'reopened registration can be closed again'

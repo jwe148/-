@@ -70,12 +70,7 @@ if (databaseModeEnabled()) {
         $errors[] = '关闭结果暂不可用，请检查数据库。';
     }
 }
-$now = new DateTimeImmutable('now', new DateTimeZone('Asia/Shanghai'));
-$afterDeadline = $now > new DateTimeImmutable($selectionPeriod['end'], new DateTimeZone('Asia/Shanghai'));
-$canClose = databaseModeEnabled() && $overview !== [] && ($selectionPeriod['status'] ?? 'open') === 'open' && $afterDeadline;
-$suggestedEnd = $now->modify('+7 days')->setTime(17, 0);
-$existingTeachingEnd = new DateTimeImmutable($selectionPeriod['teaching_end'] ?? $suggestedEnd->modify('+5 months')->format('Y-m-d H:i:s'), new DateTimeZone('Asia/Shanghai'));
-$suggestedTeachingEnd = $existingTeachingEnd >= $suggestedEnd ? $existingTeachingEnd : $suggestedEnd->modify('+5 months');
+$canClose = databaseModeEnabled() && $overview !== [] && ($selectionPeriod['status'] ?? 'open') === 'open';
 $statusLabels = ['open' => '选课中', 'closing' => '处理中', 'closed' => '已关闭'];
 $outcomeLabels = ['confirmed' => '开设', 'no_teacher' => '停开：无教师', 'under_minimum' => '停开：不足 3 人'];
 $pageTitle = '关闭选课';
@@ -89,7 +84,7 @@ require __DIR__ . '/partials/header.php';
         <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表与学费账单已生成。计费发送结果可在“任教与计费”查看。</p><?php endif; ?>
         <?php if (isset($_GET['already'])): ?><p class="message success" role="status">此前已关闭，本次未重复处理。</p><?php endif; ?>
         <?php if (isset($_GET['period_saved'])): ?><p class="message success" role="status">学期时间已保存。</p><?php endif; ?>
-        <?php if (isset($_GET['reopened'])): ?><p class="message success" role="status">选课已重新开启，关闭结果和本次生成的计费记录已撤销。</p><?php endif; ?>
+        <?php if (isset($_GET['reopened'])): ?><p class="message success" role="status">选课已重新开启，现在可以选课。若此前已执行关课，其关闭结果和本次计费记录已撤销。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if (databaseModeEnabled()): ?>
             <details class="simple-panel"><summary>维护本学期时间</summary>
@@ -127,20 +122,21 @@ require __DIR__ . '/partials/header.php';
                     <form method="post" action="admin_closure.php" class="form-actions">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课</button>
-                        <?php if (!$afterDeadline): ?><span>截止后才能操作。</span><?php endif; ?>
+                        <span>管理员可随时关闭，立即停止选课并执行关课处理。</span>
                     </form>
                 </section>
-            <?php elseif (($selectionPeriod['status'] ?? '') === 'closed'): ?>
+            <?php endif; ?>
+            <?php if (in_array($selectionPeriod['status'] ?? '', ['open', 'closed'], true)): ?>
                 <section class="simple-panel">
                     <h2>重新开启选课</h2>
-                    <p>恢复关闭前的教学班、学生志愿与占座状态，并撤销本次关闭结果和计费记录。已经录入或确认成绩时不能重新开启。</p>
+                    <p>开启后立即允许选课，默认开放 7 天。此前已关闭时会恢复关闭前的教学班、学生志愿与占座，并撤销本次关闭结果和计费记录；已有成绩时不能撤销关课。</p>
                     <form method="post" action="admin_closure.php">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <input type="hidden" name="action" value="reopen">
-                        <div class="people-fields">
-                            <label>新的选课截止<input type="datetime-local" name="reopen_end" step="1" value="<?= e($suggestedEnd->format('Y-m-d\TH:i:s')) ?>" required></label>
-                            <label>教学结束<input type="datetime-local" name="reopen_teaching_end" step="1" value="<?= e($suggestedTeachingEnd->format('Y-m-d\TH:i:s')) ?>" required></label>
-                        </div>
+                        <details><summary>自定义开放时间（不填写则使用默认时间）</summary><div class="people-fields">
+                            <label>新的选课截止<input type="datetime-local" name="reopen_end" step="1"></label>
+                            <label>教学结束<input type="datetime-local" name="reopen_teaching_end" step="1"></label>
+                        </div></details>
                         <div class="form-actions"><button class="primary-button" type="submit">重新开启选课</button></div>
                     </form>
                 </section>

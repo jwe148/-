@@ -95,9 +95,13 @@ function dbClosureTimeConflict(string $candidateId, array $activeIds, array $tim
     return false;
 }
 
-function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEnd, string $teachingEnd): array
+function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEnd = '', string $teachingEnd = ''): array
 {
     $zone = new DateTimeZone('Asia/Shanghai');
+    $now = new DateTimeImmutable('now', $zone);
+    $newEnd = $newEnd === '' ? $now->modify('+7 days')->format('Y-m-d H:i:s') : $newEnd;
+    $automaticTeachingEnd = $teachingEnd === '';
+    $teachingEnd = $automaticTeachingEnd ? $newEnd : $teachingEnd;
     $dates = [];
     foreach ([$newEnd, $teachingEnd] as $value) {
         $value = str_replace('T', ' ', $value);
@@ -120,7 +124,7 @@ function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEn
 
     try {
         $pdo->beginTransaction();
-        $periodQuery = $pdo->prepare('SELECT selection_starts_at, status FROM semesters WHERE id = ? FOR UPDATE');
+        $periodQuery = $pdo->prepare('SELECT selection_starts_at, teaching_ends_at, status FROM semesters WHERE id = ? FOR UPDATE');
         $periodQuery->execute([$semesterId]);
         $period = $periodQuery->fetch();
         $adminQuery = $pdo->prepare("SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1 FOR UPDATE");
@@ -129,13 +133,19 @@ function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEn
             $pdo->rollBack();
             return ['学期不存在或教务员账号不可用。'];
         }
-        if ($period['status'] !== 'closed') {
+        if (!in_array($period['status'], ['open', 'closed'], true)) {
             $pdo->rollBack();
-            return ['只有已关闭的选课可以重新开启。'];
+            return ['选课正在处理中，请稍后重试。'];
         }
-        if ($dates[0] <= $period['selection_starts_at']) {
-            $pdo->rollBack();
-            return ['新的选课截止时间必须晚于选课开始时间。'];
+        $start = min($period['selection_starts_at'], $now->format('Y-m-d H:i:s'));
+        if ($automaticTeachingEnd) {
+            $dates[1] = max($period['teaching_ends_at'] ?? $dates[0], $dates[0]);
+        }
+        if ($period['status'] === 'open') {
+            $pdo->prepare('UPDATE semesters SET selection_starts_at=?,selection_ends_at=?,teaching_ends_at=? WHERE id=?')
+                ->execute([$start, $dates[0], $dates[1], $semesterId]);
+            $pdo->commit();
+            return [];
         }
 
         $gradeQuery = $pdo->prepare('SELECT COUNT(*) FROM grades g
@@ -238,8 +248,8 @@ function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEn
         $pdo->prepare('DELETE FROM closure_backup_attempts WHERE semester_id = ?')->execute([$semesterId]);
         $pdo->prepare('DELETE r FROM offering_closure_results r JOIN offerings o ON o.id=r.offering_id WHERE o.semester_id = ?')->execute([$semesterId]);
         $pdo->prepare('DELETE FROM semester_closure_snapshots WHERE semester_id = ?')->execute([$semesterId]);
-        $pdo->prepare("UPDATE semesters SET status='open', closed_at=NULL, selection_ends_at=?, teaching_ends_at=? WHERE id=?")
-            ->execute([$dates[0], $dates[1], $semesterId]);
+        $pdo->prepare("UPDATE semesters SET status='open', closed_at=NULL, selection_starts_at=?, selection_ends_at=?, teaching_ends_at=? WHERE id=?")
+            ->execute([$start, $dates[0], $dates[1], $semesterId]);
         $pdo->commit();
         return [];
     } catch (Throwable $error) {
@@ -251,7 +261,7 @@ function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEn
 }
 
 /**
- * 截止后关闭指定学期，事务内完成停开、按备选顺序补位及计费记录生成。
+ * 管理员随时关闭指定学期，事务内完成停开、按备选顺序补位及计费记录生成。
  * 先补位再判断最低开班人数；返回结果或错误列表，异常时回滚全部修改。
  */
 function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
@@ -283,10 +293,6 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
         }
         $zone = new DateTimeZone('Asia/Shanghai');
         $now = new DateTimeImmutable('now', $zone);
-        if ($now <= new DateTimeImmutable($period['selection_ends_at'], $zone)) {
-            $pdo->rollBack();
-            return ['changed' => false, 'errors' => ['注册正在进行中，无法关闭注册。选课截止后才能关闭。']];
-        }
         $pdo->prepare("UPDATE semesters SET status = 'closing' WHERE id = ?")->execute([$semesterId]);
 
         $offeringQuery = $pdo->prepare('SELECT id, course_code, teacher_id, capacity, status FROM offerings WHERE semester_id = ? ORDER BY id FOR UPDATE');

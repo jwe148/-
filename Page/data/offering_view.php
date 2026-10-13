@@ -37,6 +37,12 @@ function offeringTimeConflict(array $first, array $second): bool
             }
             [$firstStart, $firstEnd] = explode('—', $firstTime['time']);
             [$secondStart, $secondEnd] = explode('—', $secondTime['time']);
+            // 展示可精确到分钟，校验保留数据库的秒数；演示时段统一补齐秒。
+            [$firstStart, $firstEnd, $secondStart, $secondEnd] = array_map(
+                static fn(string $value): string => strlen($value) === 5 ? $value . ':00' : $value,
+                [$firstTime['starts_at'] ?? $firstStart, $firstTime['ends_at'] ?? $firstEnd,
+                 $secondTime['starts_at'] ?? $secondStart, $secondTime['ends_at'] ?? $secondEnd]
+            );
             if ($firstStart < $secondEnd && $secondStart < $firstEnd) {
                 return true;
             }

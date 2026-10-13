@@ -73,7 +73,7 @@ function validSelectionToken($token): bool
     return is_string($token) && hash_equals(selectionToken(), $token);
 }
 
-function validateStudentSelection(array $primary, array $backup, array $offerings, ?array $completed = null): array
+function validateStudentSelection(array $primary, array $backup, array $offerings, ?array $completed = null, array $enrolled = []): array
 {
     $primary = normalizeStudentChoices($primary);
     $backup = normalizeStudentChoices($backup);
@@ -100,9 +100,13 @@ function validateStudentSelection(array $primary, array $backup, array $offering
             $errors[] = $course['name'] . '不能重复选择不同教学班。';
         }
         $codes[] = $course['code'];
-        foreach (offeringPrerequisites($course) as $prerequisite) {
+        // 仅保留原注册教学班时免于重查先修；备选、换班和退后重选仍须校验。
+        $retained = in_array($id, $primary, true) && in_array($id, $enrolled, true);
+        $prerequisites = $course['prerequisite_codes'] ?? offeringPrerequisites($course);
+        foreach ($retained ? [] : $prerequisites as $index => $prerequisite) {
             if (!in_array($prerequisite, $completed, true)) {
-                $errors[] = $course['name'] . '要求先修' . $prerequisite . '。';
+                $label = isset($course['prerequisite_codes']) ? ($course['prerequisites'][$index] ?? $prerequisite) : $prerequisite;
+                $errors[] = $course['name'] . '要求先修' . $label . '。';
             }
         }
         // 备选只记录顺序，不占名额；补位时才需要重新检查容量。

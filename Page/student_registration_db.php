@@ -72,7 +72,7 @@ function dbStudentGrades(PDO $pdo, int $studentId): array
     return $query->fetchAll();
 }
 
-function dbCompletedCourseNames(PDO $pdo, int $studentId): array
+function dbCompletedCourseCodes(PDO $pdo, int $studentId): array
 {
     // 历史中文成绩及 A-D 视为通过，用于先修课程判断。
     $passing = ['优秀', '良好', '中等', '及格', 'A', 'B', 'C', 'D'];
@@ -85,7 +85,13 @@ function dbCompletedCourseNames(PDO $pdo, int $studentId): array
           AND s.status = 'closed' AND s.teaching_ends_at IS NOT NULL
           AND s.teaching_ends_at <= CURRENT_TIMESTAMP AND g.grade_value IN ({$marks})");
     $query->execute(array_merge([$studentId], $passing));
-    $codes=$query->fetchAll(PDO::FETCH_COLUMN);
+    return $query->fetchAll(PDO::FETCH_COLUMN);
+}
+
+// 名称仅供展示和旧演示校验使用，数据库提交必须比较课程代码。
+function dbCompletedCourseNames(PDO $pdo, int $studentId): array
+{
+    $codes = dbCompletedCourseCodes($pdo, $studentId);
     require_once __DIR__.'/data/catalog_provider.php';
     $definitions=readCourseDefinitions($pdo);
     return array_map(static fn($code)=>$definitions[$code]['name'] ?? $code,$codes);
@@ -154,17 +160,32 @@ function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array
         foreach ($countQuery->fetchAll() as $row) {
             $counts[$row['offering_id']] = ($counts[$row['offering_id']] ?? 0) + 1;
         }
+        // 从数据库读取先修关系，不能把同名课程或旧页面目录当作通过凭证。
+        $prerequisiteQuery = $pdo->prepare("SELECT o.id, cp.prerequisite_code
+            FROM offerings o JOIN course_prerequisites cp ON cp.course_code = o.course_code
+            WHERE o.semester_id = ? AND o.id IN ({$marks}) ORDER BY o.id, cp.prerequisite_code");
+        $prerequisiteQuery->execute(array_merge([$semesterId], $ids));
+        $required = [];
+        foreach ($prerequisiteQuery->fetchAll() as $row) {
+            $required[$row['id']][] = $row['prerequisite_code'];
+        }
+        require_once __DIR__ . '/data/catalog_provider.php';
+        $definitions = readCourseDefinitions($pdo);
         $validationCatalog = [];
         foreach ($locked as $id => $row) {
             if (!isset($catalog[$id])) {
                 continue;
             }
             $validationCatalog[$id] = $catalog[$id];
+            $validationCatalog[$id]['prerequisite_codes'] = $required[$id] ?? [];
+            $validationCatalog[$id]['prerequisites'] = array_map(
+                static fn(string $code): string => $definitions[$code]['name'] ?? $code, $required[$id] ?? []
+            );
             $validationCatalog[$id]['capacity'] = (int) $row['capacity'];
             $validationCatalog[$id]['status'] = $row['status'];
             $validationCatalog[$id]['selected'] = max(0, ($counts[$id] ?? 0) - (in_array($id, $oldActive, true) ? 1 : 0));
         }
-        $errors = validateStudentSelection($primary, $backup, $validationCatalog, dbCompletedCourseNames($pdo, $studentId));
+        $errors = validateStudentSelection($primary, $backup, $validationCatalog, dbCompletedCourseCodes($pdo, $studentId), $oldActive);
         if ($errors !== []) {
             $pdo->rollBack();
             return $errors;

@@ -62,6 +62,12 @@ function databaseModeEnabled(): bool
 
 function databaseConnection(): PDO
 {
+    // Web 请求内复用连接，避免一个页面的权限、会话、课表查询反复建立 TCP 连接。
+    // CLI 调用仍返回新连接，供并发测试及常驻计费任务在下一轮断线重连。
+    static $requestConnection = null;
+    if (PHP_SAPI !== 'cli' && $requestConnection instanceof PDO) {
+        return $requestConnection;
+    }
     $settings = databaseSettings();
     $user = $settings['user'];
     if ($user === '') {
@@ -78,5 +84,8 @@ function databaseConnection(): PDO
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
     $pdo->exec("SET time_zone = '+08:00'");
+    if (PHP_SAPI !== 'cli') {
+        $requestConnection = $pdo;
+    }
     return $pdo;
 }

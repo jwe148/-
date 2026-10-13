@@ -67,6 +67,8 @@ if (databaseModeEnabled()) {
             $offerings[$row['offering_id']]['times'][] = [
                 'day' => $days[(int) $row['weekday']],
                 'time' => substr($row['starts_at'], 0, 5) . '—' . substr($row['ends_at'], 0, 5),
+                'starts_at' => $row['starts_at'],
+                'ends_at' => $row['ends_at'],
             ];
         }
         foreach ($offerings as $id => $offering) {

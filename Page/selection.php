@@ -63,7 +63,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     databaseConnection(), $user['id'], $selectionPeriod['semester_id'], $primary, $backup, $offerings
                 );
             } else {
-                $errors = validateStudentSelection($primary, $backup, $offerings);
+                $errors = validateStudentSelection($primary, $backup, $offerings, null, $savedPrimary);
                 if ($errors === []) {
                     $_SESSION['student_selection'] = ['primary' => $primary, 'backup' => $backup];
                     unset($_SESSION['selection_draft']);

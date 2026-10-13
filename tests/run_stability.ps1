@@ -128,6 +128,8 @@ try {
     Reset-Demo
     Run-Check 'db_grade_conflicts' { & $Php (Join-Path $Project 'tests\db_grade_conflicts.php') }
     Reset-Demo
+    Run-Check 'db_audit_boundaries' { & $Php (Join-Path $Project 'tests\db_audit_prerequisites.php') }
+    Reset-Demo
     Run-Check 'db_completeness' { & $Php (Join-Path $Project 'tests\db_completeness.php') '--disposable-demo' }
     Reset-Demo
     Run-Check 'db_extreme' { & $Php (Join-Path $Project 'tests\db_extreme.php') '--disposable-demo' }
@@ -136,6 +138,7 @@ try {
     Reset-Demo
     Start-Php $DbPort 'database'
     $dbUrl = "http://127.0.0.1:$DbPort"
+    Run-Check 'http_connections' { & $Php (Join-Path $Project 'tests\http_connections.php') $dbUrl }
     Run-Check 'http_selection_limits' { & powershell.exe -NoProfile -ExecutionPolicy Bypass -File (Join-Path $Project 'tests\http_selection_limits.ps1') -BaseUrl $dbUrl }
     Reset-Demo
     Run-Check 'http_password' { & $Php (Join-Path $Project 'tests\http_password.php') '--disposable-demo' $dbUrl }

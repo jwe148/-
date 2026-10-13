@@ -1,0 +1,87 @@
+[
+    {
+        "name": "unpassed distinct-name prerequisite is rejected",
+        "passed": true,
+        "detail": [
+            "AUDIT_DENIED要求先修Audit unpassed course。"
+        ]
+    },
+    {
+        "name": "same-name different-code prerequisite must not grant enrollment",
+        "passed": true,
+        "detail": {
+            "errors": [
+                "AUDIT_TARGET要求先修程序设计基础。"
+            ],
+            "active_seats": 0,
+            "passed_code": "PRE-PROG",
+            "required_code": "AUDIT_SAME_NAME"
+        }
+    },
+    {
+        "name": "closure uses codes and does not consider the homonym completed",
+        "passed": true,
+        "detail": []
+    },
+    {
+        "name": "actual prerequisite permits enrollment",
+        "passed": true,
+        "detail": []
+    },
+    {
+        "name": "already-enrolled course is preserved without rechecking prerequisites",
+        "passed": true,
+        "detail": []
+    },
+    {
+        "name": "resubmission preserves previous seat",
+        "passed": true,
+        "detail": []
+    },
+    {
+        "name": "stale catalog cannot remove required prerequisites",
+        "passed": true,
+        "detail": [
+            "AUDIT_TARGET要求先修程序设计基础。"
+        ]
+    },
+    {
+        "name": "retaining enrollment does not bypass prerequisites of a new course",
+        "passed": true,
+        "detail": [
+            "AUDIT_DENIED要求先修Audit unpassed course。",
+            "AUDIT_VALID与AUDIT_DENIED上课时间冲突。"
+        ]
+    },
+    {
+        "name": "moving enrollment to backup still validates prerequisites",
+        "passed": true,
+        "detail": [
+            "AUDIT_VALID要求先修程序设计基础。"
+        ]
+    },
+    {
+        "name": "prerequisite correction does not prevent dropping a course",
+        "passed": true,
+        "detail": []
+    },
+    {
+        "name": "dropped course requires prerequisites when selected again",
+        "passed": true,
+        "detail": [
+            "AUDIT_VALID要求先修程序设计基础。"
+        ]
+    },
+    {
+        "name": "thirty-second overlap must reject enrollment",
+        "passed": true,
+        "detail": [
+            "AUDIT_TIME_A与AUDIT_TIME_B上课时间冲突。"
+        ]
+    },
+    {
+        "name": "exactly adjacent second-precision meetings are allowed",
+        "passed": true,
+        "detail": []
+    }
+]

@@ -1,0 +1,329 @@
+{
+  "date": "2026-10-13",
+  "command": "powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/run_stability.ps1 -RaceRuns 5",
+  "exit_code": 0,
+  "tested_version": {
+    "base_commit": "8c3436e",
+    "working_changes": [
+      "tests/db_extreme.php",
+      "tests/run_stability.ps1"
+    ],
+    "note": "完整回归在 e2b9006 页面精简之前执行；上述两个测试脚本的修改随 e2b9006 提交。"
+  },
+  "stages": 37,
+  "assertions": 1037,
+  "results": [
+    {
+      "name": "config_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 18,
+      "requirement_gaps": [],
+      "seconds": 0.085811
+    },
+    {
+      "name": "php_lint",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 60,
+      "requirement_gaps": [],
+      "seconds": 4.3988396
+    },
+    {
+      "name": "selection_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 23,
+      "requirement_gaps": [],
+      "seconds": 0.11843999999999999
+    },
+    {
+      "name": "teacher_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 7,
+      "requirement_gaps": [],
+      "seconds": 0.09130909999999999
+    },
+    {
+      "name": "closure_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 4,
+      "requirement_gaps": [],
+      "seconds": 0.0865548
+    },
+    {
+      "name": "selection_ui",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 21,
+      "requirement_gaps": [],
+      "seconds": 0.13045089999999998
+    },
+    {
+      "name": "password_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 17,
+      "requirement_gaps": [],
+      "seconds": 2.3185694
+    },
+    {
+      "name": "http_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 22,
+      "requirement_gaps": [],
+      "seconds": 1.7122579999999998
+    },
+    {
+      "name": "http_demo_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 43,
+      "requirement_gaps": [],
+      "seconds": 2.4422623999999997
+    },
+    {
+      "name": "http_demo_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 39,
+      "requirement_gaps": [],
+      "seconds": 3.4472456
+    },
+    {
+      "name": "db_connection",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 0,
+      "requirement_gaps": [],
+      "seconds": 0.1030881
+    },
+    {
+      "name": "db_seed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.11770359999999999
+    },
+    {
+      "name": "db_more_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 54,
+      "requirement_gaps": [],
+      "seconds": 0.818422
+    },
+    {
+      "name": "db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 66,
+      "requirement_gaps": [],
+      "seconds": 2.1478634999999997
+    },
+    {
+      "name": "db_selection_limits",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 28,
+      "requirement_gaps": [],
+      "seconds": 0.2219923
+    },
+    {
+      "name": "db_selection_leveling",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 46,
+      "requirement_gaps": [],
+      "seconds": 0.6758145
+    },
+    {
+      "name": "db_grade_conflicts",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.1443548
+    },
+    {
+      "name": "db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 33,
+      "requirement_gaps": [],
+      "seconds": 1.3252701
+    },
+    {
+      "name": "db_extreme",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 120,
+      "requirement_gaps": [],
+      "seconds": 2.2987225
+    },
+    {
+      "name": "db_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 36,
+      "requirement_gaps": [],
+      "seconds": 0.5570208999999999
+    },
+    {
+      "name": "http_selection_limits",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 16,
+      "requirement_gaps": [],
+      "seconds": 7.1317885
+    },
+    {
+      "name": "http_password",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 59,
+      "requirement_gaps": [],
+      "seconds": 3.5985115
+    },
+    {
+      "name": "http_db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 54,
+      "requirement_gaps": [],
+      "seconds": 5.646649
+    },
+    {
+      "name": "http_db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 39,
+      "requirement_gaps": [],
+      "seconds": 4.8205038
+    },
+    {
+      "name": "http_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 15,
+      "requirement_gaps": [],
+      "seconds": 5.2779291
+    },
+    {
+      "name": "http_db_registration",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 24,
+      "requirement_gaps": [],
+      "seconds": 4.6714066999999995
+    },
+    {
+      "name": "http_db_teacher",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 4.3675485
+    },
+    {
+      "name": "http_db_grades",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 21,
+      "requirement_gaps": [],
+      "seconds": 5.0205323
+    },
+    {
+      "name": "http_db_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 58,
+      "requirement_gaps": [],
+      "seconds": 8.453582899999999
+    },
+    {
+      "name": "concurrent_seat_1",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5361106
+    },
+    {
+      "name": "concurrent_seat_2",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5137188
+    },
+    {
+      "name": "concurrent_seat_3",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.46688349999999995
+    },
+    {
+      "name": "concurrent_seat_4",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5641627
+    },
+    {
+      "name": "concurrent_seat_5",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.51742
+    },
+    {
+      "name": "http_db_closure",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 23,
+      "requirement_gaps": [],
+      "seconds": 7.456993499999999
+    },
+    {
+      "name": "db_closed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 0.1541051
+    },
+    {
+      "name": "database_outage",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 13,
+      "requirement_gaps": [],
+      "seconds": 15.685024499999999
+    }
+  ],
+  "server_log_check": "未发现 PHP Warning、Notice、Parse error、Fatal error 或未处理异常",
+  "later_checks": {
+    "ui_commit": "e2b9006",
+    "php_files_linted": 9,
+    "javascript_checks": 21,
+    "diff_check": "passed",
+    "manual_browser_check": "未完成"
+  },
+  "production_database_upgrade": {
+    "date": "2026-10-13",
+    "command": "database/upgrade.php",
+    "exit_code": 0,
+    "scripts_completed": 9,
+    "session_register_refresh_release": "通过",
+    "note": "原库缺少 selection_sessions 表已补齐；演示默认密码不能用于原站现有账号，未据此宣称登录后人工验收通过。"
+  }
+}

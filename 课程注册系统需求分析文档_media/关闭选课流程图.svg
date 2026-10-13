@@ -7,7 +7,7 @@
 </text>
 <rect x="160" y="80" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
 <text x="425.0" y="120.55" font-size="23" text-anchor="middle" font-weight="normal">
-<tspan x="425.0" dy="0">截止后教务员发起关课</tspan>
+<tspan x="425.0" dy="0">无学生会话时教务员发起关课</tspan>
 </text>
 <path d="M425 145 V174" class="line" marker-end="url(#arrow)"/>
 <rect x="160" y="174" width="530" height="65" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />

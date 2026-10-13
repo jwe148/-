@@ -40,7 +40,7 @@
 </text>
 <rect x="580" y="375" width="245" height="85" rx="6" fill="#f8fbff" stroke="#4778aa" stroke-width="1.8" />
 <text x="702.5" y="410.57000000000005" font-size="21" text-anchor="middle" font-weight="normal">
-<tspan x="702.5" dy="0">检查4+2数量</tspan>
+<tspan x="702.5" dy="0">校验最多4+2</tspan>
 <tspan x="702.5" dy="28.560000000000002">与编号格式</tspan>
 </text>
 <path d="M700 495 H1000" class="line" marker-end="url(#arrow)"/>

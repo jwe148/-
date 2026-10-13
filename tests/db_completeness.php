@@ -100,7 +100,10 @@ $teacher2 = (int)$pdo->lastInsertId();
 completeSql("INSERT INTO users (username,display_name,role,password_hash,is_active) VALUES ('complete_admin','Complete admin','admin','!',1)");
 $admin2 = (int)$pdo->lastInsertId();
 $now = new DateTimeImmutable('now', new DateTimeZone('Asia/Shanghai'));
-completeSql('INSERT INTO semesters (name,selection_starts_at,selection_ends_at) VALUES (?,?,?)', ['COMPLETE', $now->modify('-2 days')->format('Y-m-d H:i:s'), $now->modify('+1 day')->format('Y-m-d H:i:s')]);
+completeSql('INSERT INTO semesters (name,selection_starts_at,selection_ends_at,teaching_ends_at) VALUES (?,?,?,?)', [
+    'COMPLETE', $now->modify('-2 days')->format('Y-m-d H:i:s'), $now->modify('+1 day')->format('Y-m-d H:i:s'),
+    $now->modify('-1 hour')->format('Y-m-d H:i:s'),
+]);
 $sid = (int)$pdo->lastInsertId();
 $catalog = []; $ids = [];
 for ($i=0; $i<6; $i++) {
@@ -163,7 +166,8 @@ completeCheck(count($own) === 1 && $own[0]['grade'] === 'A', 'end-to-end student
 completeCheck(dbStudentGrades($pdo,$students[1]) === $otherBefore, 'end-to-end another student cannot see owner grade');
 completeCheck(dbSaveTeacherGrade($pdo,$winner,$ids[0],$enrollmentId,'B') === [] && (int)$pdo->query("SELECT COUNT(*) FROM grades WHERE enrollment_id=$enrollmentId")->fetchColumn() === 1, 'end-to-end grade correction updates one row');
 completeCheck(dbSaveTeacherGrade($pdo,$winner,$ids[0],$enrollmentId,'') === [], 'end-to-end grade can be cleared');
-completeCheck(!in_array('COMPLETE-0',array_column(dbStudentGrades($pdo,$students[0]),'course'),true), 'cleared grade disappears from student published grades');
+$cleared = array_values(array_filter(dbStudentGrades($pdo,$students[0]), static fn(array $r): bool => $r['course'] === 'COMPLETE-0'));
+completeCheck(count($cleared) === 1 && $cleared[0]['grade'] === null, 'cleared grade remains visible as unrecorded');
 $before = completeSnapshot();
 completeCheck(dbCloseSemester($pdo,$admin,$sid) === ['changed'=>false,'errors'=>[]] && completeSnapshot() === $before, 'post-grading repeated closure leaves grades unchanged');
 completeCheck((int)$pdo->query("SELECT COUNT(*) FROM selection_choices sc JOIN enrollments e ON e.student_id=sc.student_id AND e.offering_id=sc.offering_id WHERE sc.semester_id=$sid AND sc.kind='primary' AND e.status<>'active'")->fetchColumn() === 0, 'confirmed primary choices all retain active enrollments');

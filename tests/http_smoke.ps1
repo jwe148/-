@@ -58,7 +58,7 @@ Check ($schedule.Content.Contains('已选 4 门课程') -and $schedule.Content.C
 $catalog = Invoke-WebRequest "$BaseUrl/courses.php?q=SE301" -WebSession $student -UseBasicParsing
 Check ($catalog.Content.Contains('剩余 2 席')) 'remaining seats decrease'
 $grades = Invoke-WebRequest "$BaseUrl/grades.php" -WebSession $student -UseBasicParsing
-Check ($grades.Content.Contains('暂无成绩') -and $grades.Content.Contains('数据结构')) 'grades page'
+Check ($grades.Content.Contains('我的成绩') -and $grades.Content.Contains('数据结构') -and $grades.Content.Contains('优秀')) 'grades page'
 
 $removed = Invoke-WebRequest "$BaseUrl/schedule.php" -Method Post -Body "token=$token&id=SE301-01" -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing
 Check ($removed.Content.Contains('已退课')) 'drop course'

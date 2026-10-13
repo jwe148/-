@@ -95,7 +95,7 @@ Check ((Request 'teaching.php' $teacher).Content -eq $teaching.Content) 'malform
 if ($DatabaseMode) {
     $emptyStudent = New-Object Microsoft.PowerShell.Commands.WebRequestSession
     $null = Request 'login.php?role=student' $emptyStudent 'POST' @{username='student03';password='Demo@2026'}
-    Check ((Request 'grades.php' $emptyStudent).Content.Contains('暂无成绩')) 'student without grades sees empty state'
+    Check ((Request 'grades.php' $emptyStudent).Content.Contains('暂无已完成学期的成绩信息')) 'student without grades sees empty state'
     $gradePage = Request 'grade_entry.php?offering=PRE-PROG-2025' $teacher
     foreach ($body in @("token=$teacherToken&offering_id%5B%5D=x&enrollment_id%5B%5D=1&grade%5B%5D=A", @{token='bad';offering_id='PRE-PROG-2025';enrollment_id='1';grade='A'})) {
         $page = Request 'grade_entry.php' $teacher 'POST' $body

@@ -129,6 +129,15 @@ CREATE TABLE IF NOT EXISTS closure_backup_attempts (
   CONSTRAINT ck_backup_attempt_rank CHECK (backup_rank BETWEEN 1 AND 2)
 ) ENGINE=InnoDB;
 
+-- 关闭前保存可恢复快照；重新开启选课时精确还原志愿、占座和教学班状态。
+CREATE TABLE IF NOT EXISTS semester_closure_snapshots (
+  semester_id BIGINT UNSIGNED NOT NULL,
+  snapshot JSON NOT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (semester_id),
+  CONSTRAINT fk_closure_snapshot_semester FOREIGN KEY (semester_id) REFERENCES semesters (id)
+) ENGINE=InnoDB;
+
 -- 首选和备选的顺序分别从 1 开始。数量、同课程不同班与先修约束由服务端校验。
 CREATE TABLE IF NOT EXISTS selection_choices (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT,

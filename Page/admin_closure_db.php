@@ -95,6 +95,161 @@ function dbClosureTimeConflict(string $candidateId, array $activeIds, array $tim
     return false;
 }
 
+function dbReopenSemester(PDO $pdo, int $adminId, int $semesterId, string $newEnd, string $teachingEnd): array
+{
+    $zone = new DateTimeZone('Asia/Shanghai');
+    $dates = [];
+    foreach ([$newEnd, $teachingEnd] as $value) {
+        $value = str_replace('T', ' ', $value);
+        if (strlen($value) === 16) {
+            $value .= ':00';
+        }
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $value, $zone);
+        if (!$date || $date->format('Y-m-d H:i:s') !== $value || $value < '1000-01-01 00:00:00') {
+            return ['请输入有效的新截止时间和教学结束时间。'];
+        }
+        $dates[] = $value;
+    }
+    $now = new DateTimeImmutable('now', $zone);
+    if ($dates[0] <= $now->format('Y-m-d H:i:s')) {
+        return ['重新开启后的选课截止时间必须晚于当前时间。'];
+    }
+    if ($dates[1] < $dates[0]) {
+        return ['教学结束时间不能早于新的选课截止时间。'];
+    }
+
+    try {
+        $pdo->beginTransaction();
+        $periodQuery = $pdo->prepare('SELECT selection_starts_at, status FROM semesters WHERE id = ? FOR UPDATE');
+        $periodQuery->execute([$semesterId]);
+        $period = $periodQuery->fetch();
+        $adminQuery = $pdo->prepare("SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1 FOR UPDATE");
+        $adminQuery->execute([$adminId]);
+        if (!is_array($period) || !$adminQuery->fetchColumn()) {
+            $pdo->rollBack();
+            return ['学期不存在或教务员账号不可用。'];
+        }
+        if ($period['status'] !== 'closed') {
+            $pdo->rollBack();
+            return ['只有已关闭的选课可以重新开启。'];
+        }
+        if ($dates[0] <= $period['selection_starts_at']) {
+            $pdo->rollBack();
+            return ['新的选课截止时间必须晚于选课开始时间。'];
+        }
+
+        $gradeQuery = $pdo->prepare('SELECT COUNT(*) FROM grades g
+            JOIN enrollments e ON e.id = g.enrollment_id
+            JOIN offerings o ON o.id = e.offering_id WHERE o.semester_id = ?');
+        $gradeQuery->execute([$semesterId]);
+        $submissionQuery = $pdo->prepare('SELECT COUNT(*) FROM grade_submissions gs
+            JOIN offerings o ON o.id = gs.offering_id WHERE o.semester_id = ?');
+        $submissionQuery->execute([$semesterId]);
+        if ((int) $gradeQuery->fetchColumn() > 0 || ((int) ($submissionQuery->fetchColumn())) > 0) {
+            $pdo->rollBack();
+            return ['本学期已经录入或确认成绩，不能重新开启选课。'];
+        }
+
+        $snapshotQuery = $pdo->prepare('SELECT snapshot FROM semester_closure_snapshots WHERE semester_id = ? FOR UPDATE');
+        $snapshotQuery->execute([$semesterId]);
+        $encoded = $snapshotQuery->fetchColumn();
+        if ($encoded !== false) {
+            $snapshot = json_decode((string) $encoded, true, 512, JSON_THROW_ON_ERROR);
+            if (!is_array($snapshot) || !is_array($snapshot['offerings'] ?? null)
+                || !is_array($snapshot['choices'] ?? null) || !is_array($snapshot['enrollments'] ?? null)) {
+                throw new RuntimeException('关闭前快照格式无效。');
+            }
+
+            $pdo->prepare('DELETE FROM selection_choices WHERE semester_id = ?')->execute([$semesterId]);
+            $restoreChoice = $pdo->prepare('INSERT INTO selection_choices
+                (id, student_id, semester_id, offering_id, kind, choice_rank, created_at)
+                VALUES (?, ?, ?, ?, ?, ?, ?)');
+            foreach ($snapshot['choices'] as $choice) {
+                $restoreChoice->execute([$choice['id'], $choice['student_id'], $semesterId,
+                    $choice['offering_id'], $choice['kind'], $choice['choice_rank'], $choice['created_at']]);
+            }
+
+            $snapshotEnrollmentIds = array_map(static fn(array $row): int => (int) $row['id'], $snapshot['enrollments']);
+            $deleteSql = "DELETE e FROM enrollments e JOIN offerings o ON o.id = e.offering_id WHERE o.semester_id = ?";
+            $deleteArgs = [$semesterId];
+            if ($snapshotEnrollmentIds !== []) {
+                $deleteSql .= ' AND e.id NOT IN (' . implode(',', array_fill(0, count($snapshotEnrollmentIds), '?')) . ')';
+                $deleteArgs = array_merge($deleteArgs, $snapshotEnrollmentIds);
+            }
+            $pdo->prepare($deleteSql)->execute($deleteArgs);
+            $restoreEnrollment = $pdo->prepare('UPDATE enrollments SET status = ?, source = ?, registered_at = ? WHERE id = ?');
+            foreach ($snapshot['enrollments'] as $enrollment) {
+                $restoreEnrollment->execute([$enrollment['status'], $enrollment['source'], $enrollment['registered_at'], $enrollment['id']]);
+            }
+            if ($snapshotEnrollmentIds !== []) {
+                $verifyEnrollment = $pdo->prepare('SELECT COUNT(*) FROM enrollments WHERE id IN ('
+                    . implode(',', array_fill(0, count($snapshotEnrollmentIds), '?')) . ')');
+                $verifyEnrollment->execute($snapshotEnrollmentIds);
+                if ((int) $verifyEnrollment->fetchColumn() !== count($snapshotEnrollmentIds)) {
+                    throw new RuntimeException('关闭前占座记录恢复失败。');
+                }
+            }
+            $restoreOffering = $pdo->prepare('UPDATE offerings SET status = ? WHERE id = ? AND semester_id = ?');
+            foreach ($snapshot['offerings'] as $offeringId => $status) {
+                $restoreOffering->execute([$status, $offeringId, $semesterId]);
+                if ($restoreOffering->rowCount() > 1) {
+                    throw new RuntimeException('关闭前教学班状态恢复失败。');
+                }
+            }
+        } else {
+            // 兼容修复前已关闭的学期：补位记录保存了备选原序，原首选由占座和空缺名次恢复。
+            $attemptQuery = $pdo->prepare("SELECT student_id, backup_rank, offering_id FROM closure_backup_attempts
+                WHERE semester_id = ? AND outcome = 'promoted' ORDER BY student_id, backup_rank FOR UPDATE");
+            $attemptQuery->execute([$semesterId]);
+            foreach ($attemptQuery->fetchAll() as $attempt) {
+                $choice = $pdo->prepare("UPDATE selection_choices SET kind = 'backup', choice_rank = ?
+                    WHERE student_id = ? AND semester_id = ? AND offering_id = ? AND kind = 'primary'");
+                $choice->execute([$attempt['backup_rank'], $attempt['student_id'], $semesterId, $attempt['offering_id']]);
+            }
+            $pdo->prepare("DELETE e FROM enrollments e JOIN offerings o ON o.id=e.offering_id
+                WHERE o.semester_id=? AND e.source='backup'")->execute([$semesterId]);
+            $pdo->prepare("UPDATE enrollments e JOIN offerings o ON o.id=e.offering_id
+                SET e.status='active' WHERE o.semester_id=? AND e.source='primary' AND e.status='cancelled'")->execute([$semesterId]);
+
+            $missingQuery = $pdo->prepare("SELECT e.student_id, e.offering_id FROM enrollments e
+                JOIN offerings o ON o.id=e.offering_id
+                LEFT JOIN selection_choices c ON c.student_id=e.student_id AND c.semester_id=o.semester_id
+                    AND c.offering_id=e.offering_id AND c.kind='primary'
+                WHERE o.semester_id=? AND e.status='active' AND e.source='primary' AND c.id IS NULL
+                ORDER BY e.student_id,e.id");
+            $missingQuery->execute([$semesterId]);
+            $insertChoice = $pdo->prepare("INSERT INTO selection_choices
+                (student_id,semester_id,offering_id,kind,choice_rank) VALUES (?,?,?,'primary',?)");
+            foreach ($missingQuery->fetchAll() as $missing) {
+                $rankQuery = $pdo->prepare("SELECT choice_rank FROM selection_choices
+                    WHERE student_id=? AND semester_id=? AND kind='primary' ORDER BY choice_rank FOR UPDATE");
+                $rankQuery->execute([$missing['student_id'], $semesterId]);
+                $used = array_map('intval', $rankQuery->fetchAll(PDO::FETCH_COLUMN));
+                $available = array_values(array_diff(range(1, 4), $used));
+                if ($available === []) {
+                    throw new RuntimeException('无法恢复原首选顺序。');
+                }
+                $insertChoice->execute([$missing['student_id'], $semesterId, $missing['offering_id'], $available[0]]);
+            }
+            $pdo->prepare("UPDATE offerings SET status='open' WHERE semester_id=?")->execute([$semesterId]);
+        }
+
+        $pdo->prepare('DELETE FROM billing_outbox WHERE semester_id = ?')->execute([$semesterId]);
+        $pdo->prepare('DELETE FROM closure_backup_attempts WHERE semester_id = ?')->execute([$semesterId]);
+        $pdo->prepare('DELETE r FROM offering_closure_results r JOIN offerings o ON o.id=r.offering_id WHERE o.semester_id = ?')->execute([$semesterId]);
+        $pdo->prepare('DELETE FROM semester_closure_snapshots WHERE semester_id = ?')->execute([$semesterId]);
+        $pdo->prepare("UPDATE semesters SET status='open', closed_at=NULL, selection_ends_at=?, teaching_ends_at=? WHERE id=?")
+            ->execute([$dates[0], $dates[1], $semesterId]);
+        $pdo->commit();
+        return [];
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
 /**
  * 截止后关闭指定学期，事务内完成停开、按备选顺序补位及计费记录生成。
  * 先补位再判断最低开班人数；返回结果或错误列表，异常时回滚全部修改。
@@ -170,11 +325,12 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
         }
 
         // 最早保存方案的学生先补位；时间相同时按学生编号排序。
-        $choiceQuery = $pdo->prepare('SELECT id, student_id, offering_id, kind, choice_rank
+        $choiceQuery = $pdo->prepare('SELECT id, student_id, offering_id, kind, choice_rank, created_at
             FROM selection_choices WHERE semester_id = ? ORDER BY created_at, student_id, kind, choice_rank FOR UPDATE');
         $choiceQuery->execute([$semesterId]);
+        $choiceRows = $choiceQuery->fetchAll();
         $students = [];
-        foreach ($choiceQuery->fetchAll() as $choice) {
+        foreach ($choiceRows as $choice) {
             $studentId = (int) $choice['student_id'];
             if (!isset($students[$studentId])) {
                 $students[$studentId] = ['primary' => [], 'backup' => []];
@@ -188,6 +344,19 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
             }
             $students[$studentId][$choice['kind']][$rank] = $choice;
         }
+
+        $snapshotEnrollmentQuery = $pdo->prepare('SELECT e.id, e.student_id, e.offering_id, e.status, e.source, e.registered_at
+            FROM enrollments e JOIN offerings o ON o.id=e.offering_id WHERE o.semester_id=? ORDER BY e.id FOR UPDATE');
+        $snapshotEnrollmentQuery->execute([$semesterId]);
+        $snapshot = [
+            'version' => 1,
+            'offerings' => array_map(static fn(array $row): string => (string) $row['status'], $offerings),
+            'choices' => $choiceRows,
+            'enrollments' => $snapshotEnrollmentQuery->fetchAll(),
+        ];
+        $snapshotSave = $pdo->prepare('INSERT INTO semester_closure_snapshots (semester_id,snapshot) VALUES (?,?)
+            ON DUPLICATE KEY UPDATE snapshot=VALUES(snapshot), created_at=CURRENT_TIMESTAMP');
+        $snapshotSave->execute([$semesterId, json_encode($snapshot, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR)]);
 
         $timeQuery = $pdo->prepare('SELECT t.offering_id, t.weekday, t.starts_at, t.ends_at
             FROM offering_times t JOIN offerings o ON o.id = t.offering_id WHERE o.semester_id = ?');

@@ -39,13 +39,19 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST' && $open) {
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $primary = isset($_POST['primary']) && is_array($_POST['primary']) ? array_values($_POST['primary']) : [];
     $backup = isset($_POST['backup']) && is_array($_POST['backup']) ? array_values($_POST['backup']) : [];
-    if (!validSelectionToken($_POST['token'] ?? null)) {
+    if ((isset($_POST['primary']) && !is_array($_POST['primary'])) || (isset($_POST['backup']) && !is_array($_POST['backup']))) {
+        $errors[] = '选课方案格式无效。';
+    } elseif (!validSelectionToken($_POST['token'] ?? null)) {
         $errors[] = '页面已过期，请刷新后重试。';
     } elseif (!$open) {
         $errors[] = '当前不在选课时间内。';
     } else {
         try {
             $saveDraft = ($_POST['action'] ?? '') === 'draft';
+            if (!$saveDraft) {
+                $primary = normalizeStudentChoices($primary);
+                $backup = normalizeStudentChoices($backup);
+            }
             if ($saveDraft) {
                 $errors = draftErrors($primary, $backup, $offerings);
                 if ($errors === []) {
@@ -96,13 +102,13 @@ require __DIR__ . '/partials/header.php';
         <form method="post" action="selection.php" class="form-panel" id="selection-form" data-availability-url="<?= $open ? 'selection_availability.php' : '' ?>">
             <input type="hidden" name="token" value="<?= e(selectionToken()) ?>">
             <section class="form-section">
-                <div class="section-heading"><h2 id="primary-count" aria-live="polite">首选 <?= $primaryCount ?>/4</h2><span>提交后占座</span></div>
+                <div class="section-heading"><h2 id="primary-count" aria-live="polite">首选 <?= $primaryCount ?>/4</h2><span>最多 4 门，可留空，提交后占座</span></div>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 4; $i++): ?>
                         <?php $chosen = isset($primary[$i]) && is_string($primary[$i]) ? $primary[$i] : ''; ?>
                         <label>首选 <?= $i + 1 ?>
-                            <select name="primary[]" required <?= $open ? '' : 'disabled' ?>>
-                                <option value="">请选择教学班</option>
+                            <select name="primary[]" <?= $open ? '' : 'disabled' ?>>
+                                <option value="">不选择（可留空）</option>
                                 <?php foreach ($offerings as $id => $course): ?>
                                     <?php $remaining = seatsRemaining($id, $offerings); ?>
                                     <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" data-course-name="<?= e($course['name']) ?>" data-availability-label="<?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?>" <?= $chosen === $id ? 'selected' : '' ?> <?= $remaining === 0 && !in_array($id, $savedPrimary, true) && $chosen !== $id ? 'disabled' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= e(in_array($id, $savedPrimary, true) ? '（已选，剩余' . $remaining . '人）' : ($remaining === 0 ? '（已满）' : '（剩余' . $remaining . '人）')) ?></option>
@@ -113,13 +119,13 @@ require __DIR__ . '/partials/header.php';
                 </div>
             </section>
             <section class="form-section">
-                <div class="section-heading"><h2 id="backup-count" aria-live="polite">备选 <?= $backupCount ?>/2</h2><span>按顺序补位，不占座</span></div>
+                <div class="section-heading"><h2 id="backup-count" aria-live="polite">备选 <?= $backupCount ?>/2</h2><span>最多 2 门，可留空，按顺序补位，不占座</span></div>
                 <div class="selection-fields">
                     <?php for ($i = 0; $i < 2; $i++): ?>
                         <?php $chosen = isset($backup[$i]) && is_string($backup[$i]) ? $backup[$i] : ''; ?>
                         <label>备选 <?= $i + 1 ?>
-                            <select name="backup[]" required <?= $open ? '' : 'disabled' ?>>
-                                <option value="">请选择教学班</option>
+                            <select name="backup[]" <?= $open ? '' : 'disabled' ?>>
+                                <option value="">不选择（可留空）</option>
                                 <?php foreach ($offerings as $id => $course): ?>
                                     <?php $remaining = seatsRemaining($id, $offerings); ?>
                                     <option value="<?= e($id) ?>" data-course-code="<?= e($course['code']) ?>" data-course-name="<?= e($course['name']) ?>" data-availability-label="<?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?>" <?= $chosen === $id ? 'selected' : '' ?>><?= e($course['name'] . ' · ' . $course['teacher'] . ' · ' . offeringTimeLabel($course)) ?><?= e($remaining === 0 ? '（当前已满）' : '（剩余' . $remaining . '人）') ?></option>
@@ -136,7 +142,7 @@ require __DIR__ . '/partials/header.php';
             <p class="selection-warning" id="selection-duplicate" role="alert" hidden></p>
             <div class="form-actions"><button class="primary-button" type="submit" <?= $open ? '' : 'disabled' ?>>保存选课</button><button class="text-button" type="submit" name="action" value="draft" formnovalidate <?= $open ? '' : 'disabled' ?>>保存草稿</button><a href="schedule.php">查看课表</a></div>
         </form>
-        <details class="page-help"><summary>选课规则</summary><p>提交 4 个首选、2 个备选。同一课程不能重复选择；提交时检查名额、先修与时间冲突。备选可以登记已满的班级，补位时重新检查。</p><p>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></p><?php if (!databaseModeEnabled()): ?><p>演示记录仅在本次登录中有效。</p><?php endif; ?></details>
+        <details class="page-help"><summary>选课规则</summary><p>首选可选择 0–4 门，备选可选择 0–2 门，无需填满。同一课程不能重复选择；提交时检查名额、先修与时间冲突。备选可以登记已满的班级，关课时按顺序补位，最终不超过 4 门；不需要补位时可不填备选。</p><p>选课时间：<?= e(selectionTimeLabel($selectionPeriod['start'])) ?> 至 <?= e(selectionTimeLabel($selectionPeriod['end'])) ?></p><?php if (!databaseModeEnabled()): ?><p>演示记录仅在本次登录中有效。</p><?php endif; ?></details>
     </div>
 </main>
 <script src="assets/js/selection.js" defer></script>

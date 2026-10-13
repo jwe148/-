@@ -446,7 +446,7 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
                 $counts[$id] = 0;
             }
             foreach ($students as $studentId => $student) {
-                // 包括学生主动退课留下的空位，不局限于本次停开产生的空位。
+                // 提交少于4门、主动退课或本次停开留下的空位，均按备选顺序递补到最多4门。
                 $gaps = array_diff(range(1, 4), array_keys($student['primary']));
                 if ($gaps === []) {
                     continue;

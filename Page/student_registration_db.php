@@ -1,6 +1,29 @@
 <?php
 declare(strict_types=1);
 
+/** 空下拉项不算选课；保留其他类型，让输入校验拒绝无效数据。 */
+function normalizeStudentChoices(array $choices): array
+{
+    return array_values(array_filter($choices, static fn($id): bool => $id !== ''));
+}
+
+function studentSelectionInputErrors(array $primary, array $backup): array
+{
+    if (count($primary) > 4 || count($backup) > 2) {
+        return ['首选最多选择 4 个教学班，备选最多选择 2 个教学班，可以留空。'];
+    }
+    $all = array_merge($primary, $backup);
+    foreach ($all as $id) {
+        if (!is_string($id) || $id === '' || strlen($id) > 32) {
+            return ['选课方案中包含无效的教学班编号。'];
+        }
+    }
+    if (count(array_unique($all)) !== count($all)) {
+        return ['所选教学班必须各不相同。'];
+    }
+    return [];
+}
+
 function dbStudentSelection(PDO $pdo, int $studentId, int $semesterId): array
 {
     $query = $pdo->prepare('SELECT kind, offering_id FROM selection_choices WHERE student_id = ? AND semester_id = ? ORDER BY kind, choice_rank');
@@ -84,15 +107,13 @@ function dbLockedSelectionPeriod(PDO $pdo, int $semesterId): ?array
  */
 function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array $primary, array $backup, array $catalog): array
 {
+    $primary = normalizeStudentChoices($primary);
+    $backup = normalizeStudentChoices($backup);
+    $errors = studentSelectionInputErrors($primary, $backup);
+    if ($errors !== []) {
+        return $errors;
+    }
     $all = array_merge($primary, $backup);
-    if (count($primary) !== 4 || count($backup) !== 2 || count(array_filter($all, 'is_string')) !== 6) {
-        return ['请选择 4 个首选教学班和 2 个备选教学班。'];
-    }
-    foreach ($all as $id) {
-        if ($id === '' || strlen($id) > 32) {
-            return ['选课方案中包含无效的教学班编号。'];
-        }
-    }
 
     try {
         $pdo->beginTransaction();
@@ -115,7 +136,8 @@ function dbSaveStudentSelection(PDO $pdo, int $studentId, int $semesterId, array
 
         $ids = array_values(array_unique(array_merge($all, $oldActive)));
         sort($ids, SORT_STRING);
-        $marks = implode(',', array_fill(0, count($ids), '?'));
+        // 空方案且没有原占座时仍可提交，避免生成 IN ()。
+        $marks = $ids === [] ? 'NULL' : implode(',', array_fill(0, count($ids), '?'));
         $lockedQuery = $pdo->prepare("SELECT id, capacity, status FROM offerings
             WHERE semester_id = ? AND id IN ({$marks}) ORDER BY id FOR UPDATE");
         $lockedQuery->execute(array_merge([$semesterId], $ids));

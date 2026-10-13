@@ -75,14 +75,13 @@ function validSelectionToken($token): bool
 
 function validateStudentSelection(array $primary, array $backup, array $offerings, ?array $completed = null): array
 {
-    $errors = [];
-    if (count($primary) !== 4 || count($backup) !== 2) {
-        return ['请选择 4 个首选教学班和 2 个备选教学班。'];
+    $primary = normalizeStudentChoices($primary);
+    $backup = normalizeStudentChoices($backup);
+    $errors = studentSelectionInputErrors($primary, $backup);
+    if ($errors !== []) {
+        return $errors;
     }
     $all = array_merge($primary, $backup);
-    if (count(array_filter($all, 'is_string')) !== 6 || count(array_unique($all)) !== 6) {
-        return ['六个教学班必须各不相同。'];
-    }
     $completed = $completed ?? array_column(studentGrades(), 'course');
     $codes = [];
     foreach ($all as $id) {
@@ -111,11 +110,11 @@ function validateStudentSelection(array $primary, array $backup, array $offering
             $errors[] = $course['name'] . '已满额。';
         }
     }
-    for ($i = 0; $i < 4; $i++) {
+    for ($i = 0; $i < count($primary); $i++) {
         if (!isset($offerings[$primary[$i]])) {
             continue;
         }
-        for ($j = $i + 1; $j < 4; $j++) {
+        for ($j = $i + 1; $j < count($primary); $j++) {
             if (!isset($offerings[$primary[$j]])) {
                 continue;
             }

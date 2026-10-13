@@ -38,10 +38,12 @@ function dbStudentBackupAttempts(PDO $pdo, int $studentId, int $semesterId): arr
 function dbStudentGrades(PDO $pdo, int $studentId): array
 {
     $query = $pdo->prepare("SELECT s.name AS semester, c.name AS course, g.grade_value AS grade
-        FROM grades g JOIN enrollments e ON e.id = g.enrollment_id
+        FROM enrollments e LEFT JOIN grades g ON g.enrollment_id = e.id
         JOIN offerings o ON o.id = e.offering_id JOIN courses c ON c.code = o.course_code
         JOIN semesters s ON s.id = o.semester_id
-        WHERE e.student_id = ? AND e.status = 'active' AND g.grade_value IS NOT NULL
+        WHERE e.student_id = ? AND e.status = 'active' AND o.status = 'confirmed'
+          AND s.status = 'closed' AND s.teaching_ends_at IS NOT NULL
+          AND s.teaching_ends_at <= CURRENT_TIMESTAMP
         ORDER BY s.selection_starts_at DESC, c.name");
     $query->execute([$studentId]);
     return $query->fetchAll();
@@ -55,7 +57,10 @@ function dbCompletedCourseNames(PDO $pdo, int $studentId): array
     $query = $pdo->prepare("SELECT DISTINCT c.code FROM grades g
         JOIN enrollments e ON e.id = g.enrollment_id
         JOIN offerings o ON o.id = e.offering_id JOIN courses c ON c.code = o.course_code
-        WHERE e.student_id = ? AND e.status = 'active' AND g.grade_value IN ({$marks})");
+        JOIN semesters s ON s.id = o.semester_id
+        WHERE e.student_id = ? AND e.status = 'active' AND o.status = 'confirmed'
+          AND s.status = 'closed' AND s.teaching_ends_at IS NOT NULL
+          AND s.teaching_ends_at <= CURRENT_TIMESTAMP AND g.grade_value IN ({$marks})");
     $query->execute(array_merge([$studentId], $passing));
     $codes=$query->fetchAll(PDO::FETCH_COLUMN);
     require_once __DIR__.'/data/catalog_provider.php';

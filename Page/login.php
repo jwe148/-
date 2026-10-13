@@ -2,7 +2,8 @@
 declare(strict_types=1);
 
 require __DIR__ . '/auth.php';
-if (currentUser() !== null) {
+$existingUser = currentUser();
+if ($existingUser !== null) {
     header('Location: index.php');
     exit;
 }

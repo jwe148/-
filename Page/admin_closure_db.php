@@ -1,6 +1,54 @@
 <?php
 declare(strict_types=1);
-require_once __DIR__.'/billing_db.php';
+require_once __DIR__ . '/billing_db.php';
+
+function dbSetSelectionPeriod(PDO $pdo, int $adminId, int $semesterId, string $start, string $end, string $teachingEnd): array
+{
+    $dates = [];
+    foreach ([$start, $end, $teachingEnd] as $value) {
+        $value = str_replace('T', ' ', $value);
+        if (strlen($value) === 16) {
+            $value .= ':00';
+        }
+        $date = DateTimeImmutable::createFromFormat('!Y-m-d H:i:s', $value, new DateTimeZone('Asia/Shanghai'));
+        if (!$date || $date->format('Y-m-d H:i:s') !== $value || $value < '1000-01-01 00:00:00') {
+            return ['请输入有效的开始、截止和教学结束时间。'];
+        }
+        $dates[] = $value;
+    }
+    if ($dates[0] >= $dates[1] || $dates[2] < $dates[1]) {
+        return ['开始时间须早于选课截止，教学结束不能早于选课截止。'];
+    }
+    try {
+        $pdo->beginTransaction();
+        $periodQuery = $pdo->prepare('SELECT status, selection_starts_at, selection_ends_at FROM semesters WHERE id = ? FOR UPDATE');
+        $periodQuery->execute([$semesterId]);
+        $period = $periodQuery->fetch();
+        $adminQuery = $pdo->prepare("SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1 FOR UPDATE");
+        $adminQuery->execute([$adminId]);
+        if (!$period || !$adminQuery->fetchColumn()) {
+            $pdo->rollBack();
+            return ['学期不存在或无权修改。'];
+        }
+        if ($period['status'] === 'closing') {
+            $pdo->rollBack();
+            return ['关课正在处理，请稍后修改。'];
+        }
+        if ($period['status'] === 'closed' && ($dates[0] !== $period['selection_starts_at'] || $dates[1] !== $period['selection_ends_at'])) {
+            $pdo->rollBack();
+            return ['已关闭选课不能重新开放，只能维护教学结束时间。'];
+        }
+        $save = $pdo->prepare('UPDATE semesters SET selection_starts_at = ?, selection_ends_at = ?, teaching_ends_at = ? WHERE id = ?');
+        $save->execute([$dates[0], $dates[1], $dates[2], $semesterId]);
+        $pdo->commit();
+        return [];
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
 
 function dbClosureOverview(PDO $pdo, int $semesterId): array
 {
@@ -25,7 +73,8 @@ function dbClosingCompletedCodes(PDO $pdo, int $studentId): array
         JOIN enrollments e ON e.id = g.enrollment_id
         JOIN offerings o ON o.id = e.offering_id JOIN semesters s ON s.id = o.semester_id
         WHERE e.student_id = ? AND e.status = 'active' AND o.status = 'confirmed'
-          AND s.status = 'closed' AND g.grade_value IN ({$marks})");
+          AND s.status = 'closed' AND s.teaching_ends_at IS NOT NULL
+          AND s.teaching_ends_at <= CURRENT_TIMESTAMP AND g.grade_value IN ({$marks})");
     $query->execute(array_merge([$studentId], $passing));
     return $query->fetchAll(PDO::FETCH_COLUMN);
 }
@@ -62,6 +111,13 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
             $pdo->rollBack();
             return ['changed' => false, 'errors' => ['当前学期不存在。']];
         }
+        // 重复关课也必须验证教务身份，不能先返回已关闭结果。
+        $adminQuery = $pdo->prepare("SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1 FOR UPDATE");
+        $adminQuery->execute([$adminId]);
+        if (!$adminQuery->fetchColumn()) {
+            $pdo->rollBack();
+            return ['changed' => false, 'errors' => ['教务员账号不可用。']];
+        }
         if ($period['status'] === 'closed') {
             $pdo->rollBack();
             return ['changed' => false, 'errors' => []];
@@ -74,13 +130,7 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
         $now = new DateTimeImmutable('now', $zone);
         if ($now <= new DateTimeImmutable($period['selection_ends_at'], $zone)) {
             $pdo->rollBack();
-            return ['changed' => false, 'errors' => ['选课截止后才能关闭。']];
-        }
-        $adminQuery = $pdo->prepare("SELECT id FROM users WHERE id = ? AND role = 'admin' AND is_active = 1 FOR UPDATE");
-        $adminQuery->execute([$adminId]);
-        if (!$adminQuery->fetchColumn()) {
-            $pdo->rollBack();
-            return ['changed' => false, 'errors' => ['教务员账号不可用。']];
+            return ['changed' => false, 'errors' => ['注册正在进行中，无法关闭注册。选课截止后才能关闭。']];
         }
         $pdo->prepare("UPDATE semesters SET status = 'closing' WHERE id = ?")->execute([$semesterId]);
 

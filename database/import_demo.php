@@ -57,10 +57,10 @@ try {
         $teacherIds[$name] = (int) $pdo->lastInsertId();
     }
 
-    $semesterInsert = $pdo->prepare('INSERT INTO semesters (name, selection_starts_at, selection_ends_at, status, closed_at) VALUES (?, ?, ?, ?, ?)');
-    $semesterInsert->execute([$semester, $selectionPeriod['start'], $selectionPeriod['end'], 'open', null]);
+    $semesterInsert = $pdo->prepare('INSERT INTO semesters (name, selection_starts_at, selection_ends_at, status, closed_at, teaching_ends_at) VALUES (?, ?, ?, ?, ?, ?)');
+    $semesterInsert->execute([$semester, $selectionPeriod['start'], $selectionPeriod['end'], 'open', null, '2027-01-31 23:59:59']);
     $semesterId = (int) $pdo->lastInsertId();
-    $semesterInsert->execute(['2025—2026学年 第二学期', '2026-02-16 08:00:00', '2026-03-01 17:00:00', 'closed', '2026-03-02 00:00:00']);
+    $semesterInsert->execute(['2025—2026学年 第二学期', '2026-02-16 08:00:00', '2026-03-01 17:00:00', 'closed', '2026-03-02 00:00:00', '2026-07-15 23:59:59']);
     $historySemesterId = (int) $pdo->lastInsertId();
 
     foreach ($prerequisiteCodes as $name => $code) {

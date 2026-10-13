@@ -94,6 +94,9 @@ function validateStudentSelection(array $primary, array $backup, array $offering
         if (($course['status'] ?? 'open') !== 'open') {
             $errors[] = $course['name'] . '当前不可选。';
         }
+        if (offeringTimes($course) === []) {
+            $errors[] = $course['name'] . '缺少上课时间，暂不能提交，请联系教务员。';
+        }
         if (in_array($course['code'], $codes, true)) {
             $errors[] = $course['name'] . '不能重复选择不同教学班。';
         }

@@ -192,6 +192,13 @@ function dbDeletePerson(PDO $pdo, int $adminId, string $role, int $id, int $revi
             $pdo->rollBack();
             return ['资料已被其他操作修改，请重新确认删除。'];
         }
+        // 草稿和任教资格不属于业务历史；删除失败时连同清理操作一起回滚。
+        if ($role === 'student') {
+            $pdo->prepare('DELETE FROM selection_drafts WHERE student_id = ?')->execute([$id]);
+        } else {
+            $pdo->prepare('DELETE FROM teacher_qualifications WHERE teacher_id = ?')->execute([$id]);
+        }
+        // 选课、授课、成绩及计费历史仍由外键保护，不级联删除。
         $pdo->prepare('DELETE FROM users WHERE id = ? AND role = ?')->execute([$id, $role]);
         $pdo->commit();
         return [];
@@ -200,7 +207,7 @@ function dbDeletePerson(PDO $pdo, int $adminId, string $role, int $id, int $revi
             $pdo->rollBack();
         }
         if ($error instanceof PDOException && ($error->errorInfo[1] ?? null) === 1451) {
-            return ['该人员已有选课、成绩或授课等关联记录，不能删除；可编辑资料并停用账号。'];
+            return ['该人员已有选课、授课、成绩或计费等业务记录，不能删除；资料及关联记录均已保留，请编辑资料并停用账号。'];
         }
         throw $error;
     }

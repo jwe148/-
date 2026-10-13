@@ -10,7 +10,7 @@ if (databaseModeEnabled()) {
     try {
         $pdo = databaseConnection();
         $definitions = readCourseDefinitions($pdo);
-        $periodQuery = $pdo->prepare('SELECT id, selection_starts_at, selection_ends_at, status FROM semesters WHERE name = ?');
+        $periodQuery = $pdo->prepare('SELECT id, selection_starts_at, selection_ends_at, teaching_ends_at, status FROM semesters WHERE name = ?');
         $periodQuery->execute([$semester]);
         $period = $periodQuery->fetch();
         if (!is_array($period)) {
@@ -19,6 +19,7 @@ if (databaseModeEnabled()) {
         $selectionPeriod = [
             'start' => $period['selection_starts_at'],
             'end' => $period['selection_ends_at'],
+            'teaching_end' => $period['teaching_ends_at'],
             'status' => $period['status'],
             'semester_id' => (int) $period['id'],
         ];
@@ -55,9 +56,7 @@ if (databaseModeEnabled()) {
                 'prerequisites' => [],
             ];
         }
-        if ($offerings === []) {
-            throw new RuntimeException('当前学期没有教学班。');
-        }
+        // 没有教学班是正常业务状态；仍可查看历史成绩与人员资料。
 
         $days = [1 => '周一', 2 => '周二', 3 => '周三', 4 => '周四', 5 => '周五', 6 => '周六', 7 => '周日'];
         $timeQuery = $pdo->prepare('SELECT t.offering_id, t.weekday, t.starts_at, t.ends_at
@@ -97,6 +96,13 @@ if (databaseModeEnabled()) {
     } catch (Throwable $error) {
         error_log('Course registration catalog load failed: ' . $error->getMessage());
         http_response_code(503);
+        if (isset($user) && is_array($user)) {
+            $pageTitle='课程目录暂不可用'; $active='';
+            require __DIR__.'/../partials/header.php';
+            echo '<main class="content-page"><div class="container narrow-content"><section class="simple-panel"><h1>课程目录暂不可用</h1><p>课程数据暂不可用，请检查数据库配置与课程数据。</p><p>本次操作未提交，请稍后重试。</p><a href="index.php">重新加载</a></section></div></main>';
+            require __DIR__.'/../partials/footer.php';
+            exit;
+        }
         exit('课程数据暂不可用，请检查数据库配置与课程数据。');
     }
 }

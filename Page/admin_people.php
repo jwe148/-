@@ -223,8 +223,21 @@ require __DIR__ . '/partials/header.php';
         </section>
     <?php elseif ($available && $view === 'confirm' && $record !== null && $pending !== null): ?>
         <section class="simple-panel"><h2>确认删除<?= e($roleLabel) ?></h2>
-            <p>系统编号：<?= (int)$record['id'] ?>；账号：<?= e($record['username']) ?>；姓名：<?= e($record['display_name']) ?>。</p>
-            <p>删除后不能登录；已有选课、成绩或授课记录的人员请改为停用。</p>
+            <dl class="detail-list">
+                <div><dt>系统编号</dt><dd><?= (int)$record['id'] ?></dd></div>
+                <div><dt>账号</dt><dd><?= e($record['username']) ?></dd></div>
+                <div><dt>姓名</dt><dd><?= e($record['display_name']) ?></dd></div>
+                <div><dt>出生日期</dt><dd><?= e($record['date_of_birth'] ?? '待补全') ?></dd></div>
+                <div><dt>证件号</dt><dd><?= e($record['social_security_number'] ?? '待补全') ?></dd></div>
+                <div><dt>人员状态</dt><dd><?= e($record['person_status'] ?? '待补全') ?></dd></div>
+                <?php if ($role === 'teacher'): ?>
+                    <div><dt>院系</dt><dd><?= e($record['department'] ?? '待补全') ?></dd></div>
+                <?php else: ?>
+                    <div><dt>毕业日期</dt><dd><?= e($record['graduation_date'] ?? '待补全') ?></dd></div>
+                <?php endif; ?>
+                <div><dt>账号状态</dt><dd><?= (int)$record['is_active'] === 1 ? '启用' : '停用' ?></dd></div>
+            </dl>
+            <p>请核对上述资料。删除后不能登录，<?= $role === 'student' ? '未提交的选课草稿' : '任教资格' ?>将一并清理；已有选课、授课、成绩或计费等业务记录的人员不能删除，请改为停用。</p>
             <form method="post" action="<?= e($base) ?>" class="form-actions">
                 <input type="hidden" name="token" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$record['id'] ?>"><input type="hidden" name="confirmation" value="<?= e($pending['nonce']) ?>">
                 <button class="primary-button" name="action" value="confirm_delete" type="submit">确认删除</button><button class="logout-button" name="action" value="cancel_delete" type="submit">取消删除</button>

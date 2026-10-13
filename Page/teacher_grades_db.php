@@ -7,6 +7,7 @@ function dbTeacherGradeOfferings(PDO $pdo, int $teacherId): array
         FROM offerings o JOIN courses c ON c.code = o.course_code
         JOIN semesters s ON s.id = o.semester_id
         WHERE o.teacher_id = ? AND o.status = 'confirmed' AND s.status = 'closed'
+          AND s.teaching_ends_at IS NOT NULL AND s.teaching_ends_at <= CURRENT_TIMESTAMP
         ORDER BY s.selection_starts_at DESC, c.name, o.id");
     $query->execute([$teacherId]);
     return $query->fetchAll();
@@ -15,11 +16,13 @@ function dbTeacherGradeOfferings(PDO $pdo, int $teacherId): array
 function dbTeacherUnavailableGradeOfferings(PDO $pdo, int $teacherId): array
 {
     $query = $pdo->prepare("SELECT o.id, o.class_name, o.status AS offering_status,
-            c.name AS course_name, s.name AS semester_name, s.status AS semester_status
+            c.name AS course_name, s.name AS semester_name, s.status AS semester_status,
+            s.teaching_ends_at
         FROM offerings o JOIN courses c ON c.code = o.course_code
         JOIN semesters s ON s.id = o.semester_id
         WHERE o.teacher_id = ?
-          AND NOT (o.status = 'confirmed' AND s.status = 'closed')
+          AND NOT (o.status = 'confirmed' AND s.status = 'closed'
+            AND s.teaching_ends_at IS NOT NULL AND s.teaching_ends_at <= CURRENT_TIMESTAMP)
         ORDER BY s.selection_starts_at DESC, c.name, o.id");
     $query->execute([$teacherId]);
     return $query->fetchAll();
@@ -33,7 +36,13 @@ function teacherGradeUnavailableReason(array $offering): string
     if (($offering['semester_status'] ?? '') !== 'closed') {
         return '选课尚未关闭';
     }
-    return '教学班尚未确认开设';
+    if (($offering['offering_status'] ?? '') !== 'confirmed') {
+        return '教学班尚未确认开设';
+    }
+    if (($offering['teaching_ends_at'] ?? null) === null) {
+        return '未设置教学结束时间，请联系教务员';
+    }
+    return '学期教学尚未结束';
 }
 
 function dbTeacherGradeRoster(PDO $pdo, int $teacherId, string $offeringId): ?array
@@ -41,7 +50,8 @@ function dbTeacherGradeRoster(PDO $pdo, int $teacherId, string $offeringId): ?ar
     $query = $pdo->prepare("SELECT o.id, o.class_name, c.name AS course_name, s.name AS semester_name
         FROM offerings o JOIN courses c ON c.code = o.course_code
         JOIN semesters s ON s.id = o.semester_id
-        WHERE o.id = ? AND o.teacher_id = ? AND o.status = 'confirmed' AND s.status = 'closed'");
+        WHERE o.id = ? AND o.teacher_id = ? AND o.status = 'confirmed' AND s.status = 'closed'
+          AND s.teaching_ends_at IS NOT NULL AND s.teaching_ends_at <= CURRENT_TIMESTAMP");
     $query->execute([$offeringId, $teacherId]);
     $offering = $query->fetch();
     if (!is_array($offering)) {
@@ -59,6 +69,37 @@ function dbTeacherGradeRoster(PDO $pdo, int $teacherId, string $offeringId): ?ar
     $submittedAt = $submissionQuery->fetchColumn();
     $offering['submitted_at'] = $submittedAt === false ? null : $submittedAt;
     return $offering;
+}
+
+/** 对名单和成绩生成稳定快照，供页面检测其他窗口的修改。 */
+function teacherGradeSnapshot(array $students): string
+{
+    $values = [];
+    foreach ($students as $student) {
+        $values[(int) $student['enrollment_id']] = $student['grade_value'] ?? null;
+    }
+    ksort($values, SORT_NUMERIC);
+    return hash('sha256', json_encode($values, JSON_UNESCAPED_UNICODE | JSON_THROW_ON_ERROR));
+}
+
+/** 必须在锁定教师和教学班的事务内调用，使用当前读检查最新成绩。 */
+function dbTeacherGradeSnapshotMatches(PDO $pdo, string $offeringId, ?string $expected, ?int $enrollmentId = null): bool
+{
+    // 兼容已有内部调用；网页入口必须提供快照。
+    if ($expected === null) {
+        return true;
+    }
+    $sql = "SELECT e.id AS enrollment_id, g.grade_value
+        FROM enrollments e LEFT JOIN grades g ON g.enrollment_id = e.id
+        WHERE e.offering_id = ? AND e.status = 'active'";
+    $params = [$offeringId];
+    if ($enrollmentId !== null) {
+        $sql .= ' AND e.id = ?';
+        $params[] = $enrollmentId;
+    }
+    $query = $pdo->prepare($sql . ' ORDER BY e.id FOR UPDATE');
+    $query->execute($params);
+    return hash_equals(teacherGradeSnapshot($query->fetchAll()), $expected);
 }
 
 function teacherGradeRecorded($grade): bool
@@ -209,13 +250,15 @@ function dbLockTeacherGradeOffering(PDO $pdo, int $teacherId, string $offeringId
     if (!$teacherQuery->fetchColumn()) {
         return null;
     }
-    $offeringQuery = $pdo->prepare("SELECT o.id, o.status, o.teacher_id, s.status AS semester_status
+    $offeringQuery = $pdo->prepare("SELECT o.id, o.status, o.teacher_id, s.status AS semester_status,
+            (s.teaching_ends_at IS NOT NULL AND s.teaching_ends_at <= CURRENT_TIMESTAMP) AS teaching_completed
         FROM offerings o JOIN semesters s ON s.id = o.semester_id
         WHERE o.id = ? FOR UPDATE");
     $offeringQuery->execute([$offeringId]);
     $offering = $offeringQuery->fetch();
     return is_array($offering) && (int) $offering['teacher_id'] === $teacherId
         && $offering['status'] === 'confirmed' && $offering['semester_status'] === 'closed'
+        && (int) $offering['teaching_completed'] === 1
         ? $offering : null;
 }
 
@@ -239,7 +282,7 @@ function dbWriteTeacherGrade(PDO $pdo, int $teacherId, string $offeringId, int $
     return true;
 }
 
-function dbSaveTeacherGrade(PDO $pdo, int $teacherId, string $offeringId, int $enrollmentId, string $grade): array
+function dbSaveTeacherGrade(PDO $pdo, int $teacherId, string $offeringId, int $enrollmentId, string $grade, ?string $expectedSnapshot = null): array
 {
     if ($offeringId === '' || strlen($offeringId) > 32 || $enrollmentId < 1) {
         return ['成绩记录无效。'];
@@ -261,6 +304,10 @@ function dbSaveTeacherGrade(PDO $pdo, int $teacherId, string $offeringId, int $e
             $pdo->rollBack();
             return ['该学生不在当前教学班的有效名单中。'];
         }
+        if (!dbTeacherGradeSnapshotMatches($pdo, $offeringId, $expectedSnapshot, $enrollmentId)) {
+            $pdo->rollBack();
+            return ['该学生的成绩已在其他窗口修改，本次未保存。请核对最新成绩后重试。'];
+        }
         dbWriteTeacherGrade($pdo, $teacherId, $offeringId, $enrollmentId, $grade === '' ? null : $grade, 'manual');
         $pdo->commit();
         return [];
@@ -272,7 +319,7 @@ function dbSaveTeacherGrade(PDO $pdo, int $teacherId, string $offeringId, int $e
     }
 }
 
-function dbImportTeacherGrades(PDO $pdo, int $teacherId, string $offeringId, array $rows): array
+function dbImportTeacherGrades(PDO $pdo, int $teacherId, string $offeringId, array $rows, ?string $expectedSnapshot = null): array
 {
     if ($offeringId === '' || strlen($offeringId) > 32 || $rows === [] || count($rows) > 500) {
         return ['errors' => ['导入内容无效。'], 'updated' => 0];
@@ -282,6 +329,10 @@ function dbImportTeacherGrades(PDO $pdo, int $teacherId, string $offeringId, arr
         if (dbLockTeacherGradeOffering($pdo, $teacherId, $offeringId) === null) {
             $pdo->rollBack();
             return ['errors' => ['只能导入本人已结课教学班的成绩。'], 'updated' => 0];
+        }
+        if (!dbTeacherGradeSnapshotMatches($pdo, $offeringId, $expectedSnapshot)) {
+            $pdo->rollBack();
+            return ['errors' => ['名单或成绩已在其他窗口修改，本批次未导入。请核对最新成绩和CSV后重试。'], 'updated' => 0];
         }
         $rosterQuery = $pdo->prepare("SELECT u.username, e.id FROM enrollments e
             JOIN users u ON u.id = e.student_id
@@ -327,13 +378,17 @@ function dbImportTeacherGrades(PDO $pdo, int $teacherId, string $offeringId, arr
     }
 }
 
-function dbConfirmTeacherGrades(PDO $pdo, int $teacherId, string $offeringId): array
+function dbConfirmTeacherGrades(PDO $pdo, int $teacherId, string $offeringId, ?string $expectedSnapshot = null): array
 {
     try {
         $pdo->beginTransaction();
         if (dbLockTeacherGradeOffering($pdo, $teacherId, $offeringId) === null) {
             $pdo->rollBack();
             return ['只能确认本人已结课教学班的成绩。'];
+        }
+        if (!dbTeacherGradeSnapshotMatches($pdo, $offeringId, $expectedSnapshot)) {
+            $pdo->rollBack();
+            return ['名单或成绩已在其他窗口修改，本次未确认。请核对最新成绩后重试。'];
         }
         $countQuery = $pdo->prepare("SELECT g.grade_value
             FROM enrollments e LEFT JOIN grades g ON g.enrollment_id = e.id

@@ -71,20 +71,23 @@ function dbChangeTeacherClaim(PDO $pdo, int $teacherId, int $semesterId, string 
                 return ['教学班缺少上课时间，不能认领。'];
             }
             // 先锁定教师和目标班，再以当前读检查数据库中的全部上课时段。
-            $conflictQuery = $pdo->prepare("SELECT EXISTS(
-                SELECT 1 FROM offering_times target_time
+            $conflictQuery = $pdo->prepare("SELECT assigned.id, assigned.class_name, c.name AS course_name
+                FROM offering_times target_time
                 JOIN offering_times assigned_time
                   ON assigned_time.weekday = target_time.weekday
                  AND target_time.starts_at < assigned_time.ends_at
                  AND assigned_time.starts_at < target_time.ends_at
                 JOIN offerings assigned ON assigned.id = assigned_time.offering_id
+                JOIN courses c ON c.code = assigned.course_code
                 WHERE target_time.offering_id = ? AND assigned.teacher_id = ?
                   AND assigned.semester_id = ? AND assigned.status <> 'cancelled'
-            )");
+                ORDER BY assigned.id LIMIT 1");
             $conflictQuery->execute([$offeringId, $teacherId, $semesterId]);
-            if ((int) $conflictQuery->fetchColumn() === 1) {
+            $conflict = $conflictQuery->fetch();
+            if (is_array($conflict)) {
                 $pdo->rollBack();
-                return ['与已任教的教学班上课时间冲突。'];
+                return ['与已任教的“' . $conflict['course_name'] . ' · ' . $conflict['class_name']
+                    . '”（' . $conflict['id'] . '）上课时间冲突。'];
             }
             $update = $pdo->prepare('UPDATE offerings SET teacher_id = ? WHERE id = ? AND teacher_id IS NULL');
             $update->execute([$teacherId, $offeringId]);

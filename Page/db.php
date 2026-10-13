@@ -72,9 +72,11 @@ function databaseConnection(): PDO
     $name = $settings['name'];
     $password = $settings['password'];
     $dsn = "mysql:host={$host};port={$port};dbname={$name};charset=utf8mb4";
-    return new PDO($dsn, $user, $password, [
+    $pdo = new PDO($dsn, $user, $password, [
         PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
         PDO::ATTR_EMULATE_PREPARES => false,
     ]);
+    $pdo->exec("SET time_zone = '+08:00'");
+    return $pdo;
 }

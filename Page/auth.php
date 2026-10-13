@@ -6,7 +6,10 @@ require_once __DIR__ . '/password.php';
 
 // 未配置 MySQL 时使用内置演示账号；数据库模式从 users 表验证身份。
 if (session_status() !== PHP_SESSION_ACTIVE) {
-    session_name('course_registration_demo');
+    // 可配置 cookie 名称，避免同一主机上的不同项目互相覆盖登录。
+    $sessionName = getenv('CR_SESSION_NAME') ?: 'course_registration_demo';
+    if (!preg_match('/\A[A-Za-z][A-Za-z0-9_]{0,63}\z/', $sessionName)) throw new RuntimeException('会话名称配置无效。');
+    session_name($sessionName);
     session_set_cookie_params([
         'httponly' => true,
         'samesite' => 'Lax',

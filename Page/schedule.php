@@ -5,6 +5,7 @@ require __DIR__ . '/auth.php';
 $user = requireRole('student');
 require __DIR__ . '/data/catalog_runtime.php';
 require __DIR__ . '/student_data.php';
+require_once __DIR__ . '/billing_db.php';
 
 $open = selectionOpen($selectionPeriod);
 $errors = [];
@@ -52,6 +53,13 @@ $closureChanges = databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open'
 $backupAttempts = databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed'
     ? dbStudentBackupAttempts(databaseConnection(), $user['id'], $selectionPeriod['semester_id'])
     : [];
+$bill = null;
+if (databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed') {
+    $query = databaseConnection()->prepare('SELECT payload,status FROM billing_outbox WHERE student_id=? AND semester_id=?');
+    $query->execute([$user['id'], $selectionPeriod['semester_id']]);
+    $row = $query->fetch();
+    if ($row) $bill = json_decode($row['payload'], true, 512, JSON_THROW_ON_ERROR) + ['status'=>$row['status']];
+}
 $days = ['周一', '周二', '周三', '周四', '周五', '周六', '周日'];
 $byDay = array_fill_keys($days, []);
 foreach ($selection['primary'] as $id) {
@@ -103,6 +111,14 @@ require __DIR__ . '/partials/header.php';
             <?php if ($open): ?><a href="selection.php">调整选课方案</a><?php endif; ?>
         </div></details>
         <?php if (databaseModeEnabled() && ($selectionPeriod['status'] ?? 'open') === 'closed'): ?>
+            <section class="simple-panel"><h2>学费账单</h2>
+                <?php if ($bill && isset($bill['total_cents'])): ?>
+                    <p>学费合计：<strong>¥<?= e(billingMoney((int)$bill['total_cents'])) ?></strong>（<?= count($bill['offerings']) ?> 门 × ¥<?= e(billingMoney((int)$bill['course_fee_cents'])) ?>）</p>
+                    <ul><?php foreach ($bill['offerings'] as $item): ?><li><?= e($item['name'].' · '.$item['id']) ?>：¥<?= e(billingMoney((int)$item['amount_cents'])) ?><br><small><?= e(billingScheduleLabel($item)) ?></small></li><?php endforeach; ?></ul>
+                    <p><?= $bill['status'] === 'sent' ? '计费系统已模拟接收账单。' : '账单已保存，等待计费系统接收。' ?>当前为模拟计费，不产生真实扣款。</p>
+                <?php elseif ($bill): ?><p>历史课表记录未计算学费。</p>
+                <?php else: ?><p>没有最终课程，无需计费。</p><?php endif; ?>
+            </section>
             <div class="simple-panel"><h2>关闭结果</h2>
                 <?php if ($closureChanges === []): ?><p>课表无需调整。</p><?php else: ?><ol>
                     <?php foreach ($closureChanges as $change): ?><li><?= e($change['course_name']) ?>：<?= $change['status'] === 'cancelled' ? e($change['outcome'] === 'no_teacher' ? '无教师，已停开' : '人数不足，已停开') : '由备选补入' ?></li><?php endforeach; ?>

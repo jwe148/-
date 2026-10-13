@@ -42,8 +42,11 @@ if (!databaseModeEnabled()) {
 
         if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $action = is_string($_POST['action'] ?? null) ? $_POST['action'] : 'save';
+            $expectedSnapshot = $_POST['grade_snapshot'] ?? null;
             if (!validTeacherToken($_POST['token'] ?? null)) {
                 $errors[] = '页面已过期，请刷新后重试。';
+            } elseif (!is_string($expectedSnapshot) || !preg_match('/\A[a-f0-9]{64}\z/', $expectedSnapshot)) {
+                $errors[] = '成绩页面版本无效，请刷新页面后重试。';
             } elseif (!in_array($action, ['save', 'import', 'confirm'], true)) {
                 $errors[] = '无效的成绩操作。';
             } elseif ($action === 'import') {
@@ -54,7 +57,7 @@ if (!databaseModeEnabled()) {
                     $parsed = parseTeacherGradeCsv($file['tmp_name']);
                     $errors = $parsed['errors'];
                     if ($errors === []) {
-                        $result = dbImportTeacherGrades($pdo, $user['id'], $offeringId, $parsed['rows']);
+                        $result = dbImportTeacherGrades($pdo, $user['id'], $offeringId, $parsed['rows'], $expectedSnapshot);
                         $errors = $result['errors'];
                         if ($errors === []) {
                             header('Location: grade_entry.php?offering=' . rawurlencode($offeringId) . '&imported=' . $result['updated']);
@@ -63,7 +66,7 @@ if (!databaseModeEnabled()) {
                     }
                 }
             } elseif ($action === 'confirm') {
-                $errors = dbConfirmTeacherGrades($pdo, $user['id'], $offeringId);
+                $errors = dbConfirmTeacherGrades($pdo, $user['id'], $offeringId, $expectedSnapshot);
                 if ($errors === []) {
                     header('Location: grade_entry.php?offering=' . rawurlencode($offeringId) . '&confirmed=1');
                     exit;
@@ -74,7 +77,7 @@ if (!databaseModeEnabled()) {
                 if (!is_int($enrollmentId) || $enrollmentId < 1 || !is_string($grade) || !in_array($grade, ['clear', 'A', 'B', 'C', 'D', 'F', 'I'], true)) {
                     $errors[] = '请选择有效的学生和成绩等级。';
                 } else {
-                    $errors = dbSaveTeacherGrade($pdo, $user['id'], $offeringId, $enrollmentId, $grade === 'clear' ? '' : $grade);
+                    $errors = dbSaveTeacherGrade($pdo, $user['id'], $offeringId, $enrollmentId, $grade === 'clear' ? '' : $grade, $expectedSnapshot);
                     if ($errors === []) {
                         header('Location: grade_entry.php?offering=' . rawurlencode($offeringId) . '&saved=1');
                         exit;
@@ -112,7 +115,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><h1>成绩录入</h1><p>仅已关闭学期中确认开设的本人教学班可以录入成绩。</p></div>
+        <div class="page-heading"><h1>成绩录入</h1><p>仅选课已关闭且教学已结束的本人教学班可以录入成绩。可暂时跳过学生，之后补录或更正。</p></div>
         <?php if (isset($_GET['saved'])): ?><p class="message success" role="status">成绩已保存。<?= $selected !== null && $selected['submitted_at'] !== null ? '当前仍为已确认提交。' : '当前尚未确认提交。' ?></p><?php endif; ?>
         <?php if (isset($_GET['imported'])): ?><p class="message success" role="status">CSV导入完成，共更新 <?= (int) $_GET['imported'] ?> 条成绩。</p><?php endif; ?>
         <?php if (isset($_GET['confirmed'])): ?><p class="message success" role="status">成绩已确认提交。</p><?php endif; ?>
@@ -150,6 +153,7 @@ require __DIR__ . '/partials/header.php';
                         <form method="post" action="grade_entry.php" enctype="multipart/form-data" class="inline-upload">
                             <input type="hidden" name="token" value="<?= e(teacherToken()) ?>">
                             <input type="hidden" name="action" value="import">
+                            <input type="hidden" name="grade_snapshot" value="<?= e(teacherGradeSnapshot($selected['students'])) ?>">
                             <input type="hidden" name="offering_id" value="<?= e($selected['id']) ?>">
                             <label>导入CSV <input type="file" name="grade_file" accept=".csv,text/csv" required></label>
                             <button class="primary-button" type="submit">批量导入</button>
@@ -172,6 +176,7 @@ require __DIR__ . '/partials/header.php';
                                 <td><form class="grade-form" method="post" action="grade_entry.php">
                                     <input type="hidden" name="token" value="<?= e(teacherToken()) ?>">
                                     <input type="hidden" name="action" value="save">
+                                    <input type="hidden" name="grade_snapshot" value="<?= e(teacherGradeSnapshot([$student])) ?>">
                                     <input type="hidden" name="offering_id" value="<?= e($selected['id']) ?>">
                                     <input type="hidden" name="enrollment_id" value="<?= (int) $student['enrollment_id'] ?>">
                                     <select name="grade" aria-label="<?= e($student['username']) ?> 的成绩" required>
@@ -193,6 +198,7 @@ require __DIR__ . '/partials/header.php';
                         <form method="post" action="grade_entry.php">
                             <input type="hidden" name="token" value="<?= e(teacherToken()) ?>">
                             <input type="hidden" name="action" value="confirm">
+                            <input type="hidden" name="grade_snapshot" value="<?= e(teacherGradeSnapshot($selected['students'])) ?>">
                             <input type="hidden" name="offering_id" value="<?= e($selected['id']) ?>">
                             <button class="primary-button" type="submit" <?= ($statistics['missing'] ?? 1) > 0 || ($statistics['total'] ?? 0) === 0 ? 'disabled' : '' ?>>确认提交成绩</button>
                         </form>

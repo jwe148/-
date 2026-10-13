@@ -21,17 +21,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = '关闭选课需要先配置数据库。';
     } else {
         try {
-            $result = dbCloseSemester(databaseConnection(), $user['id'], $selectionPeriod['semester_id']);
-            $errors = $result['errors'];
-            if ($errors === []) {
-                try { dbDispatchBilling(databaseConnection(), $user['id'], $selectionPeriod['semester_id']); }
-                catch (Throwable $sendError) { error_log('Billing dispatch failed: '.$sendError->getMessage()); }
-                header('Location: admin_closure.php?' . ($result['changed'] ? 'closed=1' : 'already=1'));
-                exit;
+            $action = $_POST['action'] ?? 'close';
+            if ($action === 'period') {
+                $values = [];
+                foreach (['start', 'end', 'teaching_end'] as $key) {
+                    $values[] = is_string($_POST[$key] ?? null) ? $_POST[$key] : '';
+                }
+                $errors = dbSetSelectionPeriod(databaseConnection(), $user['id'], $selectionPeriod['semester_id'], ...$values);
+                if ($errors === []) {
+                    header('Location: admin_closure.php?period_saved=1');
+                    exit;
+                }
+            } elseif ($action === 'close') {
+                $result = dbCloseSemester(databaseConnection(), $user['id'], $selectionPeriod['semester_id']);
+                $errors = $result['errors'];
+                if ($errors === []) {
+                    try {
+                        dbDispatchBilling(databaseConnection(), $user['id'], $selectionPeriod['semester_id']);
+                    } catch (Throwable $sendError) {
+                        error_log('Billing dispatch failed: ' . $sendError->getMessage());
+                    }
+                    header('Location: admin_closure.php?' . ($result['changed'] ? 'closed=1' : 'already=1'));
+                    exit;
+                }
+            } else {
+                $errors[] = '无效操作。';
             }
         } catch (Throwable $error) {
             error_log('Course registration close failed: ' . $error->getMessage());
-            $errors[] = '关闭未完成，数据未修改，请稍后重试。';
+            $errors[] = '操作未完成，数据未修改，请稍后重试。';
         }
     }
 }
@@ -57,10 +75,25 @@ require __DIR__ . '/partials/header.php';
     <div class="container narrow-content">
         <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1></div>
         <div class="info-line"><strong><?= e($statusLabels[$selectionPeriod['status'] ?? 'open'] ?? '未知状态') ?></strong><span>选课截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
-        <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表已生成。</p><?php endif; ?>
+        <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表与学费账单已生成。计费发送结果可在“任教与计费”查看。</p><?php endif; ?>
         <?php if (isset($_GET['already'])): ?><p class="message success" role="status">此前已关闭，本次未重复处理。</p><?php endif; ?>
+        <?php if (isset($_GET['period_saved'])): ?><p class="message success" role="status">学期时间已保存。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if (databaseModeEnabled()): ?>
+            <details class="simple-panel"><summary>维护本学期时间</summary>
+                <p>选课关闭与教学结束是两个阶段；只有教学结束后才能录入成绩。已经关闭的选课不能重新开放。</p>
+                <form method="post">
+                    <input type="hidden" name="token" value="<?= e($token) ?>">
+                    <input type="hidden" name="action" value="period">
+                    <?php $periodClosed = ($selectionPeriod['status'] ?? 'open') === 'closed'; ?>
+                    <div class="people-fields">
+                        <label>选课开始<input type="datetime-local" name="start" step="1" value="<?= e(str_replace(' ', 'T', $selectionPeriod['start'])) ?>" <?= $periodClosed ? 'readonly' : '' ?> required></label>
+                        <label>选课截止<input type="datetime-local" name="end" step="1" value="<?= e(str_replace(' ', 'T', $selectionPeriod['end'])) ?>" <?= $periodClosed ? 'readonly' : '' ?> required></label>
+                        <label>教学结束<input type="datetime-local" name="teaching_end" step="1" value="<?= e(str_replace(' ', 'T', $selectionPeriod['teaching_end'] ?? '')) ?>" required></label>
+                    </div>
+                    <div class="form-actions"><button class="primary-button" type="submit">保存时间</button></div>
+                </form>
+            </details>
             <section class="simple-panel">
                 <h2>教学班处理结果</h2><p><a href="admin_extras.php">查看计费发送记录 / 重试</a></p>
                 <?php if ($overview === []): ?><p>暂无教学班数据。</p><?php else: ?>

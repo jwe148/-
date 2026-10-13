@@ -24,6 +24,7 @@ CREATE TABLE IF NOT EXISTS billing_outbox (
  attempts INT UNSIGNED NOT NULL DEFAULT 0,
  last_error VARCHAR(200) NULL,
  sent_at DATETIME NULL,
+ next_attempt_at DATETIME NULL,
  PRIMARY KEY(id), UNIQUE KEY uq_billing(student_id,semester_id),
  FOREIGN KEY(student_id) REFERENCES users(id),
  FOREIGN KEY(semester_id) REFERENCES semesters(id)

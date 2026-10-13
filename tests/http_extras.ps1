@@ -16,7 +16,7 @@ Check ((Page schedule.php $s).Content.Contains('课表暂无课程')) 'HTTP draf
 $null=Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $s -UseBasicParsing
 $s=Login student student02
 $p=Page selection.php $s
-Check ($p.Content.Contains('载入未提交草稿') -and ($p.Content -match '<option[^>]*value="SE301-01"[^>]*data-course-code="SE301"[^>]* selected(?:\s|>)')) 'HTTP draft survives login'
+Check ($p.Content.Contains('草稿待提交') -and ($p.Content -match '<option[^>]*value="SE301-01"[^>]*data-course-code="SE301"[^>]* selected(?:\s|>)')) 'HTTP draft survives login'
 $token=[regex]::Match($p.Content,'name="token" value="([a-f0-9]+)"').Groups[1].Value
 $p=Invoke-WebRequest "$BaseUrl/schedule.php" -Method Post -Body @{token=$token;action='delete'} -WebSession $s -UseBasicParsing
 Check ($p.Content.Contains('请确认删除整份课表')) 'HTTP whole delete requires confirmation'
@@ -24,7 +24,7 @@ $p=Invoke-WebRequest "$BaseUrl/schedule.php" -Method Post -Body @{token='bad';ac
 Check ($p.Content.Contains('页面已过期')) 'HTTP whole delete checks token'
 $p=Invoke-WebRequest "$BaseUrl/schedule.php" -Method Post -Body @{token=$token;action='delete';confirm='yes'} -WebSession $s -UseBasicParsing
 Check ($p.Content.Contains('课表、备选和草稿已清空')) 'HTTP confirmed deletion'
-Check (-not (Page selection.php $s).Content.Contains('载入未提交草稿')) 'HTTP deletion clears draft'
+Check (-not (Page selection.php $s).Content.Contains('草稿待提交')) 'HTTP deletion clears draft'
 $catalog=Page catalog_api.php $s
 Check (($catalog.Content|ConvertFrom-Json).courses.Count -gt 0) 'HTTP read-only catalog returns definitions'
 $rejected=$false

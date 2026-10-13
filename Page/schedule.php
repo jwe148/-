@@ -85,7 +85,7 @@ require __DIR__ . '/partials/header.php';
         <?php if(isset($_GET['deleted'])): ?><p class="message success">课表、备选和草稿已清空，名额已释放。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if ($selection['primary'] === []): ?>
-            <div class="empty-state"><h2>课表暂无课程</h2><p><?= $open ? '提交选课方案后，首选课程会显示在这里。' : '没有保留的课程。' ?></p><?php if ($open): ?><a href="selection.php">去选课</a><?php endif; ?></div>
+            <div class="empty-state"><h2>课表暂无课程</h2><?php if ($open): ?><a href="selection.php">去选课</a><?php endif; ?></div>
         <?php else: ?>
             <div class="timetable">
                 <?php foreach ($byDay as $day => $dayCourses): ?>
@@ -105,7 +105,7 @@ require __DIR__ . '/partials/header.php';
         <?php endif; ?>
         <?php if ($open): ?><details class="page-help"><summary>删除整份课表</summary><form method="post" action="schedule.php"><input type="hidden" name="token" value="<?= e(selectionToken()) ?>"><input type="hidden" name="action" value="delete"><label><input type="checkbox" name="confirm" value="yes" required>确认清空本学期课表、备选和草稿</label><button class="text-button" type="submit">确认删除</button></form></details><?php endif; ?>
         <details class="simple-panel disclosure-panel"><summary><?= ($selectionPeriod['status'] ?? 'open') === 'closed' ? '未补入的备选' : '备选顺序' ?> · <?= count($selection['backup']) ?> 门</summary><div class="disclosure-content">
-            <?php if ($selection['backup'] === []): ?><p>尚未提交备选教学班。</p><?php else: ?>
+            <?php if ($selection['backup'] === []): ?><p>暂无备选。</p><?php else: ?>
                 <ol><?php foreach ($selection['backup'] as $id): ?><?php if (isset($offerings[$id])): ?><li><?= e($offerings[$id]['name'] . ' · ' . offeringTimeLabel($offerings[$id])) ?></li><?php endif; ?><?php endforeach; ?></ol>
             <?php endif; ?>
             <?php if ($open): ?><a href="selection.php">调整选课方案</a><?php endif; ?>
@@ -114,21 +114,21 @@ require __DIR__ . '/partials/header.php';
             <section class="simple-panel"><h2>学费账单</h2>
                 <?php if ($bill && isset($bill['total_cents'])): ?>
                     <p>学费合计：<strong>¥<?= e(billingMoney((int)$bill['total_cents'])) ?></strong>（<?= count($bill['offerings']) ?> 门 × ¥<?= e(billingMoney((int)$bill['course_fee_cents'])) ?>）</p>
-                    <ul><?php foreach ($bill['offerings'] as $item): ?><li><?= e($item['name'].' · '.$item['id']) ?>：¥<?= e(billingMoney((int)$item['amount_cents'])) ?><br><small><?= e(billingScheduleLabel($item)) ?></small></li><?php endforeach; ?></ul>
-                    <p><?= $bill['status'] === 'sent' ? '计费系统已模拟接收账单。' : '账单已保存，等待计费系统接收。' ?>当前为模拟计费，不产生真实扣款。</p>
+                    <details class="page-help"><summary>课程明细</summary><ul><?php foreach ($bill['offerings'] as $item): ?><li><?= e($item['name'].' · '.$item['id']) ?>：¥<?= e(billingMoney((int)$item['amount_cents'])) ?><br><small><?= e(billingScheduleLabel($item)) ?></small></li><?php endforeach; ?></ul></details>
+                    <p><?= $bill['status'] === 'sent' ? '模拟发送成功' : '待发送' ?> · 不实际扣款</p>
                 <?php elseif ($bill): ?><p>历史课表记录未计算学费。</p>
                 <?php else: ?><p>没有最终课程，无需计费。</p><?php endif; ?>
             </section>
-            <div class="simple-panel"><h2>关闭结果</h2>
+            <details class="simple-panel disclosure-panel"><summary>关闭结果</summary><div class="disclosure-content">
                 <?php if ($closureChanges === []): ?><p>课表无需调整。</p><?php else: ?><ol>
                     <?php foreach ($closureChanges as $change): ?><li><?= e($change['course_name']) ?>：<?= $change['status'] === 'cancelled' ? e($change['outcome'] === 'no_teacher' ? '无教师，已停开' : '人数不足，已停开') : '由备选补入' ?></li><?php endforeach; ?>
                 </ol><?php endif; ?>
-            </div>
+            </div></details>
             <?php if ($backupAttempts !== []): ?>
                 <?php $attemptLabels = ['promoted' => '已补入', 'cancelled' => '教学班停开，未补入', 'full' => '名额已满，未补入', 'missing_time' => '缺少上课时间，未补入', 'prerequisite' => '先修条件不满足，未补入', 'duplicate_course' => '与课表课程重复，未补入', 'time_conflict' => '与课表时间冲突，未补入']; ?>
-                <div class="simple-panel"><h2>备选处理</h2><ol>
+                <details class="simple-panel disclosure-panel"><summary>备选处理</summary><div class="disclosure-content"><ol>
                     <?php foreach ($backupAttempts as $attempt): ?><li>备选 <?= (int) $attempt['backup_rank'] ?>：<?= e($attempt['course_name']) ?> · <?= e($attemptLabels[$attempt['outcome']] ?? '未补入') ?></li><?php endforeach; ?>
-                </ol></div>
+                </ol></div></details>
             <?php endif; ?>
             <p class="page-note">选课已关闭，课表不能再调整。</p>
         <?php else: ?>

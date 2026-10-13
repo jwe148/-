@@ -115,7 +115,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><h1>成绩录入</h1><p>仅选课已关闭且教学已结束的本人教学班可以录入成绩。可暂时跳过学生，之后补录或更正。</p></div>
+        <div class="page-heading"><h1>成绩录入</h1><p>已结课教学班 · 支持补录与更正</p></div>
         <?php if (isset($_GET['saved'])): ?><p class="message success" role="status">成绩已保存。<?= $selected !== null && $selected['submitted_at'] !== null ? '当前仍为已确认提交。' : '当前尚未确认提交。' ?></p><?php endif; ?>
         <?php if (isset($_GET['imported'])): ?><p class="message success" role="status">CSV导入完成，共更新 <?= (int) $_GET['imported'] ?> 条成绩。</p><?php endif; ?>
         <?php if (isset($_GET['confirmed'])): ?><p class="message success" role="status">成绩已确认提交。</p><?php endif; ?>
@@ -134,7 +134,6 @@ require __DIR__ . '/partials/header.php';
             </div></details>
             <?php if ($unavailableOfferings !== []): ?>
                 <details class="simple-panel disclosure-panel"><summary>尚不可录入的本人教学班（<?= count($unavailableOfferings) ?>）</summary><div class="disclosure-content">
-                    <p>这些课程属于你的任教范围，但尚未满足成绩录入条件。</p>
                     <div class="table-scroll"><table class="data-table"><thead><tr><th>学期</th><th>教学班</th><th>原因</th></tr></thead><tbody>
                         <?php foreach ($unavailableOfferings as $offering): ?><tr>
                             <td><?= e($offering['semester_name']) ?></td>
@@ -191,9 +190,9 @@ require __DIR__ . '/partials/header.php';
                     <?php endif; ?>
                     <div class="submission-box">
                         <?php if ($selected['submitted_at'] !== null): ?>
-                            <p><strong>已确认提交</strong>：<?= e($selected['submitted_at']) ?>。成绩发生实际变化时会自动撤销确认，重复保存或原样导入保留确认。</p>
+                            <p><strong>已确认提交</strong>：<?= e($selected['submitted_at']) ?>。修改成绩后需重新确认。</p>
                         <?php else: ?>
-                            <p>当前尚未确认提交。全部学生录入成绩后可确认；确认后仍可纠错，但需要重新确认。</p>
+                            <p>当前尚未确认提交。录齐成绩后可确认。</p>
                         <?php endif; ?>
                         <form method="post" action="grade_entry.php">
                             <input type="hidden" name="token" value="<?= e(teacherToken()) ?>">
@@ -217,7 +216,7 @@ require __DIR__ . '/partials/header.php';
                     <?php endif; ?>
                 </div></details>
             <?php endif; ?>
-            <details class="page-help"><summary>成绩与CSV说明</summary><p>使用 A、B、C、D、F、I，支持更正和撤销。CSV表头应包含唯一的“账号”和“成绩”列，每行列数须与表头一致；保留成绩单元格并留空表示清空，缺列会拒绝整批导入。历史中文等级可原样导入保留，修改时请使用字母等级。折算平均分按 A=95、B=85、C=75、D=65、F=50 计算，I和未录入不计入平均分。</p></details>
+            <details class="page-help"><summary>成绩与CSV说明</summary><p>等级：A/B/C/D/F/I。CSV需有“账号”“成绩”列；成绩留空表示清空。建议导出后修改再导入。</p><p>平均分折算：A=95、B=85、C=75、D=65、F=50；I及空成绩不计入。</p></details>
         <?php endif; ?>
     </div>
 </main>

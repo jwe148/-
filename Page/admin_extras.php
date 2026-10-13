@@ -26,7 +26,7 @@ $q=$pdo->prepare('SELECT b.id,u.username,b.payload,b.status,b.attempts,b.last_er
 $pageTitle='任教与计费'; $active='admin_extras.php'; require __DIR__.'/partials/header.php';
 ?>
 <main class="content-page"><div class="container narrow-content"><div class="page-heading"><h1>任教与计费</h1></div>
-<?php if(isset($_GET['saved'])): ?><p class="message success">处理完成，请核对下方结果。</p><?php endif; ?>
+<?php if(isset($_GET['saved'])): ?><p class="message success">处理完成。</p><?php endif; ?>
 <?php foreach($errors as $error): ?><p class="message error"><?= e($error) ?></p><?php endforeach; ?>
 <section class="simple-panel"><h2>任教资格</h2>
 <form method="post" class="form-actions"><input type="hidden" name="token" value="<?= e($token) ?>">
@@ -34,7 +34,7 @@ $pageTitle='任教与计费'; $active='admin_extras.php'; require __DIR__.'/part
 <label>课程<select name="course" required><?php foreach($courses as $c): ?><option value="<?= e($c['code']) ?>"><?= e($c['name']) ?></option><?php endforeach; ?></select></label>
 <button class="primary-button" name="action" value="grant">授予资格</button><button class="text-button" name="action" value="revoke">撤销资格</button></form>
 <details class="page-help"><summary>已有资格 · <?= count($quals) ?></summary><ul><?php foreach($quals as $qual): ?><li><?= e($qual['display_name'].' · '.$qual['name']) ?></li><?php endforeach; ?></ul></details></section>
-<section class="simple-panel"><h2>计费发送记录</h2><p>关课后按最终课程数量计算学费并模拟发送，不产生真实扣款。已生成账单使用生成时的单价。</p>
+<section class="simple-panel"><h2>计费发送记录</h2><p>模拟计费，不实际扣款。</p>
 <?php if(!$bills): ?><p>暂无记录，关闭选课后生成。</p><?php else: ?><div class="table-scroll"><table class="data-table"><thead><tr><th>学生</th><th>账单</th><th>状态</th><th>尝试次数</th><th>下次重试</th><th>说明</th></tr></thead><tbody>
 <?php $labels=['pending'=>'待发送','failed'=>'失败','sent'=>'模拟发送成功']; foreach($bills as $bill): $payload=json_decode($bill['payload'],true,512,JSON_THROW_ON_ERROR); ?><tr><td><?= e($bill['username']) ?></td><td><?php if(isset($payload['total_cents'])): ?>¥<?= e(billingMoney((int)$payload['total_cents'])) ?><details><summary>最终课表与课程明细</summary><ul><?php foreach($payload['offerings'] as $item): ?><li><?= e($item['name'].' · '.$item['id']) ?>：¥<?= e(billingMoney((int)$item['amount_cents'])) ?><br><small><?= e(billingScheduleLabel($item)) ?></small></li><?php endforeach; ?></ul></details><?php else: ?>历史记录未计算金额<?php endif; ?></td><td><?= e($labels[$bill['status']]) ?></td><td><?= (int)$bill['attempts'] ?></td><td><?= e($bill['next_attempt_at']??'—') ?></td><td><?= e($bill['last_error']??'—') ?></td></tr><?php endforeach; ?></tbody></table></div>
 <form method="post"><input type="hidden" name="token" value="<?= e($token) ?>"><button class="primary-button" name="action" value="retry">发送待处理记录 / 重试失败记录</button></form><?php endif; ?></section>

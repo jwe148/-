@@ -187,7 +187,7 @@ require __DIR__ . '/partials/header.php';
                 <button class="primary-button" type="submit">查找</button><a href="<?= e($base . '&view=new') ?>">新增<?= e($roleLabel) ?></a>
             </form>
             <p>共 <?= $listing['total'] ?> 人，第 <?= $listing['page'] ?>/<?= $listing['pages'] ?> 页。</p>
-            <?php if ($listing['rows'] === []): ?><p>没有找到人员，请调整查询条件或新增资料。</p><?php else: ?>
+            <?php if ($listing['rows'] === []): ?><p>没有找到人员。</p><?php else: ?>
             <div class="table-scroll"><table class="data-table"><thead><tr><th>系统编号</th><th>账号</th><th>姓名</th><th>密码 / 状态</th><th>人员状态</th><th>启用状态</th><th>操作</th></tr></thead><tbody>
                 <?php foreach ($listing['rows'] as $row): ?><tr>
                     <td><?= (int)$row['id'] ?></td><td><?= e($row['username']) ?></td><td><?= e($row['display_name']) ?></td>
@@ -237,7 +237,7 @@ require __DIR__ . '/partials/header.php';
                 <?php endif; ?>
                 <div><dt>账号状态</dt><dd><?= (int)$record['is_active'] === 1 ? '启用' : '停用' ?></dd></div>
             </dl>
-            <p>请核对上述资料。删除后不能登录，<?= $role === 'student' ? '未提交的选课草稿' : '任教资格' ?>将一并清理；已有选课、授课、成绩或计费等业务记录的人员不能删除，请改为停用。</p>
+            <p>删除后无法登录，<?= $role === 'student' ? '草稿' : '任教资格' ?>一并清除。有业务记录的人员请改为停用。</p>
             <form method="post" action="<?= e($base) ?>" class="form-actions">
                 <input type="hidden" name="token" value="<?= e($token) ?>"><input type="hidden" name="id" value="<?= (int)$record['id'] ?>"><input type="hidden" name="confirmation" value="<?= e($pending['nonce']) ?>">
                 <button class="primary-button" name="action" value="confirm_delete" type="submit">确认删除</button><button class="logout-button" name="action" value="cancel_delete" type="submit">取消删除</button>

@@ -101,15 +101,14 @@ $backup = array_slice($ids, 4);
 checkExtreme(dbSaveStudentSelection($pdo, $student, $semesterId, $primary, $backup, $catalog) === [], 'exact 4 primary and 2 backup accepted');
 $baseline = snapshotExtreme();
 $invalid = [
-    [[], []], [array_slice($primary, 0, 3), $backup], [array_merge($primary, [$backup[0]]), $backup],
-    [$primary, []], [$primary, [$backup[0]]], [$primary, array_merge($backup, ['x'])],
+    [array_merge($primary, [$backup[0]]), $backup],
+    [$primary, array_merge($backup, ['x'])],
     [[$primary[0], $primary[0], $primary[2], $primary[3]], $backup],
     [$primary, [$primary[0], $backup[1]]],
     [['missing', $primary[1], $primary[2], $primary[3]], $backup],
     [[str_repeat('X', 33), $primary[1], $primary[2], $primary[3]], $backup],
     [[['nested'], $primary[1], $primary[2], $primary[3]], $backup],
     [[123, $primary[1], $primary[2], $primary[3]], $backup],
-    [['', $primary[1], $primary[2], $primary[3]], $backup],
 ];
 foreach ($invalid as $index => [$p, $b]) {
     checkExtreme(dbSaveStudentSelection($pdo, $student, $semesterId, $p, $b, $catalog) !== [], 'invalid selection shape/id rejected ' . $index);

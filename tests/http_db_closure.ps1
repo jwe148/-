@@ -27,7 +27,7 @@ $admin = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $null = Invoke-WebRequest "$BaseUrl/login.php?role=admin" -Method Post -Body @{username='admin01';password='Demo@2026'} -WebSession $admin -UseBasicParsing
 $preview = Invoke-WebRequest "$BaseUrl/admin_closure.php" -WebSession $admin -UseBasicParsing
 $adminToken = [regex]::Match($preview.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
-Check ($adminToken.Length -eq 32 -and $preview.Content.Contains('管理员可随时关闭')) 'admin can close before deadline'
+Check ($adminToken.Length -eq 32 -and $preview.Content -match '<button[^>]*type="submit"(?![^>]*disabled)[^>]*>关闭选课</button>') 'admin can close before deadline'
 $futurePeriod = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{
     token=$adminToken;action='period';start=(Get-Date).AddDays(2).ToString('yyyy-MM-ddTHH:mm:ss');
     end=(Get-Date).AddDays(3).ToString('yyyy-MM-ddTHH:mm:ss');teaching_end=(Get-Date).AddMonths(5).ToString('yyyy-MM-ddTHH:mm:ss')

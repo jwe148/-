@@ -21,7 +21,7 @@ require __DIR__ . '/partials/header.php';
 ?>
 <main class="content-page">
     <div class="container narrow-content">
-        <div class="page-heading"><h1>我的成绩</h1><p>查看已完成学期的成绩；未录入的课程会保留在成绩单中。</p></div>
+        <div class="page-heading"><h1>我的成绩</h1><p>已完成学期</p></div>
         <?php if (!$hasGrades): ?><p class="message" role="status"><?= $grades === [] ? '暂无已完成学期的成绩信息。' : '暂无成绩信息，已完成课程的成绩尚未录入。' ?></p><?php endif; ?>
         <?php foreach ($reportCards as $semesterName => $records): ?>
             <section class="simple-panel"><h2><?= e((string) $semesterName) ?></h2>

@@ -40,10 +40,10 @@ require __DIR__ . '/partials/header.php';
         <div class="page-heading">
             <p><?= e($semester) ?></p>
             <h1>教师课表</h1>
-            <p>共 <?= count($mine) ?> 个教学班；课程安排与“我的授课”保持一致。</p>
+            <p>共 <?= count($mine) ?> 个教学班</p>
         </div>
         <?php if ($mine === []): ?>
-            <div class="empty-state"><h2>本学期暂无授课安排</h2><p>认领或由教务员安排教学班后，课程会显示在这里。</p><a href="teaching.php">查看我的授课</a></div>
+            <div class="empty-state"><h2>本学期暂无授课安排</h2><a href="teaching.php">查看我的授课</a></div>
         <?php else: ?>
             <div class="timetable">
                 <?php foreach ($schedule as $day => $items): ?>

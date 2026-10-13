@@ -116,15 +116,15 @@
             const response = await fetch(url, {credentials: 'same-origin', cache: 'no-store', signal: controller.signal});
             if (response.status === 401 || response.status === 403) {
                 sessionEnded = true;
-                showMessage(status, '登录已失效，请重新登录后提交。当前填写内容已保留。');
+                showMessage(status, '登录已失效，请重新登录。');
                 for (const button of submitButtons) button.disabled = true;
                 return;
             }
             if (!response.ok) throw new Error('Availability unavailable');
             applyAvailability(await response.json());
-            showMessage(status, '名额已更新，提交时会再次检查。');
+            showMessage(status, '名额已更新');
         } catch (error) {
-            showMessage(status, '名额刷新失败，可稍后重试；提交时会再次检查。');
+            showMessage(status, '名额刷新失败，请重试。');
         } finally {
             clearTimeout(timeout);
             busy = false;

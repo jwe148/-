@@ -81,17 +81,17 @@ require __DIR__ . '/partials/header.php';
     <div class="container narrow-content">
         <div class="page-heading"><p><?= e($semester) ?></p><h1>关闭选课</h1></div>
         <div class="info-line"><strong><?= e($statusLabels[$selectionPeriod['status'] ?? 'open'] ?? '未知状态') ?></strong><span>选课截止：<?= e(selectionTimeLabel($selectionPeriod['end'])) ?></span></div>
-        <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，最终课表与学费账单已生成。计费发送结果可在“任教与计费”查看。</p><?php endif; ?>
+        <?php if (isset($_GET['closed'])): ?><p class="message success" role="status">选课已关闭，课表与账单已生成。</p><?php endif; ?>
         <?php if (isset($_GET['already'])): ?><p class="message success" role="status">此前已关闭，本次未重复处理。</p><?php endif; ?>
         <?php if (isset($_GET['period_saved'])): ?><p class="message success" role="status">学期时间已保存。</p><?php endif; ?>
-        <?php if (isset($_GET['reopened'])): ?><p class="message success" role="status">选课已重新开启，现在可以选课。若此前已执行关课，其关闭结果和本次计费记录已撤销。</p><?php endif; ?>
+        <?php if (isset($_GET['reopened'])): ?><p class="message success" role="status">选课已重新开启。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
         <?php if (in_array('有人正在选课，不能关闭选课。请等待学生退出登录或会话过期后重试。', $errors, true)): ?>
             <script>window.alert('有人正在选课，不能关闭选课。请等待学生退出登录或会话过期后重试。');</script>
         <?php endif; ?>
         <?php if (databaseModeEnabled()): ?>
             <details class="simple-panel"><summary>维护本学期时间</summary>
-                <p>选课关闭与教学结束是两个阶段；只有教学结束后才能录入成绩。已关闭时可在下方设置新的截止时间并重新开启。</p>
+                <p>关课且教学结束后可录入成绩。</p>
                 <form method="post">
                     <input type="hidden" name="token" value="<?= e($token) ?>">
                     <input type="hidden" name="action" value="period">
@@ -121,22 +121,22 @@ require __DIR__ . '/partials/header.php';
             <?php if (($selectionPeriod['status'] ?? 'open') === 'open'): ?>
                 <section class="simple-panel">
                     <h2>执行关闭</h2>
-                    <p>停开不符合条件的教学班，按备选顺序补位并生成最终课表。</p><details class="page-help"><summary>处理规则</summary><p>先停开无教师班并补位，再停开仍不足 3 人的班，用剩余备选补位。每次检查名额、先修和时间冲突。</p></details>
+                    <p>自动处理停开、备选递补和学费账单。</p>
                     <form method="post" action="admin_closure.php" class="form-actions">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课</button>
-                        <span>管理员可随时关闭；有学生选课会话时会提示并阻止关闭。</span>
+                        <span>学生退出选课后可关闭。</span>
                     </form>
                 </section>
             <?php endif; ?>
             <?php if (in_array($selectionPeriod['status'] ?? '', ['open', 'closed'], true)): ?>
                 <section class="simple-panel">
                     <h2>重新开启选课</h2>
-                    <p>开启后立即允许选课，默认开放 7 天。此前已关闭时会恢复关闭前的教学班、学生志愿与占座，并撤销本次关闭结果和计费记录；已有成绩时不能撤销关课。</p>
+                    <p>默认开放 7 天。恢复关课前课表并撤销关课结果及账单；已有成绩时不可重开。</p>
                     <form method="post" action="admin_closure.php">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <input type="hidden" name="action" value="reopen">
-                        <details><summary>自定义开放时间（不填写则使用默认时间）</summary><div class="people-fields">
+                        <details><summary>自定义时间</summary><div class="people-fields">
                             <label>新的选课截止<input type="datetime-local" name="reopen_end" step="1"></label>
                             <label>教学结束<input type="datetime-local" name="reopen_teaching_end" step="1"></label>
                         </div></details>

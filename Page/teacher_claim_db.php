@@ -3,7 +3,7 @@ declare(strict_types=1);
 
 function dbTeacherClaims(PDO $pdo, int $teacherId, int $semesterId): array
 {
-    $query = $pdo->prepare('SELECT id FROM offerings WHERE teacher_id = ? AND semester_id = ? ORDER BY id');
+    $query = $pdo->prepare("SELECT id FROM offerings WHERE teacher_id = ? AND semester_id = ? AND status <> 'cancelled' ORDER BY id");
     $query->execute([$teacherId, $semesterId]);
     return $query->fetchAll(PDO::FETCH_COLUMN);
 }

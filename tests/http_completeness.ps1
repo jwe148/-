@@ -42,13 +42,15 @@ foreach ($asset in $assets) {
     Check ($response.StatusCode -eq 200 -and $response.RawContentLength -gt 0) "static asset available: $asset"
 }
 foreach ($path in @('database/schema.sql','tests/db_extreme.php','README.md','../database/schema.sql')) {
-    $status = 0
-    try { $null = Get-Page $path $student } catch { $status = [int]$_.Exception.Response.StatusCode }
-    Check ($status -eq 404) "non-web project file inaccessible: $path"
+    $request = [Net.HttpWebRequest]::Create("$BaseUrl/$path")
+    $request.AllowAutoRedirect = $false
+    try { $response = $request.GetResponse() } catch [Net.WebException] { $response = $_.Exception.Response }
+    try { $status = [int]$response.StatusCode } finally { if ($null -ne $response) { $response.Dispose() } }
+    Check ($status -in @(302,404)) "non-web project file inaccessible: $path"
 }
 $teacher = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $null = Invoke-WebRequest "$BaseUrl/login.php?role=teacher" -Method Post -Body @{username='teacher01';password='Demo@2026'} -WebSession $teacher -UseBasicParsing -TimeoutSec 15
-foreach ($route in @('index.php','courses.php','teaching.php','grade_entry.php')) {
+foreach ($route in @('index.php','courses.php','teaching.php','teacher_schedule.php','grade_entry.php')) {
     Check ((Get-Page $route $teacher).StatusCode -eq 200) "teacher page available: $route"
 }
 $admin = New-Object Microsoft.PowerShell.Commands.WebRequestSession

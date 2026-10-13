@@ -44,7 +44,7 @@ if ($OutageOnly) {
     exit 0
 }
 $guest = New-Object Microsoft.PowerShell.Commands.WebRequestSession
-foreach ($path in @('index.php','courses.php','course.php','selection.php','schedule.php','grades.php','teaching.php','grade_entry.php','admin_closure.php')) {
+foreach ($path in @('index.php','courses.php','course.php','selection.php','schedule.php','grades.php','teaching.php','teacher_schedule.php','grade_entry.php','admin_closure.php')) {
     $page = Request $path $guest
     Check ($page.StatusCode -eq 200 -and $page.Content.Contains('请输入学号或工号')) "anonymous redirected: $path"
 }
@@ -55,7 +55,7 @@ foreach ($body in @(@{username='student01';password='wrong'}, @{username="' OR 1
 $student = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $login = Request 'login.php?role=student' $student 'POST' @{username='student01';password='Demo@2026'}
 Check ($login.StatusCode -eq 200 -and $login.Content.Contains('action="logout.php"')) 'student login for stability checks'
-foreach ($path in @('teaching.php','grade_entry.php','admin_closure.php')) {
+foreach ($path in @('teaching.php','teacher_schedule.php','grade_entry.php','admin_closure.php')) {
     Check ((Request $path $student).StatusCode -eq 403) "student access forbidden: $path"
 }
 foreach ($path in @('course.php?id=missing','course.php?id%5B%5D=x')) {

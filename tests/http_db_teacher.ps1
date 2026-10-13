@@ -15,6 +15,12 @@ Check ($token.Length -eq 32 -and $page.Content.Contains('人机交互')) 'teache
 
 $claimed = Invoke-WebRequest "$BaseUrl/teaching.php" -Method Post -Body @{token=$token;action='claim';id='HCI326-01'} -WebSession $teacher -UseBasicParsing
 Check ($claimed.BaseResponse.ResponseUri.Query -eq '?claimed=1' -and $claimed.Content.Contains('人机交互')) 'teacher claims course'
+$schedule = Invoke-WebRequest "$BaseUrl/teacher_schedule.php" -WebSession $teacher -UseBasicParsing
+Check ($schedule.Content.Contains('教师课表') -and $schedule.Content.Contains('人机交互') -and $schedule.Content.Contains('查看学生名单')) 'teacher schedule follows assigned classes'
+$roster = Invoke-WebRequest "$BaseUrl/roster.php?id=HCI326-01&q=no_such_student" -WebSession $teacher -UseBasicParsing
+Check ($roster.Content.Contains('没有匹配的学生') -and $roster.Content.Contains('导出CSV')) 'teacher roster supports search and export entry'
+$rosterExport = Invoke-WebRequest "$BaseUrl/roster.php?id=HCI326-01&action=export" -WebSession $teacher -UseBasicParsing
+Check ($rosterExport.Headers['Content-Type'].Contains('text/csv') -and $rosterExport.Content.Contains('账号')) 'teacher exports own roster as CSV'
 
 $student = New-Object Microsoft.PowerShell.Commands.WebRequestSession
 $null = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student01';password='Demo@2026'} -WebSession $student -UseBasicParsing
@@ -40,5 +46,7 @@ Check ($wrongRelease.Content.Contains('只能取消自己认领')) 'other teache
 
 $released = Invoke-WebRequest "$BaseUrl/teaching.php" -Method Post -Body @{token=$anotherToken;action='release';id='HCI326-01'} -WebSession $anotherSession -UseBasicParsing
 Check ($released.BaseResponse.ResponseUri.Query -eq '?released=1') 'teacher releases claim'
+$scheduleAfter = Invoke-WebRequest "$BaseUrl/teacher_schedule.php" -WebSession $anotherSession -UseBasicParsing
+Check (-not $scheduleAfter.Content.Contains('人机交互')) 'released class disappears from teacher schedule'
 $studentAfter = Invoke-WebRequest "$BaseUrl/course.php?id=HCI326-01" -WebSession $student -UseBasicParsing
 Check ($studentAfter.Content.Contains('待认领')) 'student sees available course again'

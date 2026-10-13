@@ -291,6 +291,16 @@ function dbCloseSemester(PDO $pdo, int $adminId, int $semesterId): array
             $pdo->rollBack();
             return ['changed' => false, 'errors' => ['选课正在关闭，请稍后查看结果。']];
         }
+        $sessions = $pdo->prepare("SELECT ss.session_key FROM selection_sessions ss
+            JOIN users u ON u.id=ss.student_id
+            WHERE ss.semester_id=? AND ss.expires_at>CURRENT_TIMESTAMP
+              AND u.role='student' AND u.is_active=1 AND ss.auth_stamp=SHA2(u.password_hash,256)
+            LIMIT 1 FOR UPDATE");
+        $sessions->execute([$semesterId]);
+        if ($sessions->fetchColumn() !== false) {
+            $pdo->rollBack();
+            return ['changed' => false, 'errors' => ['有人正在选课，不能关闭选课。请等待学生退出登录或会话过期后重试。']];
+        }
         $zone = new DateTimeZone('Asia/Shanghai');
         $now = new DateTimeImmutable('now', $zone);
         $pdo->prepare("UPDATE semesters SET status = 'closing' WHERE id = ?")->execute([$semesterId]);

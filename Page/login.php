@@ -58,6 +58,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($authenticated !== null) {
         session_regenerate_id(true);
         $_SESSION['user'] = $authenticated;
+        if ($dbMode) {
+            try {
+                touchSelectionSession($authenticated);
+            } catch (Throwable $exception) {
+                $_SESSION = [];
+                error_log('Selection session login failed: ' . $exception->getMessage());
+                http_response_code(503);
+                exit('选课会话暂不可用，请稍后重试。');
+            }
+        }
         header('Location: index.php');
         exit;
     }

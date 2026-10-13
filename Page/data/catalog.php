@@ -2,7 +2,7 @@
 declare(strict_types=1);
 
 // 界面阶段的演示数据。接入 MySQL 时由课程与教学班数据表替换。
-$semester = '2026—2027学年 第一学期';
+$semester = require __DIR__ . '/current_semester.php';
 $selectionPeriod = ['start' => '2026-09-21 08:00:00', 'end' => '2026-11-01 17:00:00'];
 $offerings = [
     'SE301-01' => [

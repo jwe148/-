@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 require_once __DIR__ . '/db.php';
 require_once __DIR__ . '/password.php';
+require_once __DIR__ . '/selection_sessions.php';
 
 // 未配置 MySQL 时使用内置演示账号；数据库模式从 users 表验证身份。
 if (session_status() !== PHP_SESSION_ACTIVE) {
@@ -51,6 +52,7 @@ function currentUser(): ?array
         if (!is_array($record) || (int) $record['is_active'] !== 1 || $record['role'] !== $user['role']
             || !is_string($user['auth_stamp'] ?? null)
             || !hash_equals(hash('sha256', $record['password_hash']), $user['auth_stamp'])) {
+            releaseSelectionSession();
             $_SESSION = [];
             session_regenerate_id(true);
             return null;
@@ -58,6 +60,13 @@ function currentUser(): ?array
         $user['username'] = $record['username'];
         $user['name'] = $record['display_name'];
         $_SESSION['user'] = $user;
+        try {
+            touchSelectionSession($user);
+        } catch (Throwable $error) {
+            error_log('Selection session update failed: ' . $error->getMessage());
+            http_response_code(503);
+            exit('选课会话暂不可用，请稍后重试。');
+        }
     }
     return $user;
 }

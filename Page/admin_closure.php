@@ -86,6 +86,9 @@ require __DIR__ . '/partials/header.php';
         <?php if (isset($_GET['period_saved'])): ?><p class="message success" role="status">学期时间已保存。</p><?php endif; ?>
         <?php if (isset($_GET['reopened'])): ?><p class="message success" role="status">选课已重新开启，现在可以选课。若此前已执行关课，其关闭结果和本次计费记录已撤销。</p><?php endif; ?>
         <?php foreach ($errors as $error): ?><p class="message error" role="alert"><?= e($error) ?></p><?php endforeach; ?>
+        <?php if (in_array('有人正在选课，不能关闭选课。请等待学生退出登录或会话过期后重试。', $errors, true)): ?>
+            <script>window.alert('有人正在选课，不能关闭选课。请等待学生退出登录或会话过期后重试。');</script>
+        <?php endif; ?>
         <?php if (databaseModeEnabled()): ?>
             <details class="simple-panel"><summary>维护本学期时间</summary>
                 <p>选课关闭与教学结束是两个阶段；只有教学结束后才能录入成绩。已关闭时可在下方设置新的截止时间并重新开启。</p>
@@ -122,7 +125,7 @@ require __DIR__ . '/partials/header.php';
                     <form method="post" action="admin_closure.php" class="form-actions">
                         <input type="hidden" name="token" value="<?= e($token) ?>">
                         <button class="primary-button" type="submit" <?= $canClose ? '' : 'disabled' ?>>关闭选课</button>
-                        <span>管理员可随时关闭，立即停止选课并执行关课处理。</span>
+                        <span>管理员可随时关闭；有学生选课会话时会提示并阻止关闭。</span>
                     </form>
                 </section>
             <?php endif; ?>

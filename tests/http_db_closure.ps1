@@ -39,11 +39,23 @@ $immediate = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @
 $immediateAvailability = (Invoke-WebRequest "$BaseUrl/selection_availability.php" -WebSession $student -UseBasicParsing).Content | ConvertFrom-Json
 Check ($immediate.BaseResponse.ResponseUri.Query -eq '?reopened=1' -and $immediateAvailability.open) 'admin immediately opens selection before original start'
 
+$blocked = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken} -WebSession $admin -UseBasicParsing
+Check ($blocked.Content.Contains('有人正在选课') -and $blocked.Content.Contains('window.alert')) 'active student session blocks closure with popup'
+$secondStudent = New-Object Microsoft.PowerShell.Commands.WebRequestSession
+$null = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student02';password='Demo@2026'} -WebSession $secondStudent -UseBasicParsing
+$null = Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $student -UseBasicParsing
+$blockedAgain = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken} -WebSession $admin -UseBasicParsing
+Check ($blockedAgain.Content.Contains('有人正在选课')) 'second browser session still blocks after first logs out'
+$null = Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $secondStudent -UseBasicParsing
 $closed = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken} -WebSession $admin -UseBasicParsing
 Check ($closed.BaseResponse.ResponseUri.Query -eq '?closed=1' -and $closed.Content.Contains('选课已关闭')) 'admin closes semester'
 Check ($closed.Content.Contains('停开：无教师') -and $closed.Content.Contains('停开：不足 3 人')) 'no-teacher and low-count courses cancelled'
 Check ($closed.Content.Contains('备选补入 1')) 'full first backup skipped and second backup promoted'
 
+$null = Invoke-WebRequest "$BaseUrl/login.php?role=student" -Method Post -Body @{username='student02';password='Demo@2026'} -WebSession $student -UseBasicParsing
+$selectionAgain = Invoke-WebRequest "$BaseUrl/selection.php" -WebSession $student -UseBasicParsing
+$studentToken = [regex]::Match($selectionAgain.Content, 'name="token" value="([a-f0-9]+)"').Groups[1].Value
+$body = $body -replace 'token=[a-f0-9]+', "token=$studentToken"
 $schedule = Invoke-WebRequest "$BaseUrl/schedule.php" -WebSession $student -UseBasicParsing
 Check ($schedule.Content.Contains('已选 4 门课程') -and $schedule.Content.Contains('数据处理实践')) 'student final schedule contains promoted backup'
 Check ($schedule.Content.Contains('人机交互：无教师，已停开') -and $schedule.Content.Contains('数据处理实践：由备选补入')) 'student sees closure result'
@@ -75,5 +87,6 @@ Check ($openAvailability.open) 'availability reports registration reopened'
 $restored = Invoke-WebRequest "$BaseUrl/selection.php" -Method Post -Body $body -ContentType 'application/x-www-form-urlencoded' -WebSession $student -UseBasicParsing
 Check ($restored.Content.Contains('选课方案已保存')) 'student can edit restored selection after reopen'
 
+$null = Invoke-WebRequest "$BaseUrl/logout.php" -Method Post -WebSession $student -UseBasicParsing
 $reclosed = Invoke-WebRequest "$BaseUrl/admin_closure.php" -Method Post -Body @{token=$adminToken;action='close'} -WebSession $admin -UseBasicParsing
 Check ($reclosed.BaseResponse.ResponseUri.Query -eq '?closed=1') 'reopened registration can be closed again'

@@ -48,7 +48,15 @@ checkExtra(dbTeacherRoster($pdo,$teacher,$sid,$original['primary'][0])===null,'r
 checkExtra(dbChangeTeacherClaim($pdo,$teacher,$sid,$wait['id'],'release')===[],'qualified claim can be released');
 $pdo->prepare('UPDATE semesters SET selection_ends_at=? WHERE id=?')->execute([(new DateTimeImmutable('now',new DateTimeZone('Asia/Shanghai')))->modify('-1 hour')->format('Y-m-d H:i:s'),$sid]);
 checkExtra(dbChangeStudentPlan($pdo,$student,$sid,'draft',[],[],$offerings)!==[]&&dbChangeStudentPlan($pdo,$student,$sid,'delete')!==[],'deadline blocks draft and whole delete');
-checkExtra(dbCloseSemester($pdo,$admin,$sid)['errors']===[],'closure succeeds and queues billing');
+$stamp = $pdo->query("SELECT SHA2(password_hash,256) FROM users WHERE id=$student")->fetchColumn();
+$pdo->prepare('INSERT INTO selection_sessions VALUES(?,?,?,?,DATE_ADD(NOW(),INTERVAL 1 HOUR))')
+    ->execute([str_repeat('a',64),$student,$sid,$stamp]);
+$before=extraSnapshot($pdo);
+$denied=dbCloseSemester($pdo,$admin,$sid);
+checkExtra(!$denied['changed'] && str_contains(implode('',$denied['errors']),'有人正在选课') && extraSnapshot($pdo)===$before,
+    'live session rejects closure with no selection or billing changes');
+$pdo->exec('UPDATE selection_sessions SET expires_at=DATE_SUB(NOW(),INTERVAL 1 SECOND)');
+checkExtra(dbCloseSemester($pdo,$admin,$sid)['errors']===[],'expired session permits closure and queues billing');
 $count=(int)$pdo->query("SELECT COUNT(*) FROM billing_outbox WHERE semester_id=$sid")->fetchColumn();checkExtra($count>0,'closed schedules generate billing records');
 $payloads=$pdo->query("SELECT payload FROM billing_outbox WHERE semester_id=$sid")->fetchAll(PDO::FETCH_COLUMN);$valid=true;
 foreach($payloads as $json)foreach(json_decode($json,true)['offerings'] as $o){$q=$pdo->prepare('SELECT status FROM offerings WHERE id=?');$q->execute([$o['id']]);$valid=$valid&&$q->fetchColumn()==='confirmed';}

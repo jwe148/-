@@ -1,4 +1,6 @@
-# 当前代码复测结果
+# 2026年10月13日历史代码复测结果
+
+本文件对应修复前的一轮检查，42阶段和1062项计数仅适用于当时版本。当前提交`73b5336`及新增修复以[最新完整回归](function_audit_regression.json)为准：39阶段、1067项检查通过。当前结论见根目录测试报告第10节。
 
 依据：Restriction Requirements；不评审课程文档。
 执行命令：powershell.exe -NoProfile -ExecutionPolicy Bypass -File tests/run_stability.ps1 -RaceRuns 10

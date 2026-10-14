@@ -7,6 +7,16 @@ function Login([string]$role,[string]$name) {
  return $s
 }
 function Page([string]$path,$s) { return Invoke-WebRequest "$BaseUrl/$path" -WebSession $s -UseBasicParsing }
+function Hidden([string]$html,[string]$name) { return [regex]::Match($html, ('name="'+$name+'" value="([^"]*)"')).Groups[1].Value }
+function QualificationForm([string]$html,[string]$action,[string]$teacher='',[string]$course='') {
+ foreach($form in [regex]::Matches($html,'(?s)<form\b[^>]*>.*?</form>')) {
+  if((Hidden $form.Value 'action') -ne $action) { continue }
+  if($teacher -and (Hidden $form.Value 'teacher') -ne $teacher) { continue }
+  if($course -and (Hidden $form.Value 'course') -ne $course) { continue }
+  return $form.Value
+ }
+ return ''
+}
 $s=Login student student02
 $p=Page selection.php $s
 $token=[regex]::Match($p.Content,'name="token" value="([a-f0-9]+)"').Groups[1].Value
@@ -36,6 +46,35 @@ Check ($p.Content.Contains('任教资格') -and $p.Content.Contains('计费发�
 $token=[regex]::Match($p.Content,'name="token" value="([a-f0-9]+)"').Groups[1].Value
 $p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body @{token='bad';action='retry'} -WebSession $a -UseBasicParsing
 Check ($p.Content.Contains('页面已过期')) 'HTTP billing action checks token'
+$people=Page 'admin_people.php?role=teacher' $a
+$peopleToken=Hidden $people.Content 'token'
+$person=@{token=$peopleToken;action='create';username='qual_http_teacher';display_name='王老师';password='QualTeacher@2026';date_of_birth='1980-01-01';social_security_number='QUAL-HTTP-T';person_status='在职';department='计算机学院';graduation_date='';is_active='0'}
+$created=Invoke-WebRequest "$BaseUrl/admin_people.php?role=teacher" -Method Post -Body $person -WebSession $a -UseBasicParsing
+$qualificationTeacher=Hidden $created.Content 'id'
+Check ($created.Content.Contains('已新增教师') -and $qualificationTeacher -match '^[1-9][0-9]*$') 'HTTP disabled teacher fixture created'
+$p=Page admin_extras.php $a
+$grantForm=QualificationForm $p.Content 'grant'
+Check ($grantForm -ne '' -and -not $grantForm.Contains('撤销资格')) 'HTTP grant is separate from existing qualification revocation'
+Check ($grantForm.Contains('qual_http_teacher') -and $grantForm.Contains('import_teacher_01') -and $grantForm.Contains('停用')) 'HTTP all teachers available for qualification maintenance'
+Check ($grantForm.Contains('PRE-LA')) 'HTTP course codes distinguish grant options'
+$grant=@{token=(Hidden $grantForm 'token');action='grant';teacher=$qualificationTeacher;course='PRE-LA'}
+$p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body $grant -WebSession $a -UseBasicParsing
+$revokeForm=QualificationForm $p.Content 'revoke' $qualificationTeacher 'PRE-LA'
+Check ($revokeForm -ne '' -and $p.Content.Contains('qual_http_teacher')) 'HTTP grant produces a revocation form for the exact teacher and course'
+$p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body $grant -WebSession $a -UseBasicParsing
+$forms=@([regex]::Matches($p.Content,'(?s)<form\b[^>]*>.*?</form>')|Where-Object{(Hidden $_.Value 'action') -eq 'revoke' -and (Hidden $_.Value 'teacher') -eq $qualificationTeacher -and (Hidden $_.Value 'course') -eq 'PRE-LA'})
+Check ($forms.Count -eq 1) 'HTTP duplicate grant leaves one qualification'
+$invalidRevoke=@{token='bad';action='revoke';teacher=$qualificationTeacher;course='PRE-LA'}
+$p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body $invalidRevoke -WebSession $a -UseBasicParsing
+Check ($p.Content.Contains('页面已过期') -and (QualificationForm $p.Content 'revoke' $qualificationTeacher 'PRE-LA') -ne '') 'HTTP bad token cannot revoke qualification'
+$revoke=@{token=(Hidden $revokeForm 'token');action='revoke';teacher=(Hidden $revokeForm 'teacher');course=(Hidden $revokeForm 'course')}
+$p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body $revoke -WebSession $a -UseBasicParsing
+Check ($p.Content.Contains('处理完成') -and (QualificationForm $p.Content 'revoke' $qualificationTeacher 'PRE-LA') -eq '') 'HTTP row action revokes disabled teacher qualification'
+$p=Invoke-WebRequest "$BaseUrl/admin_extras.php" -Method Post -Body $revoke -WebSession $a -UseBasicParsing
+Check ($p.Content.Contains('处理完成') -and (QualificationForm $p.Content 'revoke' $qualificationTeacher 'PRE-LA') -eq '') 'HTTP repeated revocation is harmless'
+$confirmation=Invoke-WebRequest "$BaseUrl/admin_people.php?role=teacher" -Method Post -Body @{token=$peopleToken;action='prepare_delete';id=$qualificationTeacher} -WebSession $a -UseBasicParsing
+$null=Invoke-WebRequest "$BaseUrl/admin_people.php?role=teacher" -Method Post -Body @{token=$peopleToken;action='confirm_delete';id=$qualificationTeacher;confirmation=(Hidden $confirmation.Content 'confirmation')} -WebSession $a -UseBasicParsing
+Check (-not (Page admin_extras.php $a).Content.Contains('qual_http_teacher')) 'HTTP fixture removed without residual qualifications'
 $t=Login teacher teacher01
 $p=Page teaching.php $t
 $teacherToken=[regex]::Match($p.Content,'name="token" value="([a-f0-9]+)"').Groups[1].Value

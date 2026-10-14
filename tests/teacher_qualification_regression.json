@@ -1,0 +1,328 @@
+{
+  "description": "Teacher qualification grant and row-specific revocation",
+  "exit_code": 0,
+  "stages": 39,
+  "checks": 1085,
+  "race_runs": 5,
+  "php_http_logs_clean": true,
+  "source_sha256": {
+    "Page/admin_extras.php": "6d5b5ff02c2a99a9f6f05f2c588c44e17eab7e31e2796c7749cf394094e89e16",
+    "Page/billing_db.php": "2351fb63db8f54fade0395354db60d2be61f240bea67c11466f59873b9687166",
+    "tests/db_extras.php": "fa987db24e788affbf799abb5e429ca9a7eed2e4a7ce1c2f36c687e204e48d07",
+    "tests/http_extras.ps1": "4efae23d3b2f3b607e28edcf2dd9e3ffbabd944682d03440f62dce8964730e01"
+  },
+  "results": [
+    {
+      "name": "config_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 18,
+      "requirement_gaps": [],
+      "seconds": 0.1105596
+    },
+    {
+      "name": "php_lint",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 62,
+      "requirement_gaps": [],
+      "seconds": 4.5750549
+    },
+    {
+      "name": "selection_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 23,
+      "requirement_gaps": [],
+      "seconds": 0.10647
+    },
+    {
+      "name": "teacher_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 7,
+      "requirement_gaps": [],
+      "seconds": 0.081954
+    },
+    {
+      "name": "closure_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 4,
+      "requirement_gaps": [],
+      "seconds": 0.08274129999999999
+    },
+    {
+      "name": "selection_ui",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 21,
+      "requirement_gaps": [],
+      "seconds": 0.29065599999999997
+    },
+    {
+      "name": "password_rules",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 17,
+      "requirement_gaps": [],
+      "seconds": 2.2862799
+    },
+    {
+      "name": "http_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 22,
+      "requirement_gaps": [],
+      "seconds": 1.7799255999999999
+    },
+    {
+      "name": "http_demo_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 43,
+      "requirement_gaps": [],
+      "seconds": 2.3804591999999998
+    },
+    {
+      "name": "http_demo_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 39,
+      "requirement_gaps": [],
+      "seconds": 3.3263551
+    },
+    {
+      "name": "db_connection",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 0,
+      "requirement_gaps": [],
+      "seconds": 0.09293689999999999
+    },
+    {
+      "name": "db_seed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.1228643
+    },
+    {
+      "name": "db_more_demo",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 54,
+      "requirement_gaps": [],
+      "seconds": 0.8696157999999999
+    },
+    {
+      "name": "db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 66,
+      "requirement_gaps": [],
+      "seconds": 2.2155674999999997
+    },
+    {
+      "name": "db_selection_limits",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 28,
+      "requirement_gaps": [],
+      "seconds": 0.2423059
+    },
+    {
+      "name": "db_selection_leveling",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 46,
+      "requirement_gaps": [],
+      "seconds": 0.7285404999999999
+    },
+    {
+      "name": "db_grade_conflicts",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 0.1526122
+    },
+    {
+      "name": "db_audit_boundaries",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 13,
+      "requirement_gaps": [],
+      "seconds": 0.26606579999999996
+    },
+    {
+      "name": "db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 33,
+      "requirement_gaps": [],
+      "seconds": 1.3383087
+    },
+    {
+      "name": "db_extreme",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 120,
+      "requirement_gaps": [],
+      "seconds": 2.564294
+    },
+    {
+      "name": "db_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 44,
+      "requirement_gaps": [],
+      "seconds": 0.6466618
+    },
+    {
+      "name": "http_connections",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 15,
+      "requirement_gaps": [],
+      "seconds": 0.4003865
+    },
+    {
+      "name": "http_selection_limits",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 16,
+      "requirement_gaps": [],
+      "seconds": 5.0406716
+    },
+    {
+      "name": "http_password",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 59,
+      "requirement_gaps": [],
+      "seconds": 3.0136320999999997
+    },
+    {
+      "name": "http_db_people",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 54,
+      "requirement_gaps": [],
+      "seconds": 5.0677984
+    },
+    {
+      "name": "http_db_completeness",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 39,
+      "requirement_gaps": [],
+      "seconds": 3.9342878999999997
+    },
+    {
+      "name": "http_extras",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 25,
+      "requirement_gaps": [],
+      "seconds": 4.5757289
+    },
+    {
+      "name": "http_db_registration",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 24,
+      "requirement_gaps": [],
+      "seconds": 2.9771148
+    },
+    {
+      "name": "http_db_teacher",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 14,
+      "requirement_gaps": [],
+      "seconds": 3.6697563
+    },
+    {
+      "name": "http_db_grades",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 21,
+      "requirement_gaps": [],
+      "seconds": 4.2287257
+    },
+    {
+      "name": "http_db_stability",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 58,
+      "requirement_gaps": [],
+      "seconds": 4.7369748
+    },
+    {
+      "name": "concurrent_seat_1",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5269182
+    },
+    {
+      "name": "concurrent_seat_2",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.49251469999999997
+    },
+    {
+      "name": "concurrent_seat_3",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5026011
+    },
+    {
+      "name": "concurrent_seat_4",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.46465449999999997
+    },
+    {
+      "name": "concurrent_seat_5",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 5,
+      "requirement_gaps": [],
+      "seconds": 0.5070432
+    },
+    {
+      "name": "http_db_closure",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 23,
+      "requirement_gaps": [],
+      "seconds": 5.8470672
+    },
+    {
+      "name": "db_closed",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 11,
+      "requirement_gaps": [],
+      "seconds": 0.1292402
+    },
+    {
+      "name": "database_outage",
+      "passed": true,
+      "exit_code": 0,
+      "checks": 13,
+      "requirement_gaps": [],
+      "seconds": 15.7977125
+    }
+  ]
+}

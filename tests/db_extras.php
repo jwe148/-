@@ -36,12 +36,39 @@ $q=$pdo->prepare("SELECT COUNT(*) FROM enrollments e JOIN offerings o ON o.id=e.
 checkExtra(dbChangeStudentPlan($pdo,$student,$sid,'delete')===[],'repeat deletion harmless');
 checkExtra(dbSaveStudentSelection($pdo,$student,$sid,$original['primary'],$original['backup'],$offerings)===[],'selection can be restored after deletion');
 checkExtra(dbChangeStudentPlan($pdo,$student,$sid,'draft',[],[],$offerings)===[]&&dbSaveStudentSelection($pdo,$student,$sid,$original['primary'],$original['backup'],$offerings)===[]&&dbSelectionDraft($pdo,$student,$sid)===null,'submission consumes draft');
+$inactiveTeacher=(int)$pdo->query("SELECT id FROM users WHERE role='teacher' AND is_active=0 ORDER BY id LIMIT 1")->fetchColumn();
+$qualificationCount=static function() use($pdo,$inactiveTeacher):int {
+    $q=$pdo->prepare("SELECT COUNT(*) FROM teacher_qualifications WHERE teacher_id=? AND course_code='PRE-LA'");
+    $q->execute([$inactiveTeacher]); return (int)$q->fetchColumn();
+};
+checkExtra($inactiveTeacher>0&&dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',true)===[]&&$qualificationCount()===1,'qualification grant includes disabled imported teachers');
+checkExtra(dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',true)===[]&&$qualificationCount()===1,'repeated qualification grant creates no duplicate');
+checkExtra(dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',false)===[]&&$qualificationCount()===0,'disabled teacher qualification can be revoked');
+checkExtra((int)$pdo->query("SELECT is_active FROM users WHERE id=$inactiveTeacher")->fetchColumn()===0,'qualification changes do not enable teacher login');
+$pdo->prepare("INSERT INTO offerings(id,course_code,semester_id,class_name,teacher_id,location,capacity,status) VALUES('QUAL-CANCELLED','PRE-LA',?,'资格测试班',?,'测试',10,'cancelled')")->execute([$sid,$inactiveTeacher]);
+dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',true);
+checkExtra(dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',false)===[]&&$qualificationCount()===0&&(int)$pdo->query("SELECT teacher_id FROM offerings WHERE id='QUAL-CANCELLED'")->fetchColumn()===$inactiveTeacher,'cancelled class does not block revocation or lose teacher history');
+$closedSemester=(int)$pdo->query("SELECT id FROM semesters WHERE status='closed' ORDER BY id LIMIT 1")->fetchColumn();
+$pdo->prepare("INSERT INTO offerings(id,course_code,semester_id,class_name,teacher_id,location,capacity,status) VALUES('QUAL-HISTORY','PRE-LA',?,'资格历史班',?,'测试',10,'confirmed')")->execute([$closedSemester,$inactiveTeacher]);
+dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',true);
+checkExtra(dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',false)===[]&&$qualificationCount()===0&&(int)$pdo->query("SELECT teacher_id FROM offerings WHERE id='QUAL-HISTORY'")->fetchColumn()===$inactiveTeacher,'closed semester permits revocation and preserves assignment');
+dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',true);
+$before=extraSnapshot($pdo);
+checkExtra(dbSetTeacherQualification($pdo,$admin,$student,'PRE-LA',false)!==[]&&extraSnapshot($pdo)===$before,'qualification revocation rejects a non-teacher target');
+$pdo->exec("CREATE TRIGGER qualification_fail_delete BEFORE DELETE ON teacher_qualifications FOR EACH ROW SIGNAL SQLSTATE '45000' SET MESSAGE_TEXT='injected'");
+$failed=false;
+try { dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',false); } catch(PDOException $e) { $failed=true; }
+finally { $pdo->exec('DROP TRIGGER qualification_fail_delete'); }
+checkExtra($failed&&!$pdo->inTransaction()&&extraSnapshot($pdo)===$before,'qualification deletion failure rolls back without changing records');
+dbSetTeacherQualification($pdo,$admin,$inactiveTeacher,'PRE-LA',false);
+$pdo->exec("DELETE FROM offerings WHERE id IN ('QUAL-CANCELLED','QUAL-HISTORY')");
 $wait=$pdo->query("SELECT id,course_code FROM offerings WHERE semester_id=$sid AND teacher_id IS NULL AND status='open' ORDER BY id LIMIT 1")->fetch();
 checkExtra(dbSetTeacherQualification($pdo,$student,$teacher,$wait['course_code'],true)!==[],'student cannot grant qualification');
 checkExtra(dbSetTeacherQualification($pdo,$admin,$teacher,$wait['course_code'],false)===[],'qualification may be revoked before assignment');
 $before=extraSnapshot($pdo);checkExtra(dbChangeTeacherClaim($pdo,$teacher,$sid,$wait['id'],'claim')!==[]&&extraSnapshot($pdo)===$before,'unqualified claim rejected without mutation');
 checkExtra(dbSetTeacherQualification($pdo,$admin,$teacher,$wait['course_code'],true)===[]&&dbChangeTeacherClaim($pdo,$teacher,$sid,$wait['id'],'claim')===[],'qualified teacher can claim');
-checkExtra(dbSetTeacherQualification($pdo,$admin,$teacher,$wait['course_code'],false)!==[],'assigned qualification cannot be removed');
+$before=extraSnapshot($pdo);
+checkExtra(dbSetTeacherQualification($pdo,$admin,$teacher,$wait['course_code'],false)!==[]&&extraSnapshot($pdo)===$before,'assigned qualification cannot be removed');
 checkExtra(is_array(dbTeacherRoster($pdo,$teacher,$sid,$wait['id'])),'teacher sees current owned roster before closure');
 checkExtra(dbTeacherRoster($pdo,$student,$sid,$wait['id'])===null,'roster denies wrong role');
 checkExtra(dbTeacherRoster($pdo,$teacher,$sid,$original['primary'][0])===null,'roster denies other teacher class');

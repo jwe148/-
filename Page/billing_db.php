@@ -99,12 +99,13 @@ function dbSetTeacherQualification(PDO $pdo,int $admin,int $teacher,string $cour
         $pdo->beginTransaction();
         $q=$pdo->prepare("SELECT id FROM users WHERE id=? AND role='admin' AND is_active=1 FOR SHARE"); $q->execute([$admin]);
         if (!$q->fetchColumn()) { $pdo->rollBack(); return ['无权维护任教资格。']; }
-        $q=$pdo->prepare("SELECT id FROM users WHERE id=? AND role='teacher' AND is_active=1 FOR UPDATE"); $q->execute([$teacher]);
-        if (!$q->fetchColumn()) { $pdo->rollBack(); return ['教师账号不可用。']; }
+        // 任教资格与登录启用状态分别维护，停用教师仍可由教务授予或撤销资格。
+        $q=$pdo->prepare("SELECT id FROM users WHERE id=? AND role='teacher' FOR UPDATE"); $q->execute([$teacher]);
+        if (!$q->fetchColumn()) { $pdo->rollBack(); return ['教师不存在。']; }
         $q=$pdo->prepare('SELECT code FROM courses WHERE code=?'); $q->execute([$course]);
         if(!$q->fetchColumn()) { $pdo->rollBack(); return ['课程不存在。']; }
         if (!$grant) {
-            $q=$pdo->prepare("SELECT o.id FROM offerings o JOIN semesters s ON s.id=o.semester_id WHERE o.teacher_id=? AND o.course_code=? AND s.status<>'closed' FOR SHARE"); $q->execute([$teacher,$course]);
+            $q=$pdo->prepare("SELECT o.id FROM offerings o JOIN semesters s ON s.id=o.semester_id WHERE o.teacher_id=? AND o.course_code=? AND s.status<>'closed' AND o.status<>'cancelled' FOR SHARE"); $q->execute([$teacher,$course]);
             if($q->fetchColumn()) { $pdo->rollBack(); return ['请先取消该课程的任教安排，再撤销资格。']; }
         }
         $sql=$grant?'INSERT IGNORE INTO teacher_qualifications(teacher_id,course_code) VALUES(?,?)':'DELETE FROM teacher_qualifications WHERE teacher_id=? AND course_code=?';
